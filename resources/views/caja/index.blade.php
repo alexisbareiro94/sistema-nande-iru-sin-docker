@@ -8,7 +8,7 @@
     <header class="flex justify-between md:flex-row md:items-center mb-6 gap-4">
         <div class="flex items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Gestión de Caja</h2>
+                <h2 class="text-lg md:text-2xl px-2 md:px-0 font-bold text-gray-800">Gestión de Caja</h2>
             </div>
             @if (auth()->user()->role == 'admin')
                 <div>
@@ -22,10 +22,10 @@
     </header>
 
     <div class="flex flex-col">
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden p-4">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden p-2 md:p-4">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Panel izquierdo - Estado y controles -->
-                <div class="lg:col-span-2 bg-white p-6">
+                <div class="lg:col-span-2 bg-white md:p-6">
                     <!-- Estado actual de la caja -->
                     <div class="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
@@ -55,7 +55,7 @@
                                 </div>
                                 <!-- Saldo actual -->
                                 @if (auth()->user()->role === 'admin')
-                                    <div class="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+                                    <div class="bg-white rounded-lg px-10 py-5 md:p-5 border border-gray-200 shadow-sm">
                                         <p class="text-gray-600 text-sm mb-2">Saldo actual</p>
                                         <p id="saldo-caja" class="text-3xl font-bold text-gray-800">
                                             <svg id="loader-saldo" class="animate-spin h-8 w-8 text-gray-400"
@@ -143,7 +143,7 @@
                 </div>
 
                 <!-- Panel derecho - Historial de movimientos -->
-                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div class="bg-gray-50 rounded-xl p-2 md:p-6 border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Historial de Movimientos</h3>
                     @include('caja.includes.movimientos')
                 </div>

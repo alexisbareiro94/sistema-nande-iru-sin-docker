@@ -1,14 +1,16 @@
+{{-- public/caja.js --}}
 <div @class([
-        'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300', 
-        'hidden' => Auth::user()->role == 'admin',        
-    ]) 
-    id="modal-ventas">
-    <div class="bg-white border-1 border-gray-800 rounded-2xl w-full max-w-[80%] shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+    'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300',
+    // 'hidden' => Auth::user()->role == 'admin',
+]) id="modal-ventas">
+    <div
+        class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[100vh] md:h-[90vh]">
         <!-- Header con título y botón de cierre -->
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-700 p-4 flex justify-between items-center">
+        <div
+            class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-700 p-4 flex justify-between items-center">
             <div class="flex space-x-20 items-center text-center object-center">
-                <h2 class="text-gray-800 text-2xl font-bold flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                <h2 class="text-gray-800 text-md md:text-2xl font-bold flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -16,7 +18,7 @@
                     Nueva Venta
                 </h2>
 
-                <span class="flex gap-2 font-semibold text-gray-800">
+                <span class="flex items-center gap-2 font-semibold text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -38,7 +40,18 @@
 
         <div class="flex flex-1 overflow-hidden">
             <!-- Izquierda: Lista de productos -->
-            <div class="w-2/3 p-3 flex flex-col">
+            {{-- hidden a este div --}}
+            <div id="datos-tabla-productos" class="hidden md:w-2/3 p-3 flex  flex-col w-full md:block">
+                <div class="md:hidden py-4 px-2 font-semibold flex justify-between">
+                    <p>Seleccionar Producto</p>
+
+                    <button id="cerrar-tabla-productos">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
                 <!-- Buscador con icono -->
                 <div class="relative mb-5">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -58,26 +71,27 @@
                 <!-- Tabla de productos con mejor diseño -->
                 <div class="overflow-y-auto rounded-xl border border-gray-200 shadow-sm flex-1">
                     <table class="w-full text-left">
-                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-10">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-100 sticky top-0 z-10">
                             <tr class="text-gray-800">
                                 <th class="px-5 py-3 font-semibold">Producto</th>
                                 <th class="px-5 py-3 font-semibold">Precio</th>
                                 <th class="px-5 py-3 font-semibold">Stock</th>
-                                <th class="px-5 py-3 font-semibold text-center">Acción</th>
+                                <th class="px-5 py-3 font-semibold text-center hidden">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-venta-productos" class="divide-y divide-gray-100">
-                            {{-- aca se renderizan los productos --}}
+                            {{-- aca se renderizan los productos /public/caja.js --}}
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- Derecha: Carrito de venta -->
-            <div class="w-1/3 p-2 flex flex-col gap-1 bg-gray-50 relative">
+            {{-- cuando este la tabla poner un hidden --}}
+            <div id="datos-derecha" class="md:w-1/3 w-full p-2 flex flex-col gap-1 bg-gray-50 relative ">
                 @include('caja.includes.modal-usuarios')
                 <!-- Información del cliente -->
-                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                <div class=" bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                     <h3 class="font-bold text-lg text-gray-700 mb-3 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -108,7 +122,7 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Nombre o Razón Social <span class="text-red-500 text-lg">*</span> 
+                                    Nombre o Razón Social <span class="text-red-500 text-lg">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -140,15 +154,26 @@
                             </svg>
                             Carrito
                         </h4>
-                        <button id="limpiar-carrito"
-                            class="cursor-pointer text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Limpiar
-                        </button>
+                        <div class="flex gap-4">
+
+                            <button id="agregar-productos"
+                                class="bg-gray-200 md:hidden flex justify-between items-center text-sm gap-2 transition active:bg-gray-200 active:scale-90 px-2 py-1 rounded-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>                                
+                            </button>
+
+                            <button id="limpiar-carrito"
+                                class=" cursor-pointer text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Limpiar
+                            </button>
+                        </div>
                     </div>
 
 
@@ -201,7 +226,7 @@
         document.getElementById('cancelar-venta').addEventListener('click', () => {
             document.getElementById('modal-ventas').classList.add('hidden');
             sessionStorage.clear();
-            renderCarrito();    
+            renderCarrito();
             document.getElementById('totalCarrito').innerHTML = ''
             document.getElementById('subTotalCarrito').innerHTML = ''
             document.getElementById('form-cliente-venta').reset();
@@ -212,7 +237,7 @@
             sessionStorage.clear();
             document.getElementById('totalCarrito').innerHTML = ''
             document.getElementById('subTotalCarrito').innerHTML = ''
-            renderCarrito();    
+            renderCarrito();
         });
     </script>
 </div>

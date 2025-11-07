@@ -1,3 +1,15 @@
+const $ = el => document.querySelector(el);
+const $$ = el => document.querySelectorAll(el);
+const $i = el => document.getElementById(el);
+
+const $el = (el, event, callback) => {
+    return document.querySelector(el).addEventListener(event, callback)
+}
+
+const $eli = (el, event, callback) => {
+    return document.getElementById(el).addEventListener(event, callback)
+}
+
 const btnAbrirCaja = document.getElementById('btn-abrir-caja');
 const modalAbrirCaja = document.getElementById('modalAbrirCaja')
 const cerrarModalCaja = document.querySelectorAll('#cancelarModal, #closeModal')
@@ -85,8 +97,8 @@ async function recargarTablaVentas(data) {
         const row = document.createElement('tr');
         const stockClass = producto.tipo == 'servicio' ? 'text-gray-300 font-semibold' : producto.stock < producto.stock_minimo ? 'text-red-500 font-semibold' : 'text-green-500 font-semibold'
 
-        row.classList.add('hover:bg-gray-50', 'transition-colors');
-
+        row.className = 'productos select-product-mobil hover:bg-gray-50 transition-colors border-b border-gray-300 transition-all active:bg-gray-300';
+        row.dataset.producto = JSON.stringify(producto)
         row.innerHTML = `
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
@@ -107,7 +119,7 @@ async function recargarTablaVentas(data) {
                                 <td class="px-5 py-3 ${stockClass}">${producto.tipo == 'servicio' ? 'servicio' : producto.stock}</td>
                                 <td class="px-5 py-3 text-center">
                                     <button data-producto='${JSON.stringify(producto)}'
-                                        class="productos  cursor-pointer bg-gray-100 hover:bg-gray-300 border broder-gray-700 text-gray-800 px-2 py-1 rounded-md flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                                        class="productos hidden md:flex cursor-pointer bg-gray-100 hover:bg-gray-300 border broder-gray-700 text-gray-800 px-2 py-1 rounded-md items-center justify-center transition-all shadow-md hover:shadow-lg">
                                         <span class="font-semibold text-xs">
                                             ADD     
                                         </span>
@@ -121,13 +133,27 @@ async function recargarTablaVentas(data) {
                                 </td>
                     `
         tablaVentaProductos.appendChild(row);
+
     });
+    const rows = $$('.select-product-mobil');
+    rows.forEach(tr => {
+        tr.addEventListener('click', () => {    
+                        const tabla = $('#datos-tabla-productos');
+            const datosDer = $('#datos-derecha');
+
+            tabla.classList.add('hidden');
+            datosDer.classList.remove('hidden');    
+            console.log(tabla, datosDer)  
+            addToCart();                                    
+        });
+    });
+
 }
 
-function addToCart() {
+function addToCart() {    
     const tablaVentaProductos = document.getElementById('tabla-venta-productos');
     tablaVentaProductos.addEventListener('click', function (e) {
-        const btn = e.target.closest('.productos');
+        const btn = e.target.closest('.productos');        
         if (btn) {
             const producto = JSON.parse(btn.dataset.producto);
             let carrito = JSON.parse(sessionStorage.getItem('carrito')) || {};
@@ -699,6 +725,21 @@ if (document.getElementById('max-cajas-form')) {
             console.log(err)
         }
     })
-
-
 }
+
+
+$el('#agregar-productos', 'click', () => {
+    const tabla = $('#datos-tabla-productos');
+    const datosDer = $('#datos-derecha');
+
+    tabla.classList.remove('hidden');
+    datosDer.classList.add('hidden');
+});
+
+$el('#cerrar-tabla-productos', 'click', () => {
+    const tabla = $('#datos-tabla-productos');
+    const datosDer = $('#datos-derecha');
+
+    datosDer.classList.remove('hidden');
+    tabla.classList.add('hidden');
+})
