@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('observaciones')->nullable();
             $table->dateTime('fecha_apertura');
             $table->dateTime('fecha_cierre')->nullable(); // cuando se cerró
-            $table->enum('estado', ['abierto', 'cerrado'])->default('abierta');
+            $table->enum('estado', ['abierto', 'cerrado'])->default('abierto');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

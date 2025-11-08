@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gastos', function (Blueprint $table) {
+        // Schema::create('gastos', function (Blueprint $table) {
             // $table->id();
             // $table->foreignId('user_id')->constrained('users');
             // $table->string('motivo')->nullable();
             // $table->integer('cantidad');
             // $table->date('fecha');
             // $table->timestamps();
-        });
+        // });
     }
 
     /**

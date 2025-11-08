@@ -79,7 +79,7 @@ class MovimientoCajaController extends Controller
                 'accion' => 'Registro de movimiento en caja',
                 'datos' => [
                     'monto' => $data['monto'],
-                    'tipo' => $data['tipo'] 
+                    'tipo' => $data['tipo']
                 ]
             ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
@@ -93,9 +93,9 @@ class MovimientoCajaController extends Controller
                         'error' => 'Error al pagar el salario'
                     ], 400);
                 }
-            }            
+            }
             DB::commit();
-            MovimientoRealizado::dispatch($movimiento, $movimiento->tipo, tenant_id());            
+            MovimientoRealizado::dispatch($movimiento, $movimiento->tipo, tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => 'Movimiento registrado correctamente',
@@ -113,35 +113,38 @@ class MovimientoCajaController extends Controller
     {
         try {
             $periodo = $request->query('periodoInicio') ?? 'semana';
+
             if ($periodo == 'mes') {
                 $periodoInicio = now()->startOfMonth();
                 $periodoFin    = now()->endOfMonth();
-                $formatoGroup  = "TO_CHAR(created_at, 'MM-YYYY')";
+                $formatoGroup  = "DATE_FORMAT(created_at, '%m-%Y')";
             } elseif ($periodo == 'anio' || $periodo == 'año') {
                 $periodoInicio = now()->startOfYear();
                 $periodoFin    = now()->endOfYear();
-                $formatoGroup  = "TO_CHAR(created_at, 'YYYY')";
+                $formatoGroup  = "DATE_FORMAT(created_at, '%Y')";
             } else {
                 $periodoInicio = now()->startOfWeek();
                 $periodoFin    = now()->endOfWeek();
-                $formatoGroup  = "TO_CHAR(created_at, 'DD-MM-YY')";
+                $formatoGroup  = "DATE_FORMAT(created_at, '%d-%m-%y')";
             }
 
-            $queryDesde = $request->query('desde') == null ? null : Carbon::parse($request->query('desde'))->startOfDay();
-            $queryHasta = $request->query('hasta') == null ? null : Carbon::parse($request->query('hasta'))->endOfDay();
+            $queryDesde = $request->query('desde') ? Carbon::parse($request->query('desde'))->startOfDay() : null;
+            $queryHasta = $request->query('hasta') ? Carbon::parse($request->query('hasta'))->endOfDay() : null;
 
             $desde = $queryDesde ?: $periodoInicio;
             $hasta = $queryHasta ?: $periodoFin;
 
             $movimientos = MovimientoCaja::selectRaw("
-                    $formatoGroup as periodo,
-                    SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END) as ingresos,
-                    SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END) as egresos
-                ")
+                $formatoGroup as periodo,
+                SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END) as ingresos,
+                SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END) as egresos,
+                MIN(created_at) as fecha_min
+            ")
                 ->whereBetween('created_at', [$desde, $hasta])
                 ->groupBy('periodo')
-                ->orderByRaw("MIN(created_at)")
+                ->orderBy('fecha_min')
                 ->get();
+
             return response()->json([
                 'labels'   => $movimientos->pluck('periodo'),
                 'ingresos' => $movimientos->pluck('ingresos'),

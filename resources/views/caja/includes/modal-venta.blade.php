@@ -1,7 +1,7 @@
 {{-- public/caja.js --}}
 <div @class([
     'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300',
-    // 'hidden' => Auth::user()->role == 'admin',
+    'hidden' => Auth::user()->role == 'admin',
 ]) id="modal-ventas">
     <div
         class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[100vh] md:h-[90vh]">

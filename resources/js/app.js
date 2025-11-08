@@ -8,12 +8,14 @@ import './clients-dist';
 import './componentes/clientes';
 import './componentes/restablecer-pass';
 import './exportar';
+import { showToast } from './toast';
 
 let myChart = null;
 async function loadChart(desde = '', hasta = '', periodo = '') {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/movimientos/charts_caja?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&periodoInicio=${encodeURIComponent(periodo)}`);
+    const res = await fetch(`http://127.0.0.1:8000/api/movimientos/charts_caja?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&periodoInicio=${encodeURIComponent(periodo)}`);    
     const data = await res.json();
+    console.log(data)
     const ctx = document.getElementById('myChart');
 
     if (myChart) {
@@ -53,7 +55,7 @@ async function loadChart(desde = '', hasta = '', periodo = '') {
       },
     });
   } catch (err) {
-    console.log(err);
+    showToast('error', 'error');
   }
 }
 
