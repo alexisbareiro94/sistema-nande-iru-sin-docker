@@ -1,10 +1,10 @@
 <div id="modal-confirmar-venta"
-    class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
-    <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[100vh]">
+    class=" fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
+    <div class="bg-white md:rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[92vh]">
         <!-- header -->
         <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4 flex justify-between items-center">
             <div class="flex space-x-20 items-center text-center object-center">
-                <h2 class="text-white text-2xl font-bold flex items-center gap-3">
+                <h2 class="text-white md:text-2xl font-bold flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -13,7 +13,7 @@
                     Confirmar Venta
                 </h2>
 
-                <span class="flex gap-2 font-semibold text-white">
+                <span class="flex gap-2 font-semibold text-white items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -34,7 +34,7 @@
         </div>
         <!-- /header -->
 
-        <div class="px-7 ">
+        <div class="px-2 md:px-7 overflow-y-scroll">
             <!-- datos del cliente -->
             <div id="datos-cliente"
                 class="flex flex-col mt-4 py-4 px-2 border border-gray-200 bg-gray-100 rounded-md shadow-md">
@@ -180,7 +180,7 @@
         </div>
 
         <!-- botones -->
-        <div class="mt-auto font-semibold border-t border-gray-200 p-4 flex justify-end gap-3 bg-gray-50">
+        <div class="mt-auto font-semibold border-t border-gray-300 p-4 flex justify-end gap-3 bg-gray-50">
             <button id="cancelar-venta"
                 class="px-4 py-2 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition-colors">
                 Cancelar

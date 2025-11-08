@@ -1,10 +1,10 @@
 {{-- public/caja.js --}}
 <div @class([
     'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300',
-    'hidden' => Auth::user()->role == 'admin',
+    '' => Auth::user()->role == 'admin',
 ]) id="modal-ventas">
     <div
-        class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[100vh] md:h-[90vh]">
+        class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[92vh] md:h-[90vh]">
         <!-- Header con título y botón de cierre -->
         <div
             class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-700 p-4 flex justify-between items-center">
