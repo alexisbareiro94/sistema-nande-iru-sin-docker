@@ -1,5 +1,5 @@
 <div id="modal-confirmar-venta"
-    class=" fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
+    class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
     <div class="bg-white md:rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[92vh]">
         <!-- header -->
         <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4 flex justify-between items-center">
