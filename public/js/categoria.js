@@ -28,7 +28,7 @@ document.getElementById('query-c').addEventListener('input',  function (){
 
 async function processQueryCat(query = '') {
     try{
-        const res = await fetch(`http://127.0.0.1:8000/api/categorias?q=${encodeURIComponent(query)}`, {
+        const res = await fetch(`/api/categorias?q=${encodeURIComponent(query)}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,

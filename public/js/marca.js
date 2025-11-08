@@ -28,7 +28,7 @@ document.getElementById('query-m').addEventListener('input',  function (){
 
 async function processQueryMarca(query = '') {
     try{
-        const res = await fetch(`http://127.0.0.1:8000/api/marcas?q=${encodeURIComponent(query)}`, {
+        const res = await fetch(`/api/marcas?q=${encodeURIComponent(query)}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,

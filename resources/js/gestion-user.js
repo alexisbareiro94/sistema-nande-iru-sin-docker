@@ -14,7 +14,7 @@ function selectUser() {
         const salario = document.getElementById('salario-selected');
         userId = e.target.value;
         try {
-            const res = await fetch(`http://127.0.0.1:8000/api/gestion_user/${e.target.value}`);
+            const res = await fetch(`/api/gestion_user/${e.target.value}`);
             const data = await res.json();
             if (!res.ok) {
                 throw data;
@@ -74,7 +74,7 @@ async function updatePersonal(activo) {
         salario != '' ? formData.append('salario', salario) : '';
         formData.append('activo', activo);
 
-        const res = await fetch(`http://127.0.0.1:8000/api/gestion_user/${userId}`, {
+        const res = await fetch(`/api/gestion_user/${userId}`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -122,7 +122,7 @@ async function renderSelects() {
 async function rerenderEliDes() {
     const eliDesUser = document.getElementById('personal-activo');
     try {
-        const res = await fetch('http://127.0.0.1:8000/api/gestion_users');
+        const res = await fetch('/api/gestion_users');
         const data = await res.json();
 
         if (!res.ok) {
@@ -154,7 +154,7 @@ async function rerenderForm() {
     const editUser = document.getElementById('edit-user');
 
     try {
-        const res = await fetch('http://127.0.0.1:8000/api/gestion_users');
+        const res = await fetch('/api/gestion_users');
         const data = await res.json();
 
         if (!res.ok) {
@@ -189,7 +189,7 @@ async function rerenderForm() {
 window.Echo.private(`auditoria-creada.${window.tenantId}`)
     .listen('AuditoriaCreadaEvent', async e => {
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auditorias');
+            const res = await fetch('/api/auditorias');
             const data = await res.json();
             if (!res.ok) {
                 throw data;

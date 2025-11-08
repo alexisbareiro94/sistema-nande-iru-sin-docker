@@ -80,7 +80,7 @@ async function getDataNotificaciones(flag = false) {
         if (!document.getElementById('alert-cont')) {
             return;
         }
-        const res = await fetch('http://127.0.0.1:8000/api/notificaciones');
+        const res = await fetch('/api/notificaciones');
         const data = await res.json();
 
         if (!res.ok) {
@@ -170,7 +170,7 @@ async function isRead() {
     setTimeout(() => {
         try {
             ids.forEach(async (id) => {
-                const res = await fetch(`http://127.0.0.1:8000/api/notificaciones/update/${id}`, {
+                const res = await fetch(`/api/notificaciones/update/${id}`, {
                     method: 'PUT',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -212,7 +212,7 @@ if (document.getElementById('cerrar-notificaciones')) {
 async function allNotifications() {
     const pag = JSON.parse(sessionStorage.getItem('pag'));
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/notificaciones?all=${pag}`);
+        const res = await fetch(`/api/notificaciones?all=${pag}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -307,7 +307,7 @@ window.Echo.private(`pdf-ready.${window.userId}`)
                 container.classList.add('hidden');
                 sessionStorage.removeItem('pdf-toast')
                 alert('Su pdf esta listo')
-                const url = 'http://127.0.0.1:8000/download'
+                const url = '/download'
                 const a = document.createElement('a');
                 a.href = url;
                 a.click();

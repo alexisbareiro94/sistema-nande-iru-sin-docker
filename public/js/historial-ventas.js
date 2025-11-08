@@ -35,7 +35,7 @@ document.getElementById('modal-detalle-venta').addEventListener('click', functio
 
 async function detalleVentas(codigo) {
     try {
-        const res = await fetch(`http://127.0.0.1:8000/venta/${decodeURIComponent(codigo)}`, {
+        const res = await fetch(`/venta/${decodeURIComponent(codigo)}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -275,7 +275,7 @@ async function buscar(orderBy = '', direction = '') {
         paginacion = true;
     }
     try {
-        const res = await fetch(`http://127.0.0.1:8000/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`, {
+        const res = await fetch(`/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -584,7 +584,7 @@ function toastLoading(message = "Generando PDF") {
 document.getElementById('export-pdf').addEventListener('click', async () => {
     toastLoading('Generando PDF, te avisaremos cuando esté listo.');
     try {
-        const res = await fetch('http://127.0.0.1:8000/export-pdf');
+        const res = await fetch('/export-pdf');
         const data = await res.json();
         if (!res.ok) {
             throw data;

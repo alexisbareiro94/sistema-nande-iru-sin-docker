@@ -16,7 +16,7 @@ async function pagosChart(periodo = 7) {
         if(!donut){
             return;
         }
-        const res = await fetch(`http://127.0.0.1:8000/api/pagos/${periodo}`);
+        const res = await fetch(`/api/pagos/${periodo}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -101,7 +101,7 @@ async function ventasChart(periodo = 7) {
         if(!bar){
             return;
         }
-        const res = await fetch(`http://127.0.0.1:8000/api/ventas/${periodo}`)
+        const res = await fetch(`/api/ventas/${periodo}`)
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -186,7 +186,7 @@ async function tipoVenta(periodo = 7) {
         if(!donutVenta){
             return;
         }
-        const res = await fetch(`http://127.0.0.1:8000/api/tipo_venta/${periodo}`);
+        const res = await fetch(`/api/tipo_venta/${periodo}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -355,7 +355,7 @@ async function gananacias(periodo = '7', option = '', egreso = '') {
     const svgCont = document.getElementById('svg-cont-card');
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/utilidad/${periodo}/${option}`);
+        const res = await fetch(`/api/utilidad/${periodo}/${option}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -437,7 +437,7 @@ async function tendenciasChart(periodo = 7) {
             return;
         }
         sessionStorage.setItem('tenPeriodo', JSON.stringify(periodo));        
-        const res = await fetch(`http://127.0.0.1:8000/api/tendencias/${periodo}`);
+        const res = await fetch(`/api/tendencias/${periodo}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -517,7 +517,7 @@ async function egresoChart(periodo = 7) {
         if(!bar){
             return;
         }
-        const res = await fetch(`http://127.0.0.1:8000/api/egresos/${periodo}`)
+        const res = await fetch(`/api/egresos/${periodo}`)
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -602,7 +602,7 @@ async function conceptoEgresosChart(periodo = 7) {
         if(!donut){
             return;
         }
-        const res = await fetch(`http://127.0.0.1:8000/api/egresos/concepto/${periodo}`);
+        const res = await fetch(`/api/egresos/concepto/${periodo}`);
         const data = await res.json();
 
         if (!res.ok) {

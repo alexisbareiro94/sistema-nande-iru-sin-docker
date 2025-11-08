@@ -21,7 +21,7 @@ document.getElementById("i-s-inventario").addEventListener('input', (e) => {
 });
 
 async function searchInventario(query, filtro, filter = '') {
-    await fetch(`http://127.0.0.1:8000/api/productos?q=${encodeURIComponent(query)}&filtro=${encodeURIComponent(filtro)}&filter=${encodeURIComponent(filter)}`, {
+    await fetch(`/api/productos?q=${encodeURIComponent(query)}&filtro=${encodeURIComponent(filtro)}&filter=${encodeURIComponent(filter)}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ function deleteP() {
             console.log(productoId)
             newConfirmarBtn.addEventListener('click', async () => {
                 try {
-                    const res = await fetch(`http://127.0.0.1:8000/api/delete/${productoId}/producto`, {
+                    const res = await fetch(`/api/delete/${productoId}/producto`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
@@ -185,7 +185,7 @@ async function recargarTablaInv() {
     bodytableInv.innerHTML = '';
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/all-products`);
+        const res = await fetch(`/api/all-products`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -287,7 +287,7 @@ async function recargarTablaInv() {
 }
 async function getProduct(productoId) {
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/producto/${productoId}`, {
+        const res = await fetch(`/api/producto/${productoId}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken

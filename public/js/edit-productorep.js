@@ -32,7 +32,7 @@ document.getElementById("cerrar-ver-dists").addEventListener("click", (e) => {
 
 // Llamar la función al cargar la página o cuando se agregue un nuevo registro
 function recargarTodo() {
-    fetch('http://127.0.0.1:8000/api/all')
+    fetch('/api/all')
         .then(res => res.json())
         .then(data => {
             const marcasSelect = document.getElementById('marca_id');
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const marcaNombre = document.getElementById("marca_nombre");
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        fetch('http://127.0.0.1:8000/agregar-marca', {
+        fetch('/agregar-marca', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriaNombre = document.getElementById("categoria_nombre");
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        fetch('http://127.0.0.1:8000/agregar-categoria', {
+        fetch('/agregar-categoria', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const distRuc = document.getElementById('dist-ruc');
         const distCelular = document.getElementById('dist-celular');
         const distDireccion = document.getElementById('dist-direccion');
-        fetch('http://127.0.0.1:8000/agregar-distribuidor', {
+        fetch('/agregar-distribuidor', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -285,7 +285,7 @@ document.getElementById('query').addEventListener('input', function () {
             //const cerrarq = document.getElementById('cerrar-q');
             document.getElementById('cerrar-q').classList.remove('hidden');
         }
-        fetch(`http://127.0.0.1:8000/api/distribuidores?q=${encodeURIComponent(query)}`, {
+        fetch(`/api/distribuidores?q=${encodeURIComponent(query)}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -336,7 +336,7 @@ document.getElementById('cerrar-q').addEventListener('click', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     document.getElementById('query').value = '';
     document.getElementById('cerrar-q').classList.add('hidden');
-    fetch('http://127.0.0.1:8000/api/distribuidores?q=', {
+    fetch('/api/distribuidores?q=', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

@@ -59,7 +59,7 @@ document.getElementById('input-b-producto-ventas').addEventListener('input', (e)
             tablaVentaProductos.innerHTML = '';
         } else {
             try {
-                const res = await fetch(`http://127.0.0.1:8000/api/productos?q=${encodeURIComponent(query)}`, {
+                const res = await fetch(`/api/productos?q=${encodeURIComponent(query)}`, {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -316,7 +316,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/users?q=${encodeURIComponent(q)}`, {
+        const res = await fetch(`/api/users?q=${encodeURIComponent(q)}`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -387,7 +387,7 @@ formAddCliente.addEventListener('submit', async (e) => {
     addCliente.append('telefono', document.getElementById('telefono-c').value.trim());
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/users`, {
+        const res = await fetch(`/api/users`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -430,7 +430,7 @@ async function recargarSaldo(flag = true) {
         return;
     }
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/movimiento/total`, {
+        const res = await fetch(`/api/movimiento/total`, {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -521,7 +521,7 @@ document.getElementById('confirmar-movimiento').addEventListener('click', async 
         formData.append('monto', monto.value);
         formData.append('personal_id', personal);
 
-        const res = await fetch('http://127.0.0.1:8000/api/movimiento', {
+        const res = await fetch('/api/movimiento', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -562,7 +562,7 @@ async function recargarCierreCaja() {
     const saldoEsperado = document.getElementById('saldo-esperado');
 
     try {
-        const res = await fetch('http://127.0.0.1:8000/api/movimiento/total', {
+        const res = await fetch('/api/movimiento/total', {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -634,7 +634,7 @@ document.getElementById('confirmar-cierre').addEventListener('click', async () =
     formData.append('egreso', egreso);
 
     try {
-        const res = await fetch('http://127.0.0.1:8000/caja', {
+        const res = await fetch('/caja', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -666,7 +666,7 @@ selectPersonal.addEventListener('change', async (e) => {
     const datosPersonal = document.getElementById('datos-personal');
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/user/${e.target.value}`);
+        const res = await fetch(`/api/user/${e.target.value}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -708,7 +708,7 @@ if (document.getElementById('max-cajas-form')) {
         try {
             const formData = new FormData();
             formData.append('valor', valor);
-            const res = await fetch(`http://127.0.0.1:8000/api/conf/${id}`, {
+            const res = await fetch(`/api/conf/${id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,

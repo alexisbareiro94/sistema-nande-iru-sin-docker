@@ -10,7 +10,7 @@ export const $eli = (el, event, callback) => {
     return document.getElementById(el).addEventListener(event, callback)
 }
 
-export const url = 'http://127.0.0.1:8000/api'
+export const url = '/api'
 
 export const formatFecha = value => {
     const fecha = new Date(value);
