@@ -1,9 +1,16 @@
 <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">Últimos movimientos</h2>
+        <h2 class="text-md font-semibold text-gray-800">Últimos <span class="block" >movimientos</span></h2>
         <a href="{{ route('venta.index.view') }}"
-            class="cursor-pointer text-gray-600 hover:text-gray-800 hover:underline transition-colors text-sm font-medium">
-            Ver todo el historial →
+            class="flex gap-1 cursor-pointer text-gray-600 hover:text-gray-800 hover:underline transition-colors text-sm font-medium group">
+            Ver todo el historial
+            <i class="transition group-hover:translate-x-1"> 
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+
+            </i>
         </a>
     </div>
 

@@ -1,5 +1,5 @@
-<div class="col-span-1 mt-4">
-    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+<div class="col-span-1 mt-2 w-full">
+    <div class="w-full bg-white rounded-xl border border-gray-200 p-2 md:p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
         <!-- Ganancia Actual -->
         <div class="mb-5 flex justify-between">
             <div>

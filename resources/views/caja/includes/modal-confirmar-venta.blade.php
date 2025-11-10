@@ -1,3 +1,4 @@
+{{-- public/procesar-caja.js --}}
 <div id="modal-confirmar-venta"
     class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
     <div class="bg-white md:rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[92vh]">
@@ -134,7 +135,7 @@
 
                 <!-- monto recibido -->
                 <form id="form-monto-recibido" action="">
-                    <div id="monto-recibido" class="flex flex-col object-center text-center gap-2 px-10 py-4 ">
+                    <div id="monto-recibido" class="flex flex-col object-center text-center gap-2 px-4 md:px-10 py-4 ">
                         <div class="flex">
                             <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Monto
                                 Recibido:

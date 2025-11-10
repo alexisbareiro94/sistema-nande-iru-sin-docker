@@ -33,16 +33,16 @@ class VentaController extends Controller
         $ingresosHoy = $query->where('created_at', '>=', now()->format('Y-m-d'))->get()->sum('total');
         if (auth()->user()->role === 'admin') {
             $ventas = MovimientoCaja::orderByDesc('created_at')
-                ->with('venta')
+                ->with('venta.productos')
                 ->paginate(10);
         } else {
             $ventas = MovimientoCaja::orderByDesc('created_at')
                 ->whereHas('venta', function ($query) {
                     $query->where('vendedor_id', auth()->user()->id);
                 })
-                ->with('venta')
+                ->with('venta.productos')
                 ->paginate(10);
-        }
+        }        
 
         return view('caja.historial-completo.index', [
             'clientes' => $clientes,
@@ -123,7 +123,9 @@ class VentaController extends Controller
             }
             if (filled($search)) {
                 $query->whereHas('venta', function ($q) use ($search) {
-                    $q->whereLike('codigo', "%$search%")->orWhereHas('cliente', function ($q) use ($search) {
+                    $q->whereLike('codigo', "%$search%")->orWhereHas('productos', function($q) use ($search){
+                        $q->whereLike('nombre', "%$search%");
+                    })->orWhereHas('cliente', function ($q) use ($search) {
                         $q->whereLike('razon_social', "%$search%");
                     });
                 });

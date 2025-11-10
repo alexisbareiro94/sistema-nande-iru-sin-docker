@@ -1,3 +1,4 @@
+{{-- public/caja.js --}}
 <div id="modalCierreCaja" class="hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6">
         
@@ -88,6 +89,7 @@
     btnscc.forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('modalCierreCaja').classList.add('hidden')
+            document.body.classList.remove('overflow-hidden');
         });
     });
 </script>

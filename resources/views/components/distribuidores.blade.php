@@ -1,4 +1,4 @@
-<div id="cont-ver-dists" class="hidden flex inset-0 fixed z-50 justify-center items-center w-full h-full bg-black/40">
+<div id="modal-distribuidores" class="hidden flex inset-0 fixed z-50 justify-center items-center w-full h-full bg-black/40">
     <div class="relative p-4 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm">
@@ -7,7 +7,7 @@
                 <h3 class="flex justify-between md:text-xl font-semibold text-gray-900">
                     Distribuidores
 
-                    <button id="cerrar-ver-dists" type="button"
+                    <button id="cerrar-distribuidores" type="button"
                         class=" text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
                         <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -18,7 +18,7 @@
 
                 <div class=" flex">
                     <form action="" method="get">
-                        <input id="query" type="text" name="query" placeholder="Buscar distribuidor..."
+                        <input id="input-distribuidores" type="text" name="input-distribuidores" placeholder="Buscar distribuidor..."
                             class="border border-gray-300 rounded-l-lg px-4 py-2">
                     </form>
                     <button type="submit" id="s-query" class="px-2 py-1 bg-gray-800 text-white rounded-r-lg">
@@ -39,7 +39,7 @@
 
             <!-- Modal body -->
             <div class="p-4 md:p-5 max-h-[70vh] overflow-y-auto">
-                <div id="tabla-distribuidores">
+                <div id="tabla-distribuidores-dos">
                     <table class="w-full text-sm text-left text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
@@ -50,7 +50,7 @@
                                 <th class="px-6 py-3">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="body-tabla-distribuidores">
+                        <tbody id="body-tabla-distribuidores-dos">
                             @foreach ($distribuidores as $distribuidor)
                                 <tr class="bg-white border-b hover:bg-gray-50">
                                     <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">

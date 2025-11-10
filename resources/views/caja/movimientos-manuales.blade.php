@@ -1,3 +1,4 @@
+{{-- public/caja.js --}}
 <div id="modal-movimiento-caja" class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-50 ">
     <div class="bg-gray-100 rounded-2xl shadow-xl w-full max-w-[500px] p-6 border border-gray-700 relative">
 

@@ -441,6 +441,8 @@ async function recargarSaldo(flag = true) {
 if (document.getElementById('btn-movimiento')) {
     document.getElementById('btn-movimiento').addEventListener('click', () => {
         document.getElementById('modal-movimiento-caja').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+
     });
 }
 
@@ -526,6 +528,7 @@ document.getElementById('confirmar-movimiento').addEventListener('click', async 
         form.reset();
         document.getElementById('modal-movimiento-caja').classList.add('hidden');
         document.getElementById('datos-personal').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
         limpiarUI();
         showToast('Movimiento registrado');
     } catch (err) {
@@ -538,7 +541,18 @@ if (document.getElementById('btn-cerrar-caja')) {
     document.getElementById('btn-cerrar-caja').addEventListener('click', async () => {
         const modalCierreCaja = document.getElementById('modalCierreCaja');
         modalCierreCaja.classList.remove('hidden')
+        document.body.classList.add('overflow-hidden');
         await recargarCierreCaja();
+    });
+}
+
+
+if (document.getElementById('btn-cerrar-caja')) {
+    document.getElementById('modalCierreCaja').addEventListener('click', e => {
+        if(e.target == document.getElementById('modalCierreCaja')){
+            document.getElementById('modalCierreCaja').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
     });
 }
 
@@ -635,7 +649,7 @@ document.getElementById('confirmar-cierre').addEventListener('click', async () =
         if (!res.ok) {
             throw data;
         }
-        document.getElementById('modalCierreCaja').classList.add('hidden');
+        document.getElementById('modalCierreCaja').classList.add('hidden');        
         showToast('Caja Cerrada Correctamente');
         limpiarUI();
         document.getElementById('modal-carga').classList.remove('hidden');

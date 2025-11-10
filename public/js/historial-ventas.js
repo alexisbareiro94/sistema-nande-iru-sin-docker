@@ -335,6 +335,18 @@ function recargarTablaHistorialVentas(data, paginacion) {
                 (venta.venta.estado == 'cancelado' ? estadoClass = 'bg-red-100 text-red-800' : estadoClass = 'bg-yellow-100 text-yellow-800');
 
             let fechaC = new Date(venta.venta.created_at)
+            let productos;
+            let movimientos;
+            if(venta.venta.productos){
+                productos = venta.venta.productos
+                .map(p => `<p class="font-semibold text-start block">● ${p.nombre}</p>`)
+                .join('');
+            }
+            if(productos == undefined){     
+                if(venta.concepto != 'Venta de productos'){
+                    movimientos = venta.concepto
+                }           
+            }
 
             fecha = fechaC.toLocaleString('es-PY', {
                 day: '2-digit',
@@ -365,7 +377,7 @@ function recargarTablaHistorialVentas(data, paginacion) {
                                         ${venta.venta.cliente.razon_social ?? venta.venta.cliente.name}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        ${venta.venta.cantidad_productos} productos
+                                        ${movimientos ?? productos}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         Gs. ${venta.venta.total.toLocaleString('es-PY')}
@@ -541,7 +553,7 @@ document.addEventListener('click', (e) => {
 
 function toastLoading(message = "Generando PDF") {
     const container = document.getElementById('loading-container');
-    if(container.classList.contains('hidden')){
+    if (container.classList.contains('hidden')) {
         container.classList.remove('hidden');
     }
     sessionStorage.setItem('pdf-toast', JSON.stringify(true))
@@ -556,9 +568,9 @@ function toastLoading(message = "Generando PDF") {
     toast.innerHTML = `<span class="spinner">${spinner}</span><span class="toast-message">${message}</span>`;
 
     container.appendChild(toast);
-    
+
     setTimeout(() => toast.classList.remove('opacity-0'), 10);
-    
+
     window.Echo.private(`pdf-ready.${window.userId}`)
         .listen('PdfGeneradoEvent', async (e) => {
             const messageEl = toast.querySelector('.toast-message');

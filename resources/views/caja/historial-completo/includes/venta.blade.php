@@ -25,8 +25,11 @@
         {{ $venta->venta->cliente->name ?? $venta->venta->cliente->razon_social }}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {{ $venta->venta->cantidad_productos }} productos
+        @foreach ($venta->venta->productos as $producto)
+            <p class="font-semibold text-start block">● {{ $producto->nombre }}</p> 
+        @endforeach
     </td>
+
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
         Gs. {{ number_format($venta->venta->total, 0, ',', '.') }}
     </td>

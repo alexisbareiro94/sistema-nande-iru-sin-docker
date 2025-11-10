@@ -66,8 +66,6 @@
         @include('includes.cerrar-sesion')
     </main>
     @yield('js')
-
-
     <script src="{{ asset('js/add-producto.js') }}"></script>
     <script src="{{ asset('js/inventario.js') }}"></script>
     <script src="{{ asset('js/edit-producto.js') }}"></script>

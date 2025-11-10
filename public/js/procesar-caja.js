@@ -172,14 +172,14 @@ const efectivoTransf = document.querySelectorAll('#efectivo, #transf');
 const contMontoRecibido = document.getElementById('monto-recibido');
 
 mixto.addEventListener('change', () => {
-    contMontoRecibido.innerHTML = `
-                <div class="flex">
-                    <label for="mixto-efectivo" class="text-gray-800 font-semibold mt-1 pr-14">Efectivo Recibido:</label>
-                    <input class="border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-efectivo" id="mixto-efectivo">
+    contMontoRecibido.innerHTML = `            
+                <div class="flex w-full">
+                    <label for="mixto-efectivo" class="text-start text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Efectivo Recibido:</label>
+                    <input class="flex justify-end border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-efectivo" id="mixto-efectivo">
                 </div>
-                <div class="flex ">
-                    <label for="mixto-transf" class="text-gray-800 font-semibold mt-1 pr-2">Monto en Transferencia:</label>
-                    <input class="border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-transf" id="mixto-transf">
+                <div class="flex w-full">
+                    <label for="mixto-transf" class="text-start text-sm text-gray-800 font-semibold mt-1 pr-0.5 md:pr-12">Monto en Transferencia:</label>
+                    <input class="flex justify-end border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-transf" id="mixto-transf">
                 </div>
     `
 });
@@ -188,7 +188,7 @@ efectivoTransf.forEach(btn => {
     btn.addEventListener('change', () => {
         contMontoRecibido.innerHTML = `
                 <div class="flex">
-                    <label for="monto-recibido" class="text-gray-800 font-semibold mt-1 pr-12">Monto Recibido:</label>
+                    <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Monto Recibido:</label>
                     <input class="border border-gray-300 px-3 py-1 rounded-md" type="number" name="monto-recibido" id="i-monto-recibido">
                 </div>                
     `;
@@ -249,6 +249,7 @@ async function limpiarUI() {
     document.getElementById('form-b-productos-ventas').reset();
     await recargarMovimientos();
     await recargarSaldo();
+    document.body.classList.remove('overflow-hidden');
 }
 
 document.getElementById('form-monto-recibido').addEventListener('submit', (e) => {

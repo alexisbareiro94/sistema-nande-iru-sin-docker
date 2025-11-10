@@ -14,7 +14,7 @@
 
     <div class="relative overflow-x-auto rounded-md bg-white px-2 mb-6">
         <div class="bg-white p-6 font-semibold  flex justify-between">
-            <h3 class="text-lg flex items-center">
+            <h3 class="text-sm flex items-center">
                 Lista de Clientes
                 <button id="btn-ver-todos-clientes" class="pl-2 font-normal text-sm text-gray-600 flex group cursor-pointer">                    
                     ver todos
@@ -98,9 +98,9 @@
 
     <div class="relative overflow-x-auto rounded-md bg-white px-2">
         <div class="bg-white p-6 font-semibold  flex justify-between">
-            <h3 class="text-lg flex items-center">
-                Lista de Clientes
-                <span class="pl-2 font-normal text-sm text-gray-600 flex group cursor-pointer">
+            <h3 class="text-sm flex items-center">
+                Lista de Distribuidores
+                <button id="ver-dists" class="flex pl-2 font-normal text-sm text-gray-600 flex group cursor-pointer">
                     ver todos
                     <i class="ml-2 items-center">
                         <svg class="w-4 transition-all duration-150 group-hover:translate-x-1"
@@ -110,11 +110,11 @@
                                 d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </i>
-                </span>
+                </button>
             </h3>
             <button id="add-distribuidor-gcd"
-                class="font-semibold bg-gray-800 text-white px-2 py-1 rounded-md cursor-pointer transition-all active:scale-90">+
-                Agregar</button>
+                class="font-semibold bg-gray-800 text-white px-2 py-1 rounded-md cursor-pointer transition-all active:scale-90">
+                + Agregar</button>
         </div>
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
@@ -184,4 +184,5 @@
     @include('gestios-usuarios.includes.modal-eliminar-cliente')
     @include('productos.includes.add-distribuidor')
     <x-clientes />
+    <x-distribuidores />
 @endsection

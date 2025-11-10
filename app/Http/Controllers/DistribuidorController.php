@@ -15,12 +15,15 @@ class DistribuidorController extends Controller
         $q = $request->query('q');
         $query = Distribuidor::query();
 
-        $distribuidores = $query->where('nombre', 'like', "%$q%")
+        if(filled($q)){
+            $query->where('nombre', 'like', "%$q%")
             ->orWhere('ruc', 'like', "%$q%")
             ->orWhere('celular', 'like', "%$q%")
             ->orWhere('direccion', 'like', "%$q%")
-            ->orderBy('id', 'asc')
-            ->get();
+            ->orderBy('id', 'asc');
+        }
+        $distribuidores = $query->get();
+        
 
         return response()->json([
             'success' => true,
@@ -71,5 +74,5 @@ class DistribuidorController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
-    }
+    }    
 }

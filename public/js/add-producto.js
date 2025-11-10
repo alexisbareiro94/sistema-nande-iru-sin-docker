@@ -199,12 +199,11 @@ cerrarDist.addEventListener("click", (e) => {
     contAddDistribuidor.classList.add('hidden');
 });
 
-
+console.log('message')
 //ver tabla de  distribuidores
 const verDistribuidores = document.getElementById("ver-dists");
 const contVerDistribuidores = document.getElementById("cont-ver-dists");
-
-verDistribuidores.addEventListener("click", (e) => {
+verDistribuidores.addEventListener("click", (e) => {    
     contVerDistribuidores.classList.remove('hidden');
     const q = document.getElementById('query');
     const cerrarq = document.getElementById('cerrar-q');

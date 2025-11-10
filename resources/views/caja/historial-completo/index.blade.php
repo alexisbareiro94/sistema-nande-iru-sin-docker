@@ -1,3 +1,4 @@
+{{-- public/historial-ventas.js --}}
 @extends('layouts.app')
 
 @section('ruta-anterior', 'Caja')
@@ -177,7 +178,7 @@
     @endif
     <!-- Tabla de Ventas -->
     <div class="bg-white rounded-lg shadow items-center">
-        <div class="px-6 py-4 border-b border-gray-200 flex gap-5 items-center">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
             <div class="relative">
                 <span class="absolute z-20 left-2 top-2 pr-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -270,8 +271,6 @@
                     </div>
                 </div>
             @endif
-
-
         </div>
 
         <div class="overflow-x-auto">

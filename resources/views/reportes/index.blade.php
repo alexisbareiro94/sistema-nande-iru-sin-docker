@@ -15,13 +15,13 @@
     </div>
     <div class="flex">
         <div class="flex-1 flex flex-col">
-            <main class="flex-1 p-4">
+            <main class="flex-1 p-1 md:p-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     @include('reportes.includes.header')
                 </div>
 
                 <!-- Gráficos -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-6 mb-6">
                     <!-- Evolución de ventas -->
                     @include('reportes.includes.evolucion-ventas')
                     
@@ -40,7 +40,7 @@
                     </div>
 
                     <!-- Contenedor de métricas -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 mb-6">
                         <!-- Ganancia Actual -->
                         @include('reportes.includes.card-ganancias')
 
@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- egresos -->
-                <div class="grid grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 md:gap-6">
                     <!-- evolucion de egresos-->
                    @include('reportes.includes.graficos-egresos')
                 </div>

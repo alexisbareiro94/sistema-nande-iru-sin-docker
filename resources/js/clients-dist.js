@@ -1,5 +1,5 @@
 import axios from "axios";
-import { $$, $el, $eli, $ ,$i, url, formatFecha } from './utils'
+import { $$, $el, $eli, $, $i, url, formatFecha } from './utils'
 import { showToast } from './toast'
 edit();
 function edit() {
@@ -54,7 +54,7 @@ if ($i('form-edit-cliente-gcd')) {
         data.append('ruc_ci', ruc);
 
         try {
-            await axios.post(`${url}/user/${id}`, data);            
+            await axios.post(`${url}/user/${id}`, data);
             $i('modal-edit-cliente').classList.add('hidden')
             $i('form-edit-cliente-gcd').reset();
             showToast('Usuario Actualizado');
@@ -66,11 +66,11 @@ if ($i('form-edit-cliente-gcd')) {
     })
 }
 
-async function renderUser() {    
+async function renderUser() {
     const tableBody = $i('clientes-table-body')
     tableBody.innerHTML = '';
     try {
-        const res = await axios.get(`${url}/users`);        
+        const res = await axios.get(`${url}/users`);
         const users = res.data.users
         let count = 0;
         for (const user of users) {
@@ -112,7 +112,7 @@ async function renderUser() {
                                     </svg>
                                 </button>
                             </div>
-                        </td>`                                    
+                        </td>`
             tableBody.appendChild(tr)
             count++
             edit();
@@ -124,20 +124,20 @@ async function renderUser() {
 }
 
 
-export async function renderAllUser(data = null) {          
-    const todosTableBody = $i('todos-clientes-table-body');        
-    todosTableBody.innerHTML = '';    
-    try {  
+export async function renderAllUser(data = null) {
+    const todosTableBody = $i('todos-clientes-table-body');
+    todosTableBody.innerHTML = '';
+    try {
         let users;
-        if(data){
+        if (data) {
             users = data;
-        }else{
+        } else {
             const res = await axios.get(`${url}/users`);
             console.log(res.data.users)
             users = res.data.users
         }
-        
-        for (const user of users) {            
+
+        for (const user of users) {
             const tr = document.createElement('tr')
             tr.className = 'bg-white border-b border-gray-200'
             tr.innerHTML = `
@@ -175,8 +175,8 @@ export async function renderAllUser(data = null) {
                                     </svg>
                                 </button>
                             </div>
-                        </td>`                                    
-            todosTableBody.appendChild(tr)            
+                        </td>`
+            todosTableBody.appendChild(tr)
             edit();
             deleteCliente();
         }
@@ -219,7 +219,7 @@ if ($i('add-cliente-gcd')) {
     });
 }
 
-if($i('modal-eliminar-cliente-gcd')){
+if ($i('modal-eliminar-cliente-gcd')) {
 
     $eli('modal-eliminar-cliente-gcd', 'click', e => {
         if (e.target == $i('modal-eliminar-cliente-gcd')) {
@@ -236,7 +236,7 @@ btnsCerrraModal.forEach(btn => {
     });
 });
 function deleteCliente() {
-    const btns = $$('.borrar-cliente-gcd')    
+    const btns = $$('.borrar-cliente-gcd')
     btns.forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.dataset.id;
@@ -281,24 +281,91 @@ if ($i('btn-eliminar-cliente')) {
 }
 
 
-//distribuidores
-if($('#add-distribuidor-gcd')){
+if ($('#add-distribuidor-gcd')) {
     $el('#add-distribuidor-gcd', 'click', () => {
         $('#cont-add-dist').classList.remove('hidden');
     });
 }
 
 
-if($('#cerrar-dist')){
+if ($('#cerrar-dist')) {
     $el('#cerrar-dist', 'click', () => {
         $('#cont-add-dist').classList.add('hidden');
     });
 }
 
-if($('#cont-add-dist')){
+if ($('#cont-add-dist')) {
     $el('#cont-add-dist', 'click', e => {
-        if(e.target == $('#cont-add-dist')){
+        if (e.target == $('#cont-add-dist')) {
             $('#cont-add-dist').classList.add('hidden');
         }
     });
+}
+
+if(window.location.pathname == '/gestion_clientes_distribuidores'){
+    $el('#ver-dists', 'click', () => {
+        const modal = $('#modal-distribuidores');
+        modal.classList.remove('hidden');
+    });
+    
+    $el('#cerrar-distribuidores', 'click', () => {
+    console.log('message')
+    $('#modal-distribuidores').classList.add('hidden');
+});
+
+$el('#modal-distribuidores', 'click', e => {
+    if (e.target == $('#modal-distribuidores')) {
+        $('#modal-distribuidores').classList.add('hidden');
+    }
+});
+
+let timer;
+$el('#input-distribuidores', 'input', () => {
+    clearTimeout(timer);
+    timer = setTimeout( async () => {
+        try {
+            const res = await axios('/api');
+
+            const bodyTablaDistribuidores = document.getElementById('body-tabla-distribuidores-dos');
+
+            // Llenar el select de distribuidores                               
+            data.distribuidores.forEach(distribuidor => {
+                const option = document.createElement('option');
+                option.value = distribuidor.id;
+                option.textContent = distribuidor.nombre;
+
+                // Agregar fila a la tabla de distribuidores
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            ${distribuidor.nombre}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${distribuidor.ruc ?? 'No se registro RUC'}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${distribuidor.celular ?? 'No se registro Celular'}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${distribuidor.direccion ?? 'No se registro Direccion'}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button type="button"
+                                    class="font-medium text-red-600 cursor-pointer hover:underline px-2 py-1 rounded-lg animation-all transition-all hover:scale-110 duration-150  hover:bg-red-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                        />
+                                    </svg>
+                            </button>
+                        </td>
+                    `;
+                bodyTablaDistribuidores.appendChild(row);
+            })
+        } catch (err) {
+
+        }
+
+    }, 300)
+})
 }
