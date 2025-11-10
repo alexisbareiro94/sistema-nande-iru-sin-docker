@@ -31,6 +31,7 @@ cerrarModalCaja.forEach(btn => {
 });
 
 document.getElementById('ir-a-ventas').addEventListener('click', () => {
+    document.body.classList.add('overflow-hidden');
     modalVentas.classList.remove('hidden');
     const carrito = JSON.parse(sessionStorage.getItem('carrito'));
     if (carrito == null) {
@@ -42,6 +43,7 @@ document.getElementById('ir-a-ventas').addEventListener('click', () => {
 
 
 btnCerrarModalVentas.addEventListener('click', () => {
+    document.body.classList.remove('overflow-hidden');
     modalVentas.classList.add('hidden');
 });
 
@@ -134,34 +136,21 @@ async function recargarTablaVentas(data) {
                     `
         tablaVentaProductos.appendChild(row);
 
-    });
-    const rows = $$('.select-product-mobil');
-    rows.forEach(tr => {
-        tr.addEventListener('click', () => {    
-                        const tabla = $('#datos-tabla-productos');
-            const datosDer = $('#datos-derecha');
-
-            tabla.classList.add('hidden');
-            datosDer.classList.remove('hidden');    
-            console.log(tabla, datosDer)  
-            addToCart();                                    
-        });
-    });
-
+    });    
 }
 
-function addToCart() {    
+function addToCart() {
     const tablaVentaProductos = document.getElementById('tabla-venta-productos');
     tablaVentaProductos.addEventListener('click', function (e) {
-        const btn = e.target.closest('.productos');        
-        if (btn) {
+        const btn = e.target.closest('.productos');
+        if (btn) {            
             const producto = JSON.parse(btn.dataset.producto);
             let carrito = JSON.parse(sessionStorage.getItem('carrito')) || {};
 
-            if (carrito[producto.id]) {
+            if (carrito[producto.id]) {                
                 carrito[producto.id].cantidad += 1;
 
-            } else {
+            } else {                
                 carrito[producto.id] = {
                     nombre: producto.nombre,
                     codigo: producto.codigo,
@@ -172,8 +161,8 @@ function addToCart() {
                     precio_descuento: 0,
                     cantidad: 1
                 };
-            }
-
+            }            
+            showToast('Producto Agregado');
             sessionStorage.setItem('carrito', JSON.stringify(carrito));
             renderCarrito();
         }

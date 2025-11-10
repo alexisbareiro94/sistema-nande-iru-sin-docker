@@ -38,10 +38,10 @@
             </button>
         </div>
 
-        <div class="flex flex-1 overflow-hidden">
+        <div class="flex flex-1 overflow-hidden ">
             <!-- Izquierda: Lista de productos -->
             {{-- hidden a este div --}}
-            <div id="datos-tabla-productos" class="hidden md:w-2/3 p-3 flex  flex-col w-full md:block">
+            <div id="datos-tabla-productos" class="hidden md:block md:w-2/3 p-3 flex  flex-col w-full  ">
                 <div class="md:hidden py-4 px-2 font-semibold flex justify-between">
                     <p>Seleccionar Producto</p>
 
