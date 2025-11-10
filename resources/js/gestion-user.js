@@ -186,22 +186,22 @@ async function rerenderForm() {
 }
 
 
-window.Echo.private(`auditoria-creada.${window.tenantId}`)
-    .listen('AuditoriaCreadaEvent', async e => {
-        try {
-            const res = await fetch('/api/auditorias');
-            const data = await res.json();
-            if (!res.ok) {
-                throw data;
-            }
-            renderTableBody(data.data);
-        } catch (err) {
-            console.log(err)
-        }
-    })
-    .error(err => {
-        console.log(err)
-    })
+// window.Echo.private(`auditoria-creada.${window.tenantId}`)
+//     .listen('AuditoriaCreadaEvent', async e => {
+//         try {
+//             const res = await fetch('/api/auditorias');
+//             const data = await res.json();
+//             if (!res.ok) {
+//                 throw data;
+//             }
+//             renderTableBody(data.data);
+//         } catch (err) {
+//             console.log(err)
+//         }
+//     })
+//     .error(err => {
+//         console.log(err)
+//     })
 
 
 function renderTableBody(data) {
