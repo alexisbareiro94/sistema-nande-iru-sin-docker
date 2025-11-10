@@ -14,8 +14,8 @@
 
     <div class="relative overflow-x-auto rounded-md bg-white px-2 mb-6">
         <div class="bg-white p-6 font-semibold  flex justify-between">
-            <h3 class="text-sm flex items-center">
-                Lista de Clientes
+            <h3 class="text-sm flex items-center gap-2">
+                <p>Lista de <span class="block" >Clientes</span></p>
                 <button id="btn-ver-todos-clientes" class="pl-2 font-normal text-sm text-gray-600 flex group cursor-pointer">                    
                     ver todos
                     <i class="ml-2 items-center">
@@ -98,8 +98,8 @@
 
     <div class="relative overflow-x-auto rounded-md bg-white px-2">
         <div class="bg-white p-6 font-semibold  flex justify-between">
-            <h3 class="text-sm flex items-center">
-                Lista de Distribuidores
+            <h3 class="text-sm flex items-center gap-2">
+                <p>Lista de <span class="block" >Distribuidores</span></p>
                 <button id="ver-dists" class="flex pl-2 font-normal text-sm text-gray-600 flex group cursor-pointer">
                     ver todos
                     <i class="ml-2 items-center">
