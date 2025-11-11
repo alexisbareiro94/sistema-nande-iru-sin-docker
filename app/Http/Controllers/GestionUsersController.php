@@ -96,7 +96,8 @@ class GestionUsersController extends Controller
                 'salario' => 'required|numeric',
                 'activo' => 'required',
             ]);
-            $validated['estado'] = true;
+            // dd($validated);
+            $validated['activo'] = $validated['activo'] == 'true'  ? true : false; 
             $user = User::create($validated);
             Auditoria::create([
                 'created_by' => $request->user()->id,
