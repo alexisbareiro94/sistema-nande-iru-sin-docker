@@ -1,7 +1,6 @@
 {{-- public/caja.js --}}
-<div id="modalCierreCaja" class="hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6">
-        
+<div id="modalCierreCaja" class="hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-50 p-1 md:p-4">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl p-6 space-y-6 h-[85vh] overflow-auto">
         <!-- Encabezado -->
         <div class=" flex justify-between items-center pb-2 border-b">
             <h2 class="text-xl font-bold text-gray-800">Cierre de Caja</h2>
@@ -74,7 +73,7 @@
         </div>
 
         <!-- Botones de acción -->
-        <div class="flex gap-3 pt-2">
+        <div class="flex gap-3 pt-2 ">
             <button id="btn-cancelar-cierre" class="flex-1 px-4 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-colors">
                 Cancelar
             </button>
