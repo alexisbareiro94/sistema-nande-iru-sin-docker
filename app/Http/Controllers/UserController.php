@@ -54,6 +54,9 @@ class UserController extends Controller
                 'entidad_type' => User::class,
                 'entidad_id' => $cliente->id,
                 'accion' => 'Registro de cliente',
+                'datos' => [
+                    'cliente' => $cliente->razon_social,
+                ]
             ]);
 
             return response()->json([

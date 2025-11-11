@@ -81,7 +81,7 @@ async function updatePersonal(activo) {
             },
             body: formData,
         });
-        const data = await res.json();
+        const data = await res.json();        
         console.log(data);
         if (!res.ok) {
             throw data

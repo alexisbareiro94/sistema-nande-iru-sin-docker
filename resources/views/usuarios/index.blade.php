@@ -240,10 +240,9 @@
                             value="" />
                         <input id="email-selected" type="email" placeholder="Email" class="w-full p-2 border rounded"
                             value="" />
-                        <select id="rol-selected" class="w-full p-2 border rounded">
-                            <option>Cajero</option>
+                        <select id="rol-selected" class="w-full p-2 border rounded">                            
                             <option>Personal</option>
-                            <option selected>Administrador</option>
+                            <option>Administrador</option>
                         </select>
                         <input id="salario-selected" type="number" placeholder="Nuevo salario"
                             class="w-full p-2 border rounded" value="" />
@@ -254,7 +253,7 @@
 
                 <!-- Eliminar / Desactivar -->
                 <div class="bg-white p-5 rounded-lg shadow-md">
-                    <h3 class="font-bold mb-3">🗑️ Eliminar / Desactivar</h3>
+                    <h3 class="font-bold mb-3">Eliminar / Desactivar</h3>
                     <div class="space-y-3">
                         <select id="personal-activo" class="w-full p-2 border rounded">
                             <option disabled selected>Seleccionar usuario</option>
@@ -364,7 +363,7 @@
                         <p class="text-xs text-gray-500">Se enviará un enlace temporal al email del usuario.</p>
                     </form>
                 </div>
-                <div class="bg-white p-5 rounded-lg shadow-md">
+                {{-- <div class="bg-white p-5 rounded-lg shadow-md">
                     <h3 class="font-bold mb-2">Bloqueo Temporal</h3>
                     <form class="space-y-2">
                         <select class="w-full p-2 border rounded">
@@ -374,7 +373,7 @@
                         <input type="number" placeholder="Horas de bloqueo" class="w-full p-2 border rounded" />
                         <button class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Bloquear</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </section>
 
@@ -388,10 +387,9 @@
                         <p class="text-sm text-gray-600 mb-3">Incluye: nombre, rol, estado, salario, email, teléfono.
                         </p>
                         <div class="flex space-x-2">
-                            <button class="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-800">Exportar
-                                CSV</button>
-                            <button class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Exportar
-                                PDF</button>
+                            <a href="{{ route('personal.excel') }}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition cursor-pointer active:scale-90">
+                                Exportar Excel
+                            </a>                            
                         </div>
                     </div>
                     <div>

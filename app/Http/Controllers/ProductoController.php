@@ -128,20 +128,20 @@ class ProductoController extends Controller
 
     public function store(StoreProductRequest $request)
     {
-        $data = $request->validated();                
+        $data = $request->validated();
         if ($request->hasFile('imagen')) {
             $fileName = time() . '.' . $request->file('imagen')->getClientOriginalExtension();
             $request->file('imagen')->move(public_path('images'), $fileName);
 
             $data['imagen'] = $fileName;
-        }        
+        }
         $request->marca_id ?? $data['marca_id'] = 1;
         $request->categoria_id ?? $data['categoria_id'] = 1;
-        $request->distribuidor_id ?? $data['distribuidor_id'] = 1;        
-        try {            
+        $request->distribuidor_id ?? $data['distribuidor_id'] = 1;
+        try {
             if ($request->codigo_auto) {
                 $data['codigo'] = $this->productService->create_code($data['categoria_id'], $data['nombre'], $data['marca_id']);
-            }            
+            }
             $producto = Producto::create($data);
             // return response()->json('punto 4');
             Auditoria::create([
@@ -149,7 +149,7 @@ class ProductoController extends Controller
                 'entidad_type' => Producto::class,
                 'entidad_id' => $producto->id,
                 'accion' => 'Creación de producto'
-            ]);         
+            ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
@@ -296,10 +296,16 @@ class ProductoController extends Controller
 
     public function export_stock_pdf()
     {
-        try{
+        try {
             $fecha = now()->format('d-m-y');
+            Auditoria::create([
+                'created_by' => auth()->user()->id,
+                'entidad_type' => Producto::class,
+                'entidad_id' => auth()->user()->id,
+                'accion' => 'Reporte de stock de productos'
+            ]);
             return Excel::download(new StockExport, "stock_productos-$fecha.xlsx");
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }

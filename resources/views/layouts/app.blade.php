@@ -15,26 +15,26 @@
     <title>@yield('titulo', 'Mi Aplicación')</title>
 </head>
 
-<body class="bg-gris min-h-screen flex flex-col">
+<body class="bg-gris min-h-screen  flex flex-col">
     <div id="pdf-notificacion" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     <div id="loading-container" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     <div id="notificaciones" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     @include('alertas.alerts')
-    <main class="flex-grow grid grid-cols-1 md:grid-cols-5 gap-1">
+    <main class="flex-grow grid grid-cols-1 md:grid-cols-5 gap-1 relative">
+        
         <div @class([
-            'bg-gris p-4 animate-fade-in',
+            'bg-gris pl-6 animate-fade-in hidden z-5 md:block',
             'hidden' => request()->routeIs('home') || auth()->user()->role != 'admin',
-            // 'col-span-1 animate-slide-in-right md:block' => !request()->routeIs('home'),
+            'col-span-1 animate-slide-in-right' => !request()->routeIs('home'),
         ])>
             <aside class="col-span-1 p-4 fixed transform transition-transform duration-300 ">
                 @include('home.aside')
             </aside>
         </div>
         <section @class([
-            'md:p-6',
-            'col-span-5' =>
-                request()->routeIs('home') || auth()->user()->role != 'admin',
+            'md:p-6 z-10',
+            'col-span-5' => request()->routeIs('home') || auth()->user()->role != 'admin',
             'col-span-4' => !request()->routeIs('home'),
         ])>
             <div class="w-full mx-auto px-2 md:px-4 sm:px-6 lg:px-8 py-6 bg-gray-200 rounded-lg min-h-screen shadow-lg">

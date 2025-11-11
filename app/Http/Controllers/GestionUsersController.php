@@ -6,23 +6,24 @@ use App\Models\{Auditoria, User, PagoSalario};
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdatePersonalRequest;
 use App\Events\AuditoriaCreadaEvent;
+use App\Exports\PersonalExport;
 use App\Http\Requests\UpdateUserRequest;
 use App\Jobs\MailRestablecerPassJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GestionUsersController extends Controller
 {
     public function index_view()
     {
         try {
-
             $tenantId = tenant_id();
             $users = User::whereNotIn('role', ['cliente', 'admin'])
                 ->where('tenant_id', $tenantId)
-                ->where('activo', true)
+                // ->where('activo', true)
                 ->with(['pagoSalarios', 'ultima_venta'])
                 ->get();
 
@@ -36,12 +37,12 @@ class GestionUsersController extends Controller
                 ->with('user')
                 ->get();
 
-
             $auditorias = Auditoria::with('user')
                 ->orderByDesc('created_at')
                 ->get()
                 ->take(3);
 
+            // dd($users);
             return view('usuarios.index', [
                 'users' => $users,
                 'salarios' => $salarios,
@@ -97,13 +98,16 @@ class GestionUsersController extends Controller
                 'activo' => 'required',
             ]);
             // dd($validated);
-            $validated['activo'] = $validated['activo'] == 'true'  ? true : false; 
+            $validated['activo'] = $validated['activo'] == 'true'  ? true : false;
             $user = User::create($validated);
             Auditoria::create([
                 'created_by' => $request->user()->id,
                 'entidad_type' => User::class,
                 'entidad_id' => $user->id,
-                'accion' => 'Creacion de personal'
+                'accion' => 'Creacion de personal',
+                'datos' => [
+                    'usuario' => $user->name,
+                ]
             ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return back()->with('success', 'Usuario creado');
@@ -137,12 +141,17 @@ class GestionUsersController extends Controller
     {
         try {
             $data = $request->validated();
-            User::where('tenant_id', tenant_id())->find($id)->update($data);
+            $data['activo'] = $data['activo'] == 'false' ? false : true;
+            $data['is_blocked'] = $data['activo'] == 'false' ? false : true;
+            $user = User::where('tenant_id', tenant_id())->find($id)->update($data);
             Auditoria::create([
                 'created_by' => $request->user()->id,
                 'entidad_type' => User::class,
                 'entidad_id' => $id,
-                'accion' => 'Actualizacion de datos de personal'
+                'accion' => 'Actualizacion de datos de personal',
+                'datos' => [
+                    'usuario' => $user->name,
+                ]
             ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
@@ -159,12 +168,15 @@ class GestionUsersController extends Controller
     public function delete(string $id)
     {
         try {
-            User::destroy($id);
+            $user = User::destroy($id);
             Auditoria::create([
                 'created_by' => auth()->user()->id,
                 'entidad_type' => User::class,
                 'entidad_id' => $id,
-                'accion' => 'Eliminacion de personal'
+                'accion' => 'Eliminacion de personal',
+                'datos' => [
+                    'usuario' => $user->name,
+                ]
             ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
@@ -208,11 +220,11 @@ class GestionUsersController extends Controller
 
     public function restablecer_pass_view(Request $request)
     {
-        try {            
-            $token = $request->query('token');              
-            $data = json_decode(Crypt::decrypt($token));                        
+        try {
+            $token = $request->query('token');
+            $data = json_decode(Crypt::decrypt($token));
             $id = $data->user_id;
-            $expireDate = $data->expires_at;            
+            $expireDate = $data->expires_at;
             if (Carbon::parse($expireDate)->isPast()) {
                 return redirect()->route('login')->with('error', 'El enlace ya no es valido');
             }
@@ -227,22 +239,50 @@ class GestionUsersController extends Controller
     }
 
     public function update_admin(UpdateUserRequest $request, string $id)
-    {           
-        try{
+    {
+        try {
             $data = $request->validated();
             $user = User::findOrFail($id);
-            
-            if(!Hash::check($data['actual_password'], $user->password)){
+
+            if (!Hash::check($data['actual_password'], $user->password)) {
                 return redirect()->back()->with('error', 'La contraseña no coincide');
             }
 
             User::findOrFail($id)
                 ->update($data);
 
+            Auditoria::create([
+                'created_by' => auth()->user()->id,
+                'entidad_type' => User::class,
+                'entidad_id' => $request->id,
+                'accion' => 'Contraseña cambiada',
+                'datos' => [
+                    'Usuario' => $user->name,
+                ]
+            ]);
+
             return redirect()->back()->with('success', 'Usuario Actualizado');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
             // return redirect()->back('error', 'Hubo un error, inténtelo nuevamente');
+        }
+    }
+
+    public function export_personal()
+    {
+        try {
+            $fecha = now()->format('d-m-y');
+            Auditoria::create([
+                'created_by' => auth()->user()->id,
+                'entidad_type' => User::class,
+                'entidad_id' => auth()->user()->id,
+                'accion' => 'Reporte de usuarios'
+            ]);
+
+            //TODO: implementar el evento de auditoria
+            return Excel::download(new PersonalExport, "usuarios-$fecha.xlsx");
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
     }
 }

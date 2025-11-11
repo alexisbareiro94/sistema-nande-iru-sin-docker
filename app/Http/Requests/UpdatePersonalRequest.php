@@ -28,6 +28,7 @@ class UpdatePersonalRequest extends FormRequest
             'role' => 'sometimes', // prox feat: preguntar si existe por id
             'salario' => 'sometimes',
             'activo' => 'sometimes',
+            'is_blocked' => 'sometimes',
         ];
     }
 

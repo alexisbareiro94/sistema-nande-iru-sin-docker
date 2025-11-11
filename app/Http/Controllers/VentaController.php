@@ -15,7 +15,6 @@ use App\Jobs\GenerarPdfJob;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\VentaRealizada;
-use App\Services\PrinterService;
 
 class VentaController extends Controller
 {

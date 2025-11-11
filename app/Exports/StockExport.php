@@ -6,9 +6,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\Producto;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class StockExport implements FromCollection, WithHeadings, WithMapping, ShouldQueue
+class StockExport implements FromCollection, WithHeadings, WithMapping
 {
     public $productos;
 

@@ -42,7 +42,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
     Route::middleware(CajaMiddleware::class)->group(function () {
         //
         Route::get('/config', [ConfigController::class, 'config_view'])->name('auth.config.view'); //estaba en el Auth
-        Route::post('/config', [ConfigController::class, 'config'])->name('auth.config');//estaba en el Auth
+        Route::post('/config', [ConfigController::class, 'config'])->name('auth.config'); //estaba en el Auth
         Route::post('/omitido', [ConfigController::class, 'omitido'])->name('config.omitido');
         //caja
         Route::get('/caja', [CajaController::class, 'index_view'])->name('caja.index');
@@ -62,11 +62,14 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/movimientos', [VentaController::class, 'index_view'])->name('venta.index.view');
         Route::get('/venta/{codigo}', [VentaController::class, 'show']);
         Route::get('/venta', [VentaController::class, 'index']);
+        
         //exportaciones
         Route::get('/export-excel', [VentaController::class, 'export_excel'])->name('venta.excel');
         Route::get('/export-pdf', [VentaController::class, 'export_pdf'])->name('venta.pdf');
             //stock
         Route::get('/export-stock', [ProductoController::class, 'export_stock_pdf'])->name('producto.excel');
+            //personal
+        Route::get('/export-personal', [GestionUsersController::class, 'export_personal'])->name('personal.excel');
 
         //movimiento
         Route::get('/api/movimiento', [MovimientoCajaController::class, 'index'])->name('movimiento.index');
@@ -146,10 +149,9 @@ Route::get('/borrar-session', function () {
 });
 
 Route::get('/debug', function () {
-    dd(User::find(1));
+    dd(User::withCount('ventas')
+        ->where('role', 'personal')->get());
 });
-
-use App\Services\PrinterService;
 
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
