@@ -7,7 +7,7 @@ import './utils'
 import './clients-dist';
 import './componentes/clientes';
 import './componentes/restablecer-pass';
-import './exportar';
+import './exportar-stock'
 import { showToast } from './toast';
 
 let myChart = null;

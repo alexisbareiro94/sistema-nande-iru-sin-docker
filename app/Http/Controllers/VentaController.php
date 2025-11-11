@@ -200,7 +200,7 @@ class VentaController extends Controller
         }
     }
 
-    public function store(StoreVentaRequest $request, PrinterService $printer)
+    public function store(StoreVentaRequest $request)
     {
         $data = $request->validated();  //aca se valida que llegue el carrito y demas datos
         $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario
@@ -345,6 +345,7 @@ class VentaController extends Controller
 
     public function export_pdf()
     {
+        
         $item = Cache::get('ventas');
 
         if (filled($item)) {

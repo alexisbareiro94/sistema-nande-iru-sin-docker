@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\AuditoriaCreadaEvent;
+use App\Exports\StockExport;
 use App\Imports\ProductosImport;
 use Illuminate\Http\Request;
 use App\Models\Producto;
@@ -291,5 +292,15 @@ class ProductoController extends Controller
         return view('reportes.includes.all-productos', [
             'productos' => $productos,
         ]);
+    }
+
+    public function export_stock_pdf()
+    {
+        try{
+            $fecha = now()->format('d-m-y');
+            return Excel::download(new StockExport, "stock_productos-$fecha.xlsx");
+        }catch(\Exception $e){
+            throw new \Exception($e->getMessage());
+        }
     }
 }

@@ -7,9 +7,12 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Concerns\Exportable;
+
 
 class VentasExport implements FromCollection, WithHeadings, WithMapping
 {
+    use Exportable;
     /**
      * @return \Illuminate\Support\Collection
      */
