@@ -1,30 +1,37 @@
 const btnVerCategorias = document.getElementById('all-categorias');
 const contVerCategorias = document.getElementById('cont-ver-categorias') //contenedor de la tabla de marcas
 
-btnVerCategorias.addEventListener('click', () => {
-    contVerCategorias.classList.remove('hidden')
-});
+if(btnVerCategorias){
+    btnVerCategorias.addEventListener('click', () => {
+        contVerCategorias.classList.remove('hidden')
+    });
+}
 
-document.getElementById('cerrar-ver-categoria').addEventListener('click', () => {
-    contVerCategorias.classList.add('hidden')
-})
+if(document.getElementById('cerrar-ver-categoria')){
+    document.getElementById('cerrar-ver-categoria').addEventListener('click', () => {
+        contVerCategorias.classList.add('hidden')
+    })
+}
 
 let timerCat;
-document.getElementById('query-c').addEventListener('input',  function (){
-    clearTimeout(timerCat);
-    timerCat = setTimeout(() => {
-        const query = this.value.trim();
-        if(query.length >= 1){
-            document.getElementById('cerrar-q-c').classList.toggle('hidden');
-            document.getElementById('cerrar-q-c').addEventListener('click', () => {
-                document.getElementById('query-c').value = '';
+
+if(document.getElementById('query-c')){
+    document.getElementById('query-c').addEventListener('input',  function (){
+        clearTimeout(timerCat);
+        timerCat = setTimeout(() => {
+            const query = this.value.trim();
+            if(query.length >= 1){
                 document.getElementById('cerrar-q-c').classList.toggle('hidden');
-                processQueryCat();
-            });
-        }
-        processQueryCat(query);
-    }, 300);
-})
+                document.getElementById('cerrar-q-c').addEventListener('click', () => {
+                    document.getElementById('query-c').value = '';
+                    document.getElementById('cerrar-q-c').classList.toggle('hidden');
+                    processQueryCat();
+                });
+            }
+            processQueryCat(query);
+        }, 300);
+    })
+}
 
 async function processQueryCat(query = '') {
     try{

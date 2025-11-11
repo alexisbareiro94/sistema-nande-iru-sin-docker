@@ -1,9 +1,13 @@
-const producto_id = document.getElementById('producto_id').value;
+if(document.getElementById('producto_id')){
+    const producto_id = document.getElementById('producto_id').value;
+}
 
-document.getElementById('boton-u').addEventListener('click', (e) => {
-    e.preventDefault();
-    updateProduct(flag = false);
-});
+if(document.getElementById('boton-u')){
+    document.getElementById('boton-u').addEventListener('click', (e) => {
+        e.preventDefault();
+        updateProduct(flag = false);
+    });
+}
 
 document.addEventListener('DOMContentLoaded', ()=>{
     const message = localStorage.getItem('toastMessage');
@@ -18,24 +22,32 @@ document.addEventListener('DOMContentLoaded', ()=>{
 let eliminarImagen = false;
 const btnCerrarPreviewUp = document.getElementById('cerrar-preview-u');
 const alerta = document.getElementById('alerta-borrado');
-btnCerrarPreviewUp.addEventListener('click', () => {
-    alerta.classList.remove('hidden');
-    btnCerrarPreviewUp.classList.add('hidden');
-    eliminarImagen = true;
-});
+
+if(btnCerrarPreviewUp){
+    btnCerrarPreviewUp.addEventListener('click', () => {
+        alerta.classList.remove('hidden');
+        btnCerrarPreviewUp.classList.add('hidden');
+        eliminarImagen = true;
+    });
+}
 
 const btnCancelarBorrado = document.getElementById('cancelar-borrado');
-btnCancelarBorrado.addEventListener('click', () => {
-    alerta.classList.add('hidden');
-    btnCerrarPreviewUp.classList.remove('hidden');
-    eliminarImagen = false;
-});
 
-document.getElementById('confirmar-borrado').addEventListener('click', async (e) => {
-    e.preventDefault();
-    eliminarImagen = true;
-    await updateProduct(true);
-});
+if(btnCancelarBorrado){
+    btnCancelarBorrado.addEventListener('click', () => {
+        alerta.classList.add('hidden');
+        btnCerrarPreviewUp.classList.remove('hidden');
+        eliminarImagen = false;
+    });
+}
+
+if(document.getElementById('confirmar-borrado')){
+    document.getElementById('confirmar-borrado').addEventListener('click', async (e) => {
+        e.preventDefault();
+        eliminarImagen = true;
+        await updateProduct(true);
+    });
+}
 
 async function updateProduct(flag = false) {
     const tipoE = document.getElementById('tipo-e').value;

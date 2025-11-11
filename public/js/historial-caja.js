@@ -20,20 +20,23 @@ function cerrarModalCaja() {
 }
 
 // Cerrar modal al hacer clic fuera
-document
-    .getElementById("modal-detalle-caja")
-    .addEventListener("click", function (e) {
+if(document.getElementById("modal-detalle-caja")){
+    document.getElementById("modal-detalle-caja").addEventListener("click", function (e) {
         if (e.target === this) {
             cerrarModalCaja();
         }
     });
-document.querySelectorAll(".detalle-caja").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-        const data = await getCaja(btn.dataset.cajaid);
-        abrirModalCaja();
-        mapearDetalleCaja(data);
+}
+
+if(document.querySelectorAll(".detalle-caja")){
+    document.querySelectorAll(".detalle-caja").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const data = await getCaja(btn.dataset.cajaid);
+            abrirModalCaja();
+            mapearDetalleCaja(data);
+        });
     });
-});
+}
 
 async function getCaja(id) {
     try {

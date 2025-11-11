@@ -1,13 +1,17 @@
 const btnVerMarcas = document.getElementById('all-marcas');
 const contVerMarcas = document.getElementById('cont-ver-marcas') //contenedor de la tabla de marcas
 
-btnVerMarcas.addEventListener('click', () => {
-    contVerMarcas.classList.remove('hidden')
-});
+if(btnVerMarcas){
+    btnVerMarcas.addEventListener('click', () => {
+        contVerMarcas.classList.remove('hidden')
+    });
+}
 
-document.getElementById('cerrar-ver-marca').addEventListener('click', () => {
-    contVerMarcas.classList.add('hidden')
-})
+if(document.getElementById('cerrar-ver-marca')){
+    document.getElementById('cerrar-ver-marca').addEventListener('click', () => {
+        contVerMarcas.classList.add('hidden')
+    })
+}
 
 let timerd;
 document.getElementById('query-m').addEventListener('input',  function (){

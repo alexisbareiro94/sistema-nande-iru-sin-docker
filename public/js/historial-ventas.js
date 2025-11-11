@@ -27,11 +27,13 @@ function cerrarModalDetalle() {
 
 }
 
-document.getElementById('modal-detalle-venta').addEventListener('click', function (e) {
-    if (e.target === this) {
-        cerrarModal();
-    }
-});
+if(document.getElementById('modal-detalle-venta')){
+    document.getElementById('modal-detalle-venta').addEventListener('click', function (e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+}
 
 async function detalleVentas(codigo) {
     try {
@@ -122,9 +124,11 @@ function setDataDetalleVenta(data) {
     }
 }
 
-document.getElementById('svg-mixto').addEventListener('click', (e) => {
-    document.getElementById('d-v-if-mixto').classList.toggle('hidden');
-});
+if(document.getElementById('svg-mixto')){
+    document.getElementById('svg-mixto').addEventListener('click', (e) => {
+        document.getElementById('d-v-if-mixto').classList.toggle('hidden');
+    });
+}
 
 let clicks = 0;
 document.addEventListener('click', () => {

@@ -271,8 +271,7 @@ utiBtns.forEach(btn => {
             b.classList.remove('bg-gray-50', 'shadow-lg');
             b.classList.add('bg-gray-300');
         });
-        const option = JSON.parse(sessionStorage.getItem('option'));
-        console.log(option)
+        const option = JSON.parse(sessionStorage.getItem('option'));        
         if (option != null) {
             await gananacias(btn.dataset.utilidad, option);
         } else {

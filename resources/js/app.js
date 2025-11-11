@@ -14,8 +14,7 @@ let myChart = null;
 async function loadChart(desde = '', hasta = '', periodo = '') {
   try {
     const res = await fetch(`/api/movimientos/charts_caja?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&periodoInicio=${encodeURIComponent(periodo)}`);    
-    const data = await res.json();
-    console.log(data)
+    const data = await res.json();    
     const ctx = document.getElementById('myChart');
 
     if (myChart) {
