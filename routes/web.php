@@ -70,6 +70,8 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/export-stock', [ProductoController::class, 'export_stock_pdf'])->name('producto.excel');
             //personal
         Route::get('/export-personal', [GestionUsersController::class, 'export_personal'])->name('personal.excel');
+            //
+        Route::get('/export-salarios', [GestionUsersController::class, 'export_salarios'])->name('salarios.excel');
 
         //movimiento
         Route::get('/api/movimiento', [MovimientoCajaController::class, 'index'])->name('movimiento.index');

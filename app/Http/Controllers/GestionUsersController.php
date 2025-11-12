@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UpdatePersonalRequest;
 use App\Events\AuditoriaCreadaEvent;
 use App\Exports\PersonalExport;
+use App\Exports\SalariosExport;
 use App\Http\Requests\UpdateUserRequest;
 use App\Jobs\MailRestablecerPassJob;
 use Carbon\Carbon;
@@ -282,6 +283,24 @@ class GestionUsersController extends Controller
             //TODO: implementar el evento de auditoria
             return Excel::download(new PersonalExport, "usuarios-$fecha.xlsx");
         } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function export_salarios(Request $request)
+    {        
+        try{
+            Validator::make($request->all(), [
+                'desde' => 'required|data',
+                'hasta' => 'required|date'
+            ]);
+            
+            $desde = Carbon::parse($request->desde)->startOfDay();
+            $hasta = Carbon::parse($request->hasta)->endOfDay();               
+            $pagos = PagoSalario::whereBetween('created_at', [$desde, $hasta])->with('user')->get();            
+            
+            return Excel::download(new SalariosExport($pagos), "salarios-$desde-$hasta.xlsx");
+        }catch(\Exception $e){
             throw new \Exception($e->getMessage());
         }
     }

@@ -205,8 +205,7 @@
                                 </span>
                             </span>
                         </div>
-                        <input name="telefono" type="tel" placeholder="Teléfono"
-                            class="w-full p-2 border rounded" />
+                        <input name="telefono" type="tel" placeholder="Teléfono" class="w-full p-2 border rounded" />
                         <select name="role" class="w-full p-2 border rounded">
                             <option disabled selected>Rol</option>
                             <option>personal</option>
@@ -240,7 +239,7 @@
                             value="" />
                         <input id="email-selected" type="email" placeholder="Email" class="w-full p-2 border rounded"
                             value="" />
-                        <select id="rol-selected" class="w-full p-2 border rounded">                            
+                        <select id="rol-selected" class="w-full p-2 border rounded">
                             <option>Personal</option>
                             <option>Administrador</option>
                         </select>
@@ -332,13 +331,17 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-lg shadow-md">
                     <h3 class="font-bold mb-2">Cambiar Contraseña</h3>
-                    <form method="POST" action="{{ route('gestion.update.admin', ['id' => auth()->user()->id]) }}" class="space-y-2">
+                    <form method="POST" action="{{ route('gestion.update.admin', ['id' => auth()->user()->id]) }}"
+                        class="space-y-2">
                         @csrf
-                        <input name="actual_password" type="password" placeholder="Contraseña actual" class="pass w-full p-2 border rounded" />
-                        <input name="password" type="password" placeholder="Nueva contraseña" class="pass w-full p-2 border rounded" />
-                        <input name="password_confirmation" type="password" placeholder="Confirmar nueva" class="pass w-full p-2 border rounded" />
+                        <input name="actual_password" type="password" placeholder="Contraseña actual"
+                            class="pass w-full p-2 border rounded" />
+                        <input name="password" type="password" placeholder="Nueva contraseña"
+                            class="pass w-full p-2 border rounded" />
+                        <input name="password_confirmation" type="password" placeholder="Confirmar nueva"
+                            class="pass w-full p-2 border rounded" />
 
-                        <div class="py-2 cursor-pointer" >
+                        <div class="py-2 cursor-pointer">
                             <input type="checkbox" name="show-pass" id="show-pass">
                             <label for="show-pass">Mostrar Contraseña</label>
                         </div>
@@ -355,7 +358,7 @@
                         <select name="id" class="w-full p-2 border rounded">
                             <option disabled selected>Seleccionar usuario</option>
                             @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>                                
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
                         <button
@@ -387,20 +390,23 @@
                         <p class="text-sm text-gray-600 mb-3">Incluye: nombre, rol, estado, salario, email, teléfono.
                         </p>
                         <div class="flex space-x-2">
-                            <a href="{{ route('personal.excel') }}" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition cursor-pointer active:scale-90">
+                            <a href="{{ route('personal.excel') }}"
+                                class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition cursor-pointer active:scale-90">
                                 Exportar Excel
-                            </a>                            
+                            </a>
                         </div>
                     </div>
                     <div>
-                        <h3 class="font-bold mb-3">📊 Reporte de Sueldos por Período</h3>
-                        <div class="flex space-x-2 mb-3">
-                            <input type="date" class="p-2 border rounded" />
-                            <input type="date" class="p-2 border rounded" />
-                        </div>
-                        <button class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Generar Reporte
-                            Contable</button>
-                        <p class="text-xs text-gray-500 mt-2">Ideal para enviar al departamento de contabilidad.</p>
+                        <form action="{{ route('salarios.excel') }}" method="GET">
+                            <h3 class="font-bold mb-3">📊 Reporte de Sueldos por Período</h3>
+                            <div class="flex space-x-2 mb-3">
+                                <input type="date" name="desde" class="p-2 border rounded" />
+                                <input type="date" name="hasta" class="p-2 border rounded" />
+                            </div>
+                            <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 cursor-pointer transition active:scale-90">Generar Reporte
+                                Contable</button>
+                            <p class="text-xs text-gray-500 mt-2">Ideal para enviar al departamento de contabilidad.</p>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -422,14 +428,14 @@
             ocultar.classList.add('hidden');
             mostrar.classList.remove('hidden');
             password.type = 'password'
-        });        
+        });
 
         const inputs = document.querySelectorAll('.pass');
         document.getElementById('show-pass').addEventListener('change', () => {
             inputs.forEach(input => {
-                if(input.type == 'password'){
+                if (input.type == 'password') {
                     input.type = 'text';
-                }else{
+                } else {
                     input.type = 'password';
                 }
             })
