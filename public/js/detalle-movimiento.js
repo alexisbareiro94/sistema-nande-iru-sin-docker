@@ -3,8 +3,7 @@ function abrirmodalDmDetalles() {
     const btnsdetalleVentas = document.querySelectorAll('.detalle-movimiento');
     btnsdetalleVentas.forEach(btn => {
         btn.addEventListener('click', async () => {
-            const id = btn.dataset.ventam;
-            console.log(id)
+            const id = btn.dataset.ventam;            
             await detalleMov(id);
             modalDm.classList.remove('hidden');
             setTimeout(() => {
@@ -39,7 +38,6 @@ async function detalleMov(id) {
         if (!res.ok) {
             throw data;
         }
-        console.log(data)
         setDataDetalleMov(data);
     } catch (err) {
         console.log(err)

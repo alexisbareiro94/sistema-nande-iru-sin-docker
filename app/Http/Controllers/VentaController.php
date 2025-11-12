@@ -41,7 +41,7 @@ class VentaController extends Controller
                 })
                 ->with('venta.productos')
                 ->paginate(10);
-        }        
+        }
 
         return view('caja.historial-completo.index', [
             'clientes' => $clientes,
@@ -122,7 +122,7 @@ class VentaController extends Controller
             }
             if (filled($search)) {
                 $query->whereHas('venta', function ($q) use ($search) {
-                    $q->whereLike('codigo', "%$search%")->orWhereHas('productos', function($q) use ($search){
+                    $q->whereLike('codigo', "%$search%")->orWhereHas('productos', function ($q) use ($search) {
                         $q->whereLike('nombre', "%$search%");
                     })->orWhereHas('cliente', function ($q) use ($search) {
                         $q->whereLike('razon_social', "%$search%");
@@ -183,9 +183,9 @@ class VentaController extends Controller
                 }])->get();
             }
             if (is_numeric($codigo)) {
-                $venta = MovimientoCaja::find($codigo)->load(['caja.user', 'vendedor']);
+                $venta = MovimientoCaja::find($codigo)->load(['caja.user', 'venta.vendedor']);
             }
-
+            
             return response()->json([
                 'success' => true,
                 'productos' => $productos ?? '',
@@ -344,7 +344,7 @@ class VentaController extends Controller
 
     public function export_pdf()
     {
-        
+
         $item = Cache::get('ventas');
 
         if (filled($item)) {
