@@ -60,7 +60,8 @@
                    @include('reportes.includes.top-productos')
 
                     <!-- Alertas -->
-                    @include('reportes.includes.alertas')
+                    {{-- TODO: descomentar cuando hay un dominio:D --}}
+                    {{-- @include('reportes.includes.alertas') --}}
                 </div>
 
                 <!-- Reportes -->

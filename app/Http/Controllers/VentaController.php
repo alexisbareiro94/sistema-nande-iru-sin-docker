@@ -371,7 +371,7 @@ class VentaController extends Controller
             ]);
         } else {
             $ventas = $item->toArray();
-            $items = count($ventas);
+            // $items = count($ventas);
             Cache::forget('ventas');
             Auditoria::create([
                 'created_by' => auth()->user()->id,
