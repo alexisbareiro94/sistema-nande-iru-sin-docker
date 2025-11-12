@@ -1,3 +1,14 @@
+🧪 Usuario de prueba
+
+Podés ingresar al sistema con las siguientes credenciales:
+### 🚀 Demo en línea
+👉 [Ñande iru](nande-iru.on-forge.com/)
+
+### 🔐 Usuario de prueba
+- **Email:** `test@example.com`
+- **Contraseña:** `Test.1234`
+
+
 ![Mi proyecto](https://i.imgur.com/7MorZDR.png)
 
 ![Mi proyecto](https://i.imgur.com/8Bquh65.png)
