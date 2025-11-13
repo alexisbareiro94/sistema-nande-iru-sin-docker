@@ -69,11 +69,15 @@ class VentaController extends Controller
             if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy)) {
 
                 if (auth()->user()->role === 'admin') {
-                    $ventas = $query->with('venta.cliente')->orderByDesc('created_at')->get()->take(10);
+                    $ventas = $query->with(['caja.user', 'venta' => function ($query) {
+                        $query->with(['cliente', 'detalleVentas', 'productos']);
+                    }])->orderByDesc('created_at')->get()->take(10);
                 } else {
-                    $ventas = $query->whereHas('venta', function ($q) {
-                        return  $q->where('vendedor_id', auth()->user()->id);
-                    })->with('venta.cliente')->orderByDesc('created_at')->get()->take(10);
+                    $ventas = $query->whereHas('venta', function ($query) {
+                        return $query->where('vendedor_id', auth()->user()->id);
+                    })->with(['caja.user', 'venta' => function ($query) {
+                        $query->with(['cliente', 'detalleVentas', 'productos']);
+                    }])->orderByDesc('created_at')->get()->take(10);
                 }
 
                 return response()->json([
@@ -120,12 +124,14 @@ class VentaController extends Controller
                     });
                 }
             }
+            //TODO: agregar el fulltext
             if (filled($search)) {
                 $query->whereHas('venta', function ($q) use ($search) {
                     $q->whereLike('codigo', "%$search%")->orWhereHas('productos', function ($q) use ($search) {
                         $q->whereLike('nombre', "%$search%");
                     })->orWhereHas('cliente', function ($q) use ($search) {
-                        $q->whereLike('razon_social', "%$search%");
+                        $q->whereLike('razon_social', "%$search%")
+                            ->orWhereLike('ruc_ci', "%$search%");
                     });
                 });
             }
@@ -185,7 +191,7 @@ class VentaController extends Controller
             if (is_numeric($codigo)) {
                 $venta = MovimientoCaja::find($codigo)->load(['caja.user', 'venta.vendedor']);
             }
-            
+
             return response()->json([
                 'success' => true,
                 'productos' => $productos ?? '',

@@ -30,9 +30,10 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->boolean('temp_used')->nullable()->default(false);
             $table->boolean('is_blocked')->nullable()->default(false);
-            $table->string('empresa')->nullable();
+            $table->string('empresa')->nullable();            
             $table->rememberToken();
             $table->timestamps();
+            $table->fullText('razon_social');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

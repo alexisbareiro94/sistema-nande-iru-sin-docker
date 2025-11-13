@@ -41,6 +41,7 @@ return new class extends Migration
             $table->foreignId('distribuidor_id')->nullable()->constrained('distribuidores');
             $table->string('imagen')->nullable()->unique();
             $table->integer('ventas')->default(0);
+            $table->fullText('nombre');
             $table->timestamps();
             $table->softDeletes();
         });
