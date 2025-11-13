@@ -127,12 +127,14 @@ class VentaController extends Controller
             //TODO: agregar el fulltext
             if (filled($search)) {
                 $query->whereHas('venta', function ($q) use ($search) {
-                    $q->whereLike('codigo', "%$search%")->orWhereHas('productos', function ($q) use ($search) {
-                        $q->whereLike('nombre', "%$search%");
-                    })->orWhereHas('cliente', function ($q) use ($search) {
-                        $q->whereLike('razon_social', "%$search%")
-                            ->orWhereLike('ruc_ci', "%$search%");
-                    });
+                    $q->whereLike('codigo', "%$search%")
+                        ->orWhereHas('productos', function ($q) use ($search) {
+                            $q->whereLike('nombre', "%$search%");
+                        })
+                        ->orWhereHas('cliente', function ($q) use ($search) {
+                            $q->whereLike('razon_social', "%$search%")
+                                ->orWhereLike('ruc_ci', "%$search%");
+                        });
                 });
             }
             if (filled($orderBy) && filled($dir)) {

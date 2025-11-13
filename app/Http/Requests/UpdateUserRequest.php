@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -20,15 +22,15 @@ class UpdateUserRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
+    {        
         return [
             'razon_social' => 'sometimes',
-            'ruc_ci' => 'sometimes|unique:users,ruc_ci',
+            'ruc_ci' => 'sometimes',
             'actual_password' => 'nullable',
             'password' => ['sometimes', 'string', 'min:8', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/', 'confirmed'],
             'telefono' => 'sometimes',
             'email' => 'sometimes|email',
             'empresa' => 'sometimes'
         ];
-    }    
+    }
 }

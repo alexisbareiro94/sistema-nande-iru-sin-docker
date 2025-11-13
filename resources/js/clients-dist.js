@@ -14,13 +14,12 @@ function edit() {
             modal.classList.remove('hidden')
             try {
                 const res = await axios.get(`${url}/cliente/${id}`)
-                const data = res.data.data;
-
+                const data = res.data.data;                
                 userId.value = id;
                 ruc.value = `${data.ruc_ci}`
                 razon.value = `${data.razon_social}`
             } catch (err) {
-                console.error(err)
+                console.error('error', err)
             }
         })
     });
