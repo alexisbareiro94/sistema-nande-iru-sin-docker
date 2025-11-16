@@ -61,7 +61,7 @@
 
                     <!-- Alertas -->
                     {{-- TODO: descomentar cuando hay un dominio:D --}}
-                    {{-- @include('reportes.includes.alertas') --}}
+                    @include('reportes.includes.alertas')
                 </div>
 
                 <!-- Reportes -->

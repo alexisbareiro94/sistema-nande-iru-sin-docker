@@ -577,26 +577,26 @@ function toastLoading(message = "Generando PDF") {
 
     setTimeout(() => toast.classList.remove('opacity-0'), 10);
 
-    // window.Echo.private(`pdf-ready.${window.userId}`)
-    //     .listen('PdfGeneradoEvent', async (e) => {
-    //         const messageEl = toast.querySelector('.toast-message');
-    //         const spinnerEl = toast.querySelector('.spinner');
+    window.Echo.private(`pdf-ready.${window.userId}`)
+        .listen('PdfGeneradoEvent', async (e) => {
+            const messageEl = toast.querySelector('.toast-message');
+            const spinnerEl = toast.querySelector('.spinner');
 
-    //         spinnerEl.innerHTML = `
-    //             <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    //                 <path stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-    //             </svg>`;
+            spinnerEl.innerHTML = `
+                <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>`;
 
-    //         messageEl.textContent = "PDF generado correctamente";
-    //         toast.classList.remove('bg-blue-500');
-    //         toast.classList.add('bg-green-500');
+            messageEl.textContent = "PDF generado correctamente";
+            toast.classList.remove('bg-blue-500');
+            toast.classList.add('bg-green-500');
 
-    //         setTimeout(() => {
-    //             toast.classList.add('opacity-0');
-    //             sessionStorage.removeItem('pdf-toast')
-    //             setTimeout(() => toast.remove(), 500);
-    //         }, 1500);
-    //     });
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                sessionStorage.removeItem('pdf-toast')
+                setTimeout(() => toast.remove(), 500);
+            }, 1500);
+        });
 }
 
 document.getElementById('export-pdf').addEventListener('click', async () => {
