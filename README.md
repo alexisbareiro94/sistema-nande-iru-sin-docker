@@ -20,8 +20,10 @@ Podés ingresar al sistema con las siguientes credenciales:
 ### Instalación y configuración  
 
 1. **Clonar el repositorio**  
-   - **SSH:** `git clone git@github.com:alexisbareiro94/sistema-nande-iru-sin-docker.git`  
-   - **HTTP:** `https://github.com/alexisbareiro94/sistema-nande-iru-sin-docker.git`
+   > ⚠️ **Importante:** Se recomienda clonar la rama `con-reverb` para tener todas las funcionalidades completas.  
+   
+   - **SSH:** `git clone -b con-reverb git@github.com:alexisbareiro94/sistema-nande-iru-sin-docker.git`  
+   - **HTTP:** `git clone -b con-reverb https://github.com/alexisbareiro94/sistema-nande-iru-sin-docker.git`
 
 2. **Instalar dependencias**  
    ```bash
