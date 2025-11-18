@@ -3,7 +3,7 @@
         {{-- <a href="/">
             <img class="w-26 ml-6" src="{{ asset('images/logo/logo.png') }}" alt="">
         </a> --}}
-        <p>{{ auth()->user()->admin->empresa }}</p>
+        <p>{{ auth()->user()->admin->empresa ?? ''}}</p>
     </h1>
     <nav>
         <ul class="space-y-2">

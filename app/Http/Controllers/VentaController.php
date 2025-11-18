@@ -385,7 +385,8 @@ class VentaController extends Controller
 
             MovimientoCaja::create([
                 'caja_id' => $cajaId,
-                'tipo' => 'egreso',                             
+                'tipo' => 'egreso',    
+                'venta_anulado' => $venta->id,                         
                 'concepto' => "Anulación de venta: #$venta->codigo",
                 'monto' => $venta->total,
             ]);

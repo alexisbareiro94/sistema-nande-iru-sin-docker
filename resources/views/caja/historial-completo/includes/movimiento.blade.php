@@ -1,14 +1,14 @@
 <tr class="hover:bg-gray-50 transition-colors">
     <td class="venta-id px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 items-center">
         <div class="flex items-center gap-2 mb-1">
-            <span @class([
+            <span id="{{ $venta->id }}" @class([
                 'px-2 py-0.5 text-xs font-semibold rounded-xl', 
                 'bg-green-200 text-green-800' => $venta->tipo === 'ingreso',
                 'bg-red-200 text-red-800' => $venta->tipo === 'egreso',
                 ]) >
                 {{ ucfirst($venta->tipo) }}                
             </span>
-            
+        </div>
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {{ format_time($venta->created_at) }}
@@ -52,7 +52,7 @@
                     </svg>
                 </i>
             </button>
-            <button class="text-red-600 hover:text-red-900 cursor-pointer" title="Eliminar">
+            <button data-id="{{ $venta->id }}" class="eliminar-mov text-red-600 hover:text-red-900 cursor-pointer" title="Eliminar">
                 <i class="fas fa-trash">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
                         <path fill-rule="evenodd"

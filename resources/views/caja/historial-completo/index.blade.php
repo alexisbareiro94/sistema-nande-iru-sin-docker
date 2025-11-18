@@ -330,4 +330,5 @@
 @include('caja.historial-completo.detalle-venta')
 @include('caja.historial-completo.detalle-movimiento')
 @include('caja.historial-completo.includes.modal-anular-venta')
+@include('caja.historial-completo.includes.modal-eliminar-mov')
 @endsection

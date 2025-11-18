@@ -323,6 +323,10 @@ function recargarTablaHistorialVentas(data, paginacion) {
                                         </svg>
                                     </span>
     `;
+
+
+
+
     bodyTabla.innerText = ''
     if (data.ingresos_filtro != null || data.ingresos_filtro != undefined) {
         ingresoFiltro.classList.remove('hidden');
@@ -339,6 +343,18 @@ function recargarTablaHistorialVentas(data, paginacion) {
             tr.classList = 'hover:bg-gray-50 transition-colors';
             venta.venta.estado === 'completado' ? estadoClass = 'bg-green-100 text-green-800' :
                 (venta.venta.estado == 'cancelado' ? estadoClass = 'bg-red-100 text-red-800' : estadoClass = 'bg-yellow-100 text-yellow-800');
+
+            const anularVenta = venta.venta.estado != 'cancelado' ? `
+                                            <button data-id="${venta.venta.codigo}"
+                                                class="cancelar-venta text-red-600 hover:text-red-900 cursor-pointer" title="Cancelar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                                    <path fill-rule="evenodd"
+                                                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+            ` : '';
+
 
             let fechaC = new Date(venta.venta.created_at)
             let productos;
@@ -415,19 +431,12 @@ function recargarTablaHistorialVentas(data, paginacion) {
                                                     </svg>
                                                 </i>
                                             </button>
-                                             <button data-id="${venta.venta.codigo}"
-                                                class="cancelar-venta text-red-600 hover:text-red-900 cursor-pointer" title="Cancelar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                                    <path fill-rule="evenodd"
-                                                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
+                                            ${anularVenta}
                                         </div>
                                     </td>
                                 </tr>
 
-                                `;            
+                                `;
             bodyTabla.appendChild(tr);
         } else {
             const tr = document.createElement('tr');
@@ -616,11 +625,11 @@ document.getElementById('export-pdf').addEventListener('click', async () => {
 if (document.querySelectorAll('.cancelar-venta')) {
     anularVenta();
 }
-function anularVenta() {      
-    const btnsCancelar = document.querySelectorAll('.cancelar-venta');    
+function anularVenta() {
+    const btnsCancelar = document.querySelectorAll('.cancelar-venta');
     btnsCancelar.forEach(btn => {
         btn.addEventListener('click', async () => {
-            const modal = document.getElementById('modal-confirmar-anulacion-venta');            
+            const modal = document.getElementById('modal-confirmar-anulacion-venta');
             const title = document.getElementById('h3-anular-venta')
             const btnAnular = document.getElementById('btn-anular-venta');
             modal.classList.remove('hidden');
@@ -650,15 +659,13 @@ function anularVenta() {
                     if (!res.ok) {
                         throw datad
                     }
-                    console.log(datad)
-                    // window.location.reload();
+                    // console.log(datad)
+                    window.location.reload();
                 });
             } catch (err) {
                 console.error(err)
             }
         });
-
-
     })
 
 
@@ -668,5 +675,55 @@ function anularVenta() {
             document.getElementById('modal-confirmar-anulacion-venta').classList.add('hidden');
         })
     })
+}
 
+eliminarMov();
+
+function eliminarMov() {
+    const btnEliminarMov = document.querySelectorAll('.eliminar-mov');
+
+    btnEliminarMov.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modal = document.getElementById('modal-confirmar-borrar-mov');
+            const id = btn.dataset.id
+            const title = document.getElementById('h3-borrar-mov');
+            const btnConfirmar = document.getElementById('btn-borrar-mov');
+            btnConfirmar.dataset.id = id;
+            const tipo = document.querySelector(`span[id="${id}"]`).textContent.trim();
+            modal.classList.remove('hidden');
+            const span = document.createElement('span');
+            span.className = 'block text-xs text-red-700';
+            span.innerText = `Esta acción es irreversible`;
+            title.innerText = `Estas Seguro de eliminar este ${tipo}`
+            title.appendChild(span);
+            
+            btnConfirmar.addEventListener('click', async () => {
+                try{
+                    
+                    const res = await fetch(`/api/eliminar-mov/${id}`, {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                        }
+                    });
+                    const data = await res.json();
+                    if(!res.ok){
+                        throw data;
+                    }
+
+                    window.location.reload();
+                }catch(err){
+                    console.error(err)
+                }
+            });
+        });
+    });
+
+
+    const cerrarModalEliMov = document.querySelectorAll('.cerrar-borrar-mov');
+    cerrarModalEliMov.forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('modal-confirmar-borrar-mov').classList.add('hidden');
+        })
+    });
 }

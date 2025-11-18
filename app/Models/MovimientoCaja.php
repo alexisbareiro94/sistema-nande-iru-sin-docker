@@ -17,6 +17,7 @@ class MovimientoCaja extends Model
         'tipo',
         'concepto',
         'monto',
+        'venta_anulado'
     ];
 
     // En tu modelo Auditoria

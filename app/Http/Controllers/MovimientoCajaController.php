@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\AuditoriaCreadaEvent;
 use App\Http\Requests\StoreMovimientoRequest;
 use Illuminate\Http\Request;
-use App\Models\{Auditoria, MovimientoCaja, Caja};
+use App\Models\{Auditoria, MovimientoCaja, Caja, Venta};
 use App\Services\MovimientoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -153,6 +153,30 @@ class MovimientoCajaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function destroy(string $id) 
+    {   
+        DB::beginTransaction();
+        // return response()->json($id);
+        try{            
+            $mov = MovimientoCaja::findOrFail($id);
+            $mov->delete();
+            $venta = Venta::findOrFail($mov->venta_anulado);
+            $venta->update([
+                'estado' => 'completado'
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Movimiento eliminado'
+            ]);
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response()->json([
                 'error' => $e->getMessage(),
             ]);
         }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('tenant_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('caja_id')->constrained('cajas');
             $table->foreignId('venta_id')->nullable()->constrained('ventas');
+            $table->foreignId('venta_anulado')->nullable()->constrained('ventas');
             $table->enum('tipo', ['ingreso', 'egreso']);
             $table->string('concepto');
             $table->integer('monto');

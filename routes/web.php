@@ -80,6 +80,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/api/movimiento', [MovimientoCajaController::class, 'store'])->name('movimiento.store');
         Route::get('/api/movimientos/charts_caja', [MovimientoCajaController::class, 'charts_caja']);
         Route::get('/api/productos', [ProductoController::class, 'search'])->name('productos.search');
+        Route::post('/api/eliminar-mov/{id}', [MovimientoCajaController::class, 'destroy'])->name('mov.destroy');
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {
