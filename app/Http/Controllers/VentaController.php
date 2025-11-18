@@ -11,6 +11,7 @@ use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Exports\VentasExport;
+use App\Http\Requests\UpdateVentaRequest;
 use App\Jobs\GenerarPdfJob;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
@@ -344,6 +345,66 @@ class VentaController extends Controller
             ], 400);
         }
     }
+
+    public function update(UpdateVentaRequest $request, string $id)
+    {
+        try {
+            DB::beginTransaction();
+            $data = $request->validated();
+            $venta = Venta::findOrFail($id);
+            $venta->update($data);            
+            $cajaId = $venta->caja_id;
+
+            $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();            
+
+            foreach ($detalleVenta as $detalle) {
+                $producto = Producto::findOrFail($detalle->producto_id)->first();
+                if ($producto->tipo == 'producto') {
+                    $producto->update([
+                        'ventas' => $producto->ventas =- $detalle->cantidad,
+                        'stock' => $producto->stock =+ $detalle->cantidad,
+                    ]);
+                } else {
+                    $producto->update([
+                        'ventas' => $producto->ventas - $detalle->cantidad,
+                    ]);
+                }
+            }              
+
+            Auditoria::create([
+                'created_by' => auth()->user()->id,
+                'entidad_type' => Venta::class,
+                'entidad_id' => $venta->id,
+                'accion' => "Anulación de venta: #$venta->codigo",
+                'datos' => [
+                    'total' => $venta->total,
+                ]
+            ]);
+
+            AuditoriaCreadaEvent::dispatch(tenant_id());
+
+            MovimientoCaja::create([
+                'caja_id' => $cajaId,
+                'tipo' => 'egreso',                             
+                'concepto' => "Anulación de venta: #$venta->codigo",
+                'monto' => $venta->total,
+            ]);
+
+
+            DB::commit();
+            // return redirect()->back()->with('success', 'Venta Anulada');
+            return response()->json([
+                'message' => 'Venta ACtualizado'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+
 
     public function export_excel()
     {

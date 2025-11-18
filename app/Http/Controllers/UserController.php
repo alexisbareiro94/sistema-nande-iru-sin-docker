@@ -23,13 +23,11 @@ class UserController extends Controller
                     ->orWhereLike('razon_social', "%$q%")
                     ->orWhereLike('ruc_ci', "%$q%");
             })
-                ->with('compras')
-                ->where('activo', true)
+                ->with('compras')             
                 ->where('tenant_id', $tenantId)
                 ->whereNotIn('role', ['admin', 'caja', 'personal'])
                 ->orderByDesc('created_at')
-                ->get();
-
+                ->get();            
             return response()->json([
                 'success' => true,
                 'users' => $users,

@@ -100,8 +100,8 @@
 
                         </div>
                         <span
-                            class="text-lg font-medium text-gray-800 text-center group-hover:text-purple-600 transition-colors">Gestión
-                            de Usuarios</span>
+                            class="text-lg font-medium text-gray-800 text-center group-hover:text-purple-600 transition-colors">
+                            Gestión de Usuarios y Seguridad</span>
                     </a>
                 </div>
             @endif

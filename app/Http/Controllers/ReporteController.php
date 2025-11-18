@@ -15,6 +15,7 @@ class ReporteController extends Controller
     public function index()
     {
         $datos = $this->reporteService->data_index();
+        // dd($datos);
         return view('reportes.index', [
             'data' => $datos ?? ''
         ]);

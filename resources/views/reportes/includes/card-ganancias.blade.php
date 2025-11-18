@@ -12,13 +12,13 @@
                     ({{ Carbon\Carbon::parse($data['utilidad']['actual']['fecha_apertura'] ?? now())->format('d-m') }})
                 </p>
             </div>
-
+            {{-- @dd($data['utilidad']) --}}
             <span id="svg-cont-card" @class([
-                'text-red-500' => $data['utilidad']['tag'] ?? '' == '-',
-                'text-green-500' => $data['utilidad']['tag'] ?? '' == '+',
+                'text-red-500' => $data['utilidad']['tag'] == '-',
+                'text-green-500' => $data['utilidad']['tag'] == '+',
                 'text-gray-500' => '',
             ])>
-                @if ($data['utilidad']['tag'] ?? '' == '-')
+                @if ($data['utilidad']['tag'] == '-')
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"

@@ -62,7 +62,7 @@
                             {{ $cliente->ruc_ci }}
                         </td>
                         <td class="px-6 py-4">
-                            {{ $cliente->compras->count() }}
+                            {{ $cliente->compras_count }}
                         </td>
                         <td class="px-6 py-4">
                             {{ format_time($cliente->created_at) }}

@@ -1,6 +1,6 @@
 <div id="modal-todos-clientes"
     class=" hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-30 p-4">
-    <div class="overflow-x-scroll bg-white rounded-xl w-auto max-h-[90vh] shadow-2xl p-3 space-y-6 ">
+    <div class=" bg-white rounded-xl w-auto max-h-[90vh] shadow-2xl p-3 space-y-6 ">
 
         <!-- Encabezado -->
         <div class=" flex justify-between items-center pb-2 border-b">

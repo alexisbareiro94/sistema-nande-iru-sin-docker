@@ -10,14 +10,12 @@ class ClienteDistController extends Controller
 {
     public function index(){
         $tenantId = tenant_id();
-        $clientes = User::with('compras')
-            ->where('role', 'cliente')
-            ->where('activo', true)
+        $clientes = User::withCount('compras')
+            ->where('role', 'cliente')            
             ->where('tenant_id', $tenantId)
-            ->orderByDesc('created_at')            
+            ->orderByDesc('compras_count')            
             ->get()
-            ->take(5);
-
+            ->take(5);        
         $distribuidores = Distribuidor::whereNot('id', 1)
             ->get()            
             ->take(5);

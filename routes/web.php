@@ -62,15 +62,16 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/movimientos', [VentaController::class, 'index_view'])->name('venta.index.view');
         Route::get('/venta/{codigo}', [VentaController::class, 'show']);
         Route::get('/venta', [VentaController::class, 'index']);
-        
+        Route::post('/api/venta-update/{id}', [VentaController::class, 'update'])->name('venta.update');
+
         //exportaciones
         Route::get('/export-excel', [VentaController::class, 'export_excel'])->name('venta.excel');
         Route::get('/export-pdf', [VentaController::class, 'export_pdf'])->name('venta.pdf');
-            //stock
+        //stock
         Route::get('/export-stock', [ProductoController::class, 'export_stock_pdf'])->name('producto.excel');
-            //personal
+        //personal
         Route::get('/export-personal', [GestionUsersController::class, 'export_personal'])->name('personal.excel');
-            //
+        //
         Route::get('/export-salarios', [GestionUsersController::class, 'export_salarios'])->name('salarios.excel');
 
         //movimiento
@@ -150,9 +151,82 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
+use Illuminate\Support\Facades\DB;
+
 Route::get('/debug', function () {
-    dd(User::withCount('ventas')
-        ->where('role', 'personal')->get());
+    try {
+
+        $data = ['estado' => 'cancelado'];
+        $id = 282;
+        $venta = Venta::findOrFail($id);
+        $venta->update($data);
+        // dd($venta, $data);
+        $cajaId = $venta->caja_id;
+
+        $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();
+
+        foreach ($detalleVenta as $detalle) {
+            $detalle->update([
+                'cantidad' => 0,
+                'precio_unitario' => 0,
+                'precio_descuento' => 0,
+                'subtotal' => 0,
+                'total' => 0,
+            ]);
+
+            $producto = Producto::findOrFail($detalle->producto_id)->first();
+            //  dd($producto);
+            if ($producto->tipo == 'producto') {
+                $producto->update([
+                    'ventas' => $producto->ventas - $detalle->cantidad,
+                    'stock' => $producto->stock + $detalle->cantidad,
+                ]);
+            } else {
+                $producto->update([
+                    'ventas' => $producto->ventas - $detalle->cantidad,
+                ]);
+            }
+        }
+
+        $movimiento = MovimientoCaja::where('venta_id', $venta->id)->first();
+        $movimiento->update([
+            'tipo' => 'egreso',
+            'venta_id' => $venta->id,
+            'caja_id' => Caja::where('estado', 'abierto')->first()->id,
+            'concepto' => "cancelación de venta: #$venta->codigo",
+            'monto' => $venta->total,
+        ]);
+
+        Auditoria::create([
+            'created_by' => auth()->user()->id,
+            'entidad_type' => Venta::class,
+            'entidad_id' => $venta->id,
+            'accion' => 'Registro de venta',
+            'datos' => [
+                'total' => $venta->total,
+            ]
+        ]);
+
+        // AuditoriaCreadaEvent::dispatch(tenant_id());
+
+        MovimientoCaja::create([
+            'caja_id' => $cajaId,
+            'tipo' => 'egreso',
+            'venta_id' => $venta->id,
+            'concepto' => 'Anulación de venta',
+            'monto' => $venta->total,
+        ]);
+
+
+        // DB::commit();
+        // return redirect()->back()->with('success', 'Venta Anulada');
+        return response()->json([
+            'message' => 'Venta ACtualizado'
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        throw new \Exception($e->getMessage());
+    }
 });
 
 use Mike42\Escpos\Printer;

@@ -18,11 +18,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                 </span>
-            </button>            
+            </button>
         </div>
 
         <!-- Contenido del Modal -->
-        <div class="p-6">            
+        <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <h3 id="dv-info-venta" class="text-lg font-medium text-gray-900 mb-3">Información de la Venta</h3>
@@ -163,6 +163,12 @@
 
             <!-- Botones de Acción -->
             <div class="flex justify-end space-x-3 mt-6">
+                {{-- <form action="{{ route('venta.update', ['id' => $venta->id]) }}" method="post">
+                    <button
+                        class="px-4 py-2 border border-red-300 bg-red-400 rounded-md text-gray-100 hover:bg-red-500 transition-colors">
+                        Anular Venta
+                    </button>
+                </form> --}}
                 <button
                     class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
                     <i class="fas fa-print mr-2"></i>

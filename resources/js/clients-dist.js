@@ -70,7 +70,7 @@ async function renderUser() {
     tableBody.innerHTML = '';
     try {
         const res = await axios.get(`${url}/users`);
-        const users = res.data.users
+        const users = res.data.users        
         let count = 0;
         for (const user of users) {
             if (count == 5) break;
@@ -135,7 +135,7 @@ export async function renderAllUser(data = null) {
             console.log(res.data.users)
             users = res.data.users
         }
-
+        console.log('message')
         for (const user of users) {
             const tr = document.createElement('tr')
             tr.className = 'bg-white border-b border-gray-200'

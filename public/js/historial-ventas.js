@@ -27,7 +27,7 @@ function cerrarModalDetalle() {
 
 }
 
-if(document.getElementById('modal-detalle-venta')){
+if (document.getElementById('modal-detalle-venta')) {
     document.getElementById('modal-detalle-venta').addEventListener('click', function (e) {
         if (e.target === this) {
             cerrarModal();
@@ -47,7 +47,7 @@ async function detalleVentas(codigo) {
         if (!res.ok) {
             throw data;
         }
-
+        console.log(data)
         setDataDetalleVenta(data);
     } catch (err) {
         console.log(err)
@@ -124,14 +124,14 @@ function setDataDetalleVenta(data) {
     }
 }
 
-if(document.getElementById('svg-mixto')){
+if (document.getElementById('svg-mixto')) {
     document.getElementById('svg-mixto').addEventListener('click', (e) => {
         document.getElementById('d-v-if-mixto').classList.toggle('hidden');
     });
 }
 
 let clicks = 0;
-if(window.location.pathname == '/movimientos'){
+if (window.location.pathname == '/movimientos') {
     document.addEventListener('click', () => {
         if (!document.getElementById('d-v-if-mixto').classList.contains('hidden')) {
             clicks++;
@@ -343,15 +343,15 @@ function recargarTablaHistorialVentas(data, paginacion) {
             let fechaC = new Date(venta.venta.created_at)
             let productos;
             let movimientos;
-            if(venta.venta.productos){
+            if (venta.venta.productos) {
                 productos = venta.venta.productos
-                .map(p => `<p class="font-semibold text-start block">● ${p.nombre}</p>`)
-                .join('');
+                    .map(p => `<p class="font-semibold text-start block">● ${p.nombre}</p>`)
+                    .join('');
             }
-            if(productos == undefined){     
-                if(venta.concepto != 'Venta de productos'){
+            if (productos == undefined) {
+                if (venta.concepto != 'Venta de productos') {
                     movimientos = venta.concepto
-                }           
+                }
             }
 
             fecha = fechaC.toLocaleString('es-PY', {
@@ -415,20 +415,19 @@ function recargarTablaHistorialVentas(data, paginacion) {
                                                     </svg>
                                                 </i>
                                             </button>
-                                            <button class="text-red-600 hover:text-red-900 cursor-pointer" title="Eliminar">
-                                                <i class="fas fa-trash">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
-                                                        <path fill-rule="evenodd"
-                                                            d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </i>
+                                             <button data-id="${venta.venta.codigo}"
+                                                class="cancelar-venta text-red-600 hover:text-red-900 cursor-pointer" title="Cancelar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                                    <path fill-rule="evenodd"
+                                                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
 
-        `;
+                                `;            
             bodyTabla.appendChild(tr);
         } else {
             const tr = document.createElement('tr');
@@ -521,6 +520,7 @@ function recargarTablaHistorialVentas(data, paginacion) {
     }
     abrirmodalDmDetalles();
     abrirModalDetalles();
+    anularVenta();
 }
 
 const trigger = document.getElementById('dropdown');
@@ -612,3 +612,61 @@ document.getElementById('export-pdf').addEventListener('click', async () => {
         console.log(err)
     }
 });
+
+if (document.querySelectorAll('.cancelar-venta')) {
+    anularVenta();
+}
+function anularVenta() {      
+    const btnsCancelar = document.querySelectorAll('.cancelar-venta');    
+    btnsCancelar.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const modal = document.getElementById('modal-confirmar-anulacion-venta');            
+            const title = document.getElementById('h3-anular-venta')
+            const btnAnular = document.getElementById('btn-anular-venta');
+            modal.classList.remove('hidden');
+            try {
+                const id = btn.dataset.id;
+                const res = await fetch('/venta/' + id)
+                const data = await res.json();
+                if (!res.ok) {
+                    throw data;
+                }
+
+                title.innerText = `Estas seguro de anular la venta con código: #${data.venta.codigo}`
+                btnAnular.dataset.id = data.venta.id;
+
+                const dataF = new FormData();
+                dataF.append('estado', 'cancelado');
+
+                btnAnular.addEventListener('click', async () => {
+                    const res = await fetch(`/api/venta-update/${btnAnular.dataset.id}`, {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: dataF
+                    });
+                    const datad = await res.json();
+                    if (!res.ok) {
+                        throw datad
+                    }
+                    console.log(datad)
+                    // window.location.reload();
+                });
+            } catch (err) {
+                console.error(err)
+            }
+        });
+
+
+    })
+
+
+    const cerrarModalAnVe = document.querySelectorAll('.cerrar-modal-an-ven')
+    cerrarModalAnVe.forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('modal-confirmar-anulacion-venta').classList.add('hidden');
+        })
+    })
+
+}
