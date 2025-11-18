@@ -530,6 +530,7 @@ function recargarTablaHistorialVentas(data, paginacion) {
     abrirmodalDmDetalles();
     abrirModalDetalles();
     anularVenta();
+    eliminarMov();
 }
 
 const trigger = document.getElementById('dropdown');
@@ -677,7 +678,9 @@ function anularVenta() {
     })
 }
 
-eliminarMov();
+if(document.querySelectorAll('.eliminar-mov')){
+    eliminarMov();
+}
 
 function eliminarMov() {
     const btnEliminarMov = document.querySelectorAll('.eliminar-mov');
