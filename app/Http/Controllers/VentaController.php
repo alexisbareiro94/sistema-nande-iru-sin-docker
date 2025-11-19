@@ -24,10 +24,11 @@ class VentaController extends Controller
     public function index_view()
     {
         $query = Venta::query();
-        $clientes = User::where('role', 'cliente')
+        $users = User::where('role', 'cliente')
             ->where('tenant_id', tenant_id())
-            ->selectRaw('count(*) as total_users')
-            ->first()->total_users;
+            ->get();
+        $clientes = $users->count();
+
         $totalVentas = count($query->get());
         $ingresos = $query->sum('total');
         $ingresosHoy = $query->where('created_at', '>=', now()->format('Y-m-d'))->get()->sum('total');
@@ -43,8 +44,9 @@ class VentaController extends Controller
                 ->with('venta.productos')
                 ->paginate(10);
         }
-
+        // dd($users);
         return view('caja.historial-completo.index', [
+            'users' => $users,
             'clientes' => $clientes,
             'totalVentas' => $totalVentas,
             'ingresos' => $ingresos,
@@ -66,9 +68,9 @@ class VentaController extends Controller
             $search = $request->query('q');
             $orderBy = $request->query('orderBy');
             $dir = $request->query('direction');
+            $cliente = $request->query('cliente');
 
-            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy)) {
-
+            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy) && !filled($cliente)) {
                 if (auth()->user()->role === 'admin') {
                     $ventas = $query->with(['caja.user', 'venta' => function ($query) {
                         $query->with(['cliente', 'detalleVentas', 'productos']);
@@ -86,6 +88,12 @@ class VentaController extends Controller
                     'paginacion' => $paginacion,
                     'ventas' => $ventas,
                 ]);
+            }
+
+            if (filled($cliente)) {
+                $query->whereHas('venta', function ($q) use ($cliente) {
+                    $q->where('cliente_id', $cliente);
+                });
             }
 
             if (filled($desdeC)) {
@@ -352,24 +360,24 @@ class VentaController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             $venta = Venta::findOrFail($id);
-            $venta->update($data);            
+            $venta->update($data);
             $cajaId = $venta->caja_id;
 
-            $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();            
+            $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();
 
             foreach ($detalleVenta as $detalle) {
                 $producto = Producto::findOrFail($detalle->producto_id)->first();
                 if ($producto->tipo == 'producto') {
                     $producto->update([
-                        'ventas' => $producto->ventas =- $detalle->cantidad,
-                        'stock' => $producto->stock =+ $detalle->cantidad,
+                        'ventas' => $producto->ventas = -$detalle->cantidad,
+                        'stock' => $producto->stock = +$detalle->cantidad,
                     ]);
                 } else {
                     $producto->update([
                         'ventas' => $producto->ventas - $detalle->cantidad,
                     ]);
                 }
-            }              
+            }
 
             Auditoria::create([
                 'created_by' => auth()->user()->id,
@@ -385,8 +393,8 @@ class VentaController extends Controller
 
             MovimientoCaja::create([
                 'caja_id' => $cajaId,
-                'tipo' => 'egreso',    
-                'venta_anulado' => $venta->id,                         
+                'tipo' => 'egreso',
+                'venta_anulado' => $venta->id,
                 'concepto' => "Anulación de venta: #$venta->codigo",
                 'monto' => $venta->total,
             ]);

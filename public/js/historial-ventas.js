@@ -220,8 +220,11 @@ if (document.getElementById('dv-buscar')) {
         const estado = document.getElementById('dv-i-estado').value;
         const formaPago = document.getElementById('dv-forma-pago').value;
         const tipo = document.getElementById('dv-tipo').value;
+        const cliente = document.getElementById('dv-cliente').value;
 
-        if (desde == '' && hasta == '' && estado == '' && formaPago == '' && tipo == '') {
+        console.log(cliente);
+
+        if (desde == '' && hasta == '' && estado == '' && formaPago == '' && tipo == '' && cliente == '') {
             window.location.href = '/movimientos'
             return;
         }
@@ -234,6 +237,7 @@ if (document.getElementById('dv-buscar')) {
             estado: estado,
             formaPago: formaPago,
             tipo: tipo,
+            cliente: cliente,
         }
         sessionStorage.setItem('datos', JSON.stringify(datos))
         buscar();
@@ -270,10 +274,12 @@ async function buscar(orderBy = '', direction = '') {
     const estado = datos.estado ?? '';
     const formaPago = datos.formaPago ?? '';
     const tipo = datos.tipo ?? '';
+    const cliente = datos.cliente ?? '';
     const q = document.getElementById('dv-input-s').value;
     let paginacion = false;
+    // console.log(cliente);
 
-    if (q === '' && desde == "" && hasta == "" && estado == "" && formaPago == "" && tipo == "") {
+    if (q === '' && desde == "" && hasta == "" && estado == "" && formaPago == "" && tipo == "" && cliente == "") {
         if (!ingresoFiltro.classList.contains('hidden') || !egresosFiltro.classList.contains('hidden')) {
             ingresoFiltro.classList.add('hidden');
             egresosFiltro.classList.add('hidden');
@@ -281,12 +287,7 @@ async function buscar(orderBy = '', direction = '') {
         paginacion = true;
     }
     try {
-        const res = await fetch(`/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`, {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-            }
-        });
+        const res = await fetch(`/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&cliente=${encodeURIComponent(cliente)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
@@ -678,7 +679,7 @@ function anularVenta() {
     })
 }
 
-if(document.querySelectorAll('.eliminar-mov')){
+if (document.querySelectorAll('.eliminar-mov')) {
     eliminarMov();
 }
 
@@ -699,10 +700,10 @@ function eliminarMov() {
             span.innerText = `Esta acción es irreversible`;
             title.innerText = `Estas Seguro de eliminar este ${tipo}`
             title.appendChild(span);
-            
+
             btnConfirmar.addEventListener('click', async () => {
-                try{
-                    
+                try {
+
                     const res = await fetch(`/api/eliminar-mov/${id}`, {
                         method: "POST",
                         headers: {
@@ -710,12 +711,12 @@ function eliminarMov() {
                         }
                     });
                     const data = await res.json();
-                    if(!res.ok){
+                    if (!res.ok) {
                         throw data;
                     }
 
                     window.location.reload();
-                }catch(err){
+                } catch (err) {
                     console.error(err)
                 }
             });

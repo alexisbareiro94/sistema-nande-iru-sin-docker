@@ -118,7 +118,7 @@
 
                     </span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
                         <input id="dv-desde" type="date"
@@ -162,6 +162,17 @@
                             <option value="venta-ingreso">Ventas e Ingreso</option>
                             <option value="ingreso">Ingreso</option>
                             <option value="egreso">Egreso</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Clientes</label>
+                        <select id="dv-cliente"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name ?? $user->razon_social }}</option>
+                            @endforeach
                         </select>
                     </div>
 
