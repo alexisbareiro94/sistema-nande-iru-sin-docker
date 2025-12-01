@@ -362,23 +362,23 @@ class VentaController extends Controller
             $venta = Venta::findOrFail($id);
             $venta->update($data);
             $cajaId = $venta->caja_id;
-
-            $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();
-
+            $stock = 0;
+            $ventas = 0;
+            $detalleVenta = DetalleVenta::where('venta_id', $venta->id)
+                ->with('producto')
+                ->get();            
+        
             foreach ($detalleVenta as $detalle) {
-                $producto = Producto::findOrFail($detalle->producto_id)->first();
+                $producto = $detalle->producto;                
                 if ($producto->tipo == 'producto') {
+                    $stock = $producto->stock + $detalle->cantidad;
+                    $ventas = $producto->ventas - $detalle->cantidad;                    
                     $producto->update([
-                        'ventas' => $producto->ventas = -$detalle->cantidad,
-                        'stock' => $producto->stock = +$detalle->cantidad,
-                    ]);
-                } else {
-                    $producto->update([
-                        'ventas' => $producto->ventas - $detalle->cantidad,
-                    ]);
+                        'ventas' => $ventas,
+                        'stock' => $stock,
+                    ]);                
                 }
-            }
-
+            }            
             Auditoria::create([
                 'created_by' => auth()->user()->id,
                 'entidad_type' => Venta::class,
@@ -403,7 +403,7 @@ class VentaController extends Controller
             DB::commit();
             // return redirect()->back()->with('success', 'Venta Anulada');
             return response()->json([
-                'message' => 'Venta ACtualizado'
+                'message' => 'Venta Actualizado'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

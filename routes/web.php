@@ -21,9 +21,6 @@ use App\Http\Middleware\CajaMiddleware;
 use App\Http\Middleware\CheckUserIsBloqued;
 use Illuminate\Support\Facades\Route;
 
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, PagoSalario};
-use Carbon\Carbon;
-
 Route::get('/login', [AuthController::class, 'login_view'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
 Route::get('/register', [AuthController::class, 'register_view'])->name('register.view');
@@ -152,84 +149,7 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
-use Illuminate\Support\Facades\DB;
-
-Route::get('/debug', function () {
-    try {
-
-        $data = ['estado' => 'cancelado'];
-        $id = 282;
-        $venta = Venta::findOrFail($id);
-        $venta->update($data);
-        // dd($venta, $data);
-        $cajaId = $venta->caja_id;
-
-        $detalleVenta = DetalleVenta::where('venta_id', $venta->id)->get();
-
-        foreach ($detalleVenta as $detalle) {
-            $detalle->update([
-                'cantidad' => 0,
-                'precio_unitario' => 0,
-                'precio_descuento' => 0,
-                'subtotal' => 0,
-                'total' => 0,
-            ]);
-
-            $producto = Producto::findOrFail($detalle->producto_id)->first();
-            //  dd($producto);
-            if ($producto->tipo == 'producto') {
-                $producto->update([
-                    'ventas' => $producto->ventas - $detalle->cantidad,
-                    'stock' => $producto->stock + $detalle->cantidad,
-                ]);
-            } else {
-                $producto->update([
-                    'ventas' => $producto->ventas - $detalle->cantidad,
-                ]);
-            }
-        }
-
-        $movimiento = MovimientoCaja::where('venta_id', $venta->id)->first();
-        $movimiento->update([
-            'tipo' => 'egreso',
-            'venta_id' => $venta->id,
-            'caja_id' => Caja::where('estado', 'abierto')->first()->id,
-            'concepto' => "cancelación de venta: #$venta->codigo",
-            'monto' => $venta->total,
-        ]);
-
-        Auditoria::create([
-            'created_by' => auth()->user()->id,
-            'entidad_type' => Venta::class,
-            'entidad_id' => $venta->id,
-            'accion' => 'Registro de venta',
-            'datos' => [
-                'total' => $venta->total,
-            ]
-        ]);
-
-        // AuditoriaCreadaEvent::dispatch(tenant_id());
-
-        MovimientoCaja::create([
-            'caja_id' => $cajaId,
-            'tipo' => 'egreso',
-            'venta_id' => $venta->id,
-            'concepto' => 'Anulación de venta',
-            'monto' => $venta->total,
-        ]);
-
-
-        // DB::commit();
-        // return redirect()->back()->with('success', 'Venta Anulada');
-        return response()->json([
-            'message' => 'Venta ACtualizado'
-        ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        throw new \Exception($e->getMessage());
-    }
-});
-
+use Carbon\Carbon;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
 
@@ -304,4 +224,14 @@ Route::get('/test-redis', function () {
             'message' => $e->getMessage(),
         ]);
     }
+});
+
+
+Route::get('/debug', function(){
+    $a= 0;
+    for($i = 0; $i < 5; $i++){
+        $a += 1;
+    }
+
+    return $a;
 });

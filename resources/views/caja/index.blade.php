@@ -92,36 +92,36 @@
                                     <span>{{ session('caja') ? 'Cerrar Caja' : 'Abrir Caja' }}</span>
                                 </div>
                             </button>
-
-
-                            <!-- Botón Movimientos Manuales -->
-                            <div class="relative">
-                                <button {{ !session('caja') ? 'disabled' : '' }} id="btn-movimiento"
-                                    class="cursor-pointer w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-lg
-                                    transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed">
-                                    <div class="flex flex-col items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-1" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        <span>Movimientos Manuales</span>
-                                    </div>
-                                </button>
-
-                                @if (!session('caja'))
-                                    <div
-                                        class="absolute  inset-0 bg-gray-100/70 rounded-lg flex items-center justify-center backdrop-blur-[2px]">
-                                        <span class="text-gray-500 text-sm font-medium">Caja cerrada</span>
-                                    </div>
-                                @endif
-                            </div>
                         @endif
+                        <!-- Botón Movimientos Manuales -->
+                        <div class="relative">
+                            <button {{ !session('caja') ? 'disabled' : '' }} id="btn-movimiento"
+                                class="cursor-pointer w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 rounded-lg
+                                    transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed">
+                                <div class="flex flex-col items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    <span>Movimientos Manuales</span>
+                                </div>
+                            </button>
+
+                            @if (!session('caja'))
+                                <div
+                                    class="absolute  inset-0 bg-gray-100/70 rounded-lg flex items-center justify-center backdrop-blur-[2px]">
+                                    <span class="text-gray-500 text-sm font-medium">Caja cerrada</span>
+                                </div>
+                            @endif
+                        </div>
+
                         <!-- Botón Ir a Ventas -->
                         <div class="relative">
                             <button id="ir-a-ventas"
                                 class="cursor-pointer w-full bg-gray-800 hover:bg-gray-600 text-white font-semibold py-4 rounded-lg
-                                    transition-all duration-200 hover:shadow-md" {{ !session('caja') ? 'disabled' : ''}}>
+                                    transition-all duration-200 hover:shadow-md"
+                                {{ !session('caja') ? 'disabled' : '' }}>
                                 <div class="flex flex-col items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">

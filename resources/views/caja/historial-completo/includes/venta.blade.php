@@ -65,8 +65,8 @@
                     </svg>
                 </i>
             </button>
-
-            @if ($venta->venta->estado != 'cancelado')                
+            
+            @if ($venta->venta->estado != 'cancelado' &&  auth()->user()->role === 'admin')
                 <button data-id="{{ $venta->venta->codigo }}"
                     class="cancelar-venta text-red-600 hover:text-red-900 cursor-pointer" title="Cancelar">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">

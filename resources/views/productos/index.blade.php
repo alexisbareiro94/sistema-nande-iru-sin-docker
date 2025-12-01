@@ -79,6 +79,7 @@
                         @include('productos.icons.nombres')
                     </th>
                     <th class="px-2 py-3 text-left text-sm font-semibold text-gray-900 uppercase">Código</th>
+                    <th class="px-2 py-3 text-left text-sm font-semibold text-gray-900 uppercase">Precio Compra</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 uppercase flex gap-1">
                         Precio
                         @include('productos.icons.precio')
@@ -101,6 +102,9 @@
                             <p class="text-gray-500 text-xs">{{ $producto->marca->nombre ?? '' }}</p>
                         </td>
                         <td class="px-2 py-3 text-sm">{{ $producto->codigo ?? '' }}</td>
+                        <td class="pl-3 py-3 text-sm font-medium">
+                            GS. {{ number_format($producto->precio_compra, 0, ',', '.') }}
+                        </td>
                         <td class="pl-3 py-3 text-sm font-medium">
                             GS. {{ number_format($producto->precio_venta, 0, ',', '.') }}
                         </td>

@@ -661,7 +661,7 @@ function anularVenta() {
                     if (!res.ok) {
                         throw datad
                     }
-                    // console.log(datad)
+                    console.log(datad)
                     window.location.reload();
                 });
             } catch (err) {
