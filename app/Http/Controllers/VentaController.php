@@ -219,8 +219,7 @@ class VentaController extends Controller
     public function store(StoreVentaRequest $request)
     {
         $data = $request->validated();  //aca se valida que llegue el carrito y demas datos
-        $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario
-
+        $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario        
         if ($errores->count() > 0) {
             return response()->json([
                 'success' => false,
@@ -228,7 +227,7 @@ class VentaController extends Controller
                 'es en el service'
             ], 400);
         }
-
+    
         $carrito = collect(json_decode($data['carrito']));
         $totalCarrito = collect(json_decode($data['total']));
         $formaPago = collect(json_decode($data['forma_pago']));
@@ -253,6 +252,7 @@ class VentaController extends Controller
                 'forma_pago' => $metodoPago[0],
                 'con_descuento' => $tieneDescuento,
                 'monto_descuento' => $totalCarrito['subtotal'] - $totalCarrito['total'],
+                'monto_recibido' => $data['monto_recibido'],
                 'subtotal' => $totalCarrito['subtotal'],
                 'total' => $totalCarrito['total'],
                 'estado' => 'completado',
@@ -360,6 +360,11 @@ class VentaController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             $venta = Venta::findOrFail($id);
+            if($venta->estado == 'cancelado'){
+                return response()->json([
+                    'message' => 'venta anulada'
+                ]);
+            }
             $venta->update($data);
             $cajaId = $venta->caja_id;
             $stock = 0;
@@ -367,7 +372,7 @@ class VentaController extends Controller
             $detalleVenta = DetalleVenta::where('venta_id', $venta->id)
                 ->with('producto')
                 ->get();            
-        
+                        
             foreach ($detalleVenta as $detalle) {
                 $producto = $detalle->producto;                
                 if ($producto->tipo == 'producto') {

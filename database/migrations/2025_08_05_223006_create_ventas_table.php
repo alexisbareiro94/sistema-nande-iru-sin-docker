@@ -24,6 +24,7 @@ return new class extends Migration
             $table->enum('forma_pago', ['efectivo', 'transferencia', 'mixto']);
             $table->boolean('con_descuento')->default(false);
             $table->integer('monto_descuento')->nullable();
+            $table->integer('monto_recibido')->nullable();
             $table->integer('subtotal');
             $table->integer('total');
             $table->enum('estado', ['pendiente', 'completado', 'cancelado'])->default('completado')->index();

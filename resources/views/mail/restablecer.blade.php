@@ -34,7 +34,7 @@
                                 <tr>
                                     <td align="center"
                                         style="background-color: #28a745; padding: 12px 30px; border-radius: 5px;">
-                                        <a href="http://127.0.0.1:80/restablecer_pass?token={{ urlencode($token) }}"
+                                        <a href="http://127.0.0.1:8000/restablecer_pass?token={{ urlencode($token) }}"
                                             target="_blank"
                                             style="color: white; text-decoration: none; font-weight: bold; font-size: 16px;">
                                             Restablecer Contraseña</a>

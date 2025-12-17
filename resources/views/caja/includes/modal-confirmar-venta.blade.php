@@ -109,7 +109,7 @@
                             </span>
                         </div>
                     </li>
-                    <li class="w-full border-b border-gray-200 sm:border-b-0">
+                    <li class="w-full border-b border-gray-200 sm:border-b-0 ">
                         <div class="flex items-center ps-3">
                             <input id="mixto" type="radio" value="" name="list-radio"
                                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
@@ -136,15 +136,16 @@
                 <!-- monto recibido -->
                 <form id="form-monto-recibido" action="">
                     <div id="monto-recibido" class="flex flex-col object-center text-center gap-2 px-4 md:px-10 py-4 ">
-                        <div class="flex">
-                            <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Monto
-                                Recibido:
+                        <div class="flex justify-between">
+                            <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">
+                                Monto Recibido:
                             </label>
                             <input class="border border-gray-300 px-3 py-1 w-auto rounded-md" type="number"
                                 name="monto-recibido" id="i-monto-recibido">
                         </div>
+                        <p id="vuelto"></p>
                     </div>
-                </form>                
+                </form>           
                 <!-- /monto recibido -->
             </div>
             <!-- /metodo de pago -->

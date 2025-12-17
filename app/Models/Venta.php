@@ -30,6 +30,7 @@ class Venta extends Model
         'updated_by',
         'deleted_by',
         'vendedor_id',
+        'monto_recibido',
     ];
 
 

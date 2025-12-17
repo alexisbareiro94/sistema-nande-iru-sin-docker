@@ -48,7 +48,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
 
         //cajas anteriores
         Route::get('/caja/anteriores', [CajaController::class, 'anteriores'])->name('caja.anteriores');
-        Route::get('api/caja/{id}', [CajaController::class, 'show'])->name('caja.show');
+        Route::get('/api/caja/{id}', [CajaController::class, 'show'])->name('caja.show');
 
         //users
         Route::get('/api/users', [UserController::class, 'index'])->name('user.index');

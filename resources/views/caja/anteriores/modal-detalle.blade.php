@@ -183,7 +183,7 @@
                 <!-- Egresos -->
                 <div class="bg-white border border-gray-200 rounded-xl p-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Egresos</h3>
-                    <div class="space-y-3">
+                    <div id="dc-egresos" class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                             <div>
                                 <p class="font-medium text-gray-900">Compra de Insumos</p>
@@ -198,6 +198,9 @@
                             </div>
                             <span class="font-bold text-red-600">Gs. 200,000</span>
                         </div>
+                    </div>
+                    <div class="pt-4 pl-4">
+                        <p class="font-semibold text-red-500 text-xl">Total Egresos: <span id="total-ingreso-dc"></span></p>
                     </div>
                 </div>
             </div>

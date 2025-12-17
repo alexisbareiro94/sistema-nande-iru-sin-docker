@@ -29,6 +29,7 @@ class StoreVentaRequest extends FormRequest
             'ruc' => 'required',
             'total' => 'required',
             'forma_pago' => 'required',
+            'monto_recibido' => 'required',
         ];
     }
 

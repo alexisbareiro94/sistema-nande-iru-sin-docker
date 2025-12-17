@@ -100,7 +100,10 @@ class GestionUsersController extends Controller
             ]);
             // dd($validated);
             $validated['activo'] = $validated['activo'] == 'true'  ? true : false;
+            $validated['tenant_id'] = tenant_id();
+            $validated['temp_used'] = true;
             $user = User::create($validated);
+            
             Auditoria::create([
                 'created_by' => $request->user()->id,
                 'entidad_type' => User::class,

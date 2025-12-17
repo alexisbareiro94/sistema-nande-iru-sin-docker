@@ -150,6 +150,15 @@ class CajaController extends Controller
             $mayorVenta = Venta::where("caja_id", $caja->id)
                 ->orderByDesc("total")
                 ->first()->total;
+
+
+            $egresos = MovimientoCaja::where('tipo', 'egreso')
+                ->where('caja_id', $caja->id)
+                ->orderByDesc('monto')
+                ->get();
+
+            $totalEgreso = $egresos->sum('monto');
+
             $promedioVenta = $caja->monto_cierre / $transacciones;
             $clientes = Venta::where("caja_id", $caja->id)
                 ->get()
@@ -191,6 +200,8 @@ class CajaController extends Controller
                 "transfProcentaje" => round($transfProcentaje, 0),
                 "mayorVenta" => $mayorVenta,
                 "promedio" => round($promedioVenta, 0),
+                'egresos' => $egresos->take(3),
+                'total_egreso' => $totalEgreso
             ];
 
             return response()->json([

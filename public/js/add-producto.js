@@ -49,7 +49,7 @@ tipoProductoRadios.forEach(radio => {
     });
 });
 if (boton) {
-    boton.addEventListener("click", (e) => {
+    boton.addEventListener("click", (e) => {        
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const formData = new FormData();
         formData.append('nombre', nombre.value);

@@ -23,20 +23,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([UserSeeder::class]);
 
-        // DB::table("marcas")->insert([
-        //     // "tenant_id" => 1,
-        //     "nombre" => "sin marca",
-        // ]);
+        DB::table("marcas")->insert([
+            "tenant_id" => 1,
+            "nombre" => "sin marca",
+        ]);
 
-        // DB::table("categorias")->insert([
-        //     // "tenant_id" => 1,            
-        //     "nombre" => "sin categoria",
-        // ]);
+        DB::table("categorias")->insert([
+            "tenant_id" => 1,            
+            "nombre" => "sin categoria",
+        ]);
 
-        // DB::table("distribuidores")->insert([
-        //     // "tenant_id" => 1,               
-        //     "nombre" => "sin distribuidor",
-        // ]);
+        DB::table("distribuidores")->insert([
+            "tenant_id" => 1,               
+            "nombre" => "sin distribuidor",
+        ]);
 
 
         DB::table('cajas')->insert([

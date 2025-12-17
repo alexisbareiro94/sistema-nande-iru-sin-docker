@@ -30,9 +30,10 @@ class StoreProductRequest extends FormRequest
             'codigo_auto' => 'nullable',
             'codigo' => [
                 'required_if:codigo_auto,false',
-                Rule::unique('productos')->where(fn($q) => $q->where('tenant_id', tenant_id())),
-                'nullable',
+                Rule::unique('productos')
+                    ->where(fn($q) => $q->where('tenant_id', tenant_id())),
             ],
+
             'marca_id' => 'nullable|required_if:tipo,producto|exists:marcas,id',
             'categoria_id' => 'required|exists:categorias,id',
             'descripcion' => 'nullable',

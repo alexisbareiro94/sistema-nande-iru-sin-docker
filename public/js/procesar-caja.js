@@ -1,5 +1,5 @@
 document.getElementById('procesar-venta').addEventListener('click', () => {
-    const carrito = JSON.parse(sessionStorage.getItem('carrito')) ?? {};
+    const carrito = JSON.parse(sessionStorage.getItem('carrito')) ?? {};    
     const ruc = document.getElementById('i-ruc-ci');
     const razon = document.getElementById('i-nombre-razon');
 
@@ -29,7 +29,7 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
     const mixtoEfectivo = document.getElementById('mixto-efectivo') ?? '';
     const mixtoTransf = document.getElementById('mixto-transf') ?? '';
     const montoRecibido = document.getElementById('i-monto-recibido') ?? '';
-    let formaPago = {};
+    let formaPago = {};   
 
     if (efectivo.checked == false && transf.checked == false && mixto.checked == false) {
         document.getElementById('no-radio').classList.remove('hidden');
@@ -82,7 +82,13 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
             }
         }
     }
-    const data = await confirmarVenta(formaPago);
+    const totalCart = JSON.parse(sessionStorage.getItem('totalCarrito')) || {};  
+    let monto = parseInt(montoRecibido.value);    
+    if(totalCart.total > monto){
+        showToast('El monto recibido es menor al total de la venta', 'error');
+        return;
+    }    
+    const data = await confirmarVenta(formaPago, montoRecibido);
     document.getElementById('modal-carga').classList.remove('hidden');
     setTimeout(() => {        
         document.getElementById('modal-carga').classList.add('hidden');
@@ -94,6 +100,7 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
 
 
 function resumenVenta(data) {
+    console.log(data)
     const modalVentaCompletada = document.getElementById('modal-venta-completada');
     const resumenVenta = document.getElementById('resumen-venta');
     modalVentaCompletada.classList.remove('hidden');
@@ -113,7 +120,9 @@ function resumenVenta(data) {
                 <li id="li-productos">
                     
                 </li>
+
                 <li class="mt-4"><strong>Subtotal:</strong> ${data.venta.subtotal.toLocaleString('es-PY')} Gs</li>
+                <li class="font-bold text-gray-900"><strong>Vuelto:</strong> ${(data.venta.monto_recibido - data.venta.total).toLocaleString('es-PY')}  Gs</li>
                 <li class="font-bold text-gray-900"><strong>Total:</strong> ${data.venta.total.toLocaleString('es-PY')} Gs</li>
     `;
     resumenVenta.append(ul);
@@ -162,7 +171,7 @@ function resumenCarrito() {
     trF.innerHTML = `
                                 <th scope="row" class="px-6 py-3 text-base">Total</th>
                                 <td class="px-6 py-3">${totalResumen.cantidadTotal}</td>
-                                <td class="px-6 py-3">Gs. ${totalResumen.total}</td>
+                                <td id="precio-tabla" class="px-6 py-3">Gs. ${totalResumen.total}</td>
     `;
     footerTableVenta.appendChild(trF);
 }
@@ -173,13 +182,13 @@ const contMontoRecibido = document.getElementById('monto-recibido');
 
 mixto.addEventListener('change', () => {
     contMontoRecibido.innerHTML = `            
-                <div class="flex w-full">
-                    <label for="mixto-efectivo" class="text-start text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Efectivo Recibido:</label>
-                    <input class="flex justify-end border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-efectivo" id="mixto-efectivo">
+                <div class="flex justify-between">
+                    <label for="mixto-efectivo" class="flex text-start text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Efectivo Recibido:</label>
+                    <input class=" border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-efectivo" id="mixto-efectivo">
                 </div>
-                <div class="flex w-full">
+                <div class="flex justify-between">
                     <label for="mixto-transf" class="text-start text-sm text-gray-800 font-semibold mt-1 pr-0.5 md:pr-12">Monto en Transferencia:</label>
-                    <input class="flex justify-end border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-transf" id="mixto-transf">
+                    <input class=" border border-gray-300 px-3 py-1 rounded-md" type="number" name="mixto-transf" id="mixto-transf">
                 </div>
     `
 });
@@ -187,7 +196,7 @@ mixto.addEventListener('change', () => {
 efectivoTransf.forEach(btn => {
     btn.addEventListener('change', () => {
         contMontoRecibido.innerHTML = `
-                <div class="flex">
+                <div class="flex justify-between">
                     <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">Monto Recibido:</label>
                     <input class="border border-gray-300 px-3 py-1 rounded-md" type="number" name="monto-recibido" id="i-monto-recibido">
                 </div>                
@@ -196,7 +205,7 @@ efectivoTransf.forEach(btn => {
 })
 
 let timerVentaC;
-async function confirmarVenta(formaPago) {
+async function confirmarVenta(formaPago, montoRecibido) {
     try {
         carrito = JSON.parse(sessionStorage.getItem('carrito')) || {};
         total = JSON.parse(sessionStorage.getItem('totalCarrito')) || {};
@@ -207,7 +216,7 @@ async function confirmarVenta(formaPago) {
         ventaData.append('forma_pago', JSON.stringify(formaPago));
         ventaData.append('ruc', document.getElementById('i-ruc-ci').value.trim());
         ventaData.append('razon', document.getElementById('i-nombre-razon').value.trim());
-
+        ventaData.append('monto_recibido', montoRecibido.value);        
         const res = await fetch(`/api/venta`, {
             method: 'POST',
             headers: {
@@ -221,6 +230,7 @@ async function confirmarVenta(formaPago) {
         }
         document.getElementById('input-b-producto-ventas').value = '';
         showToast('Venta realizado con éxito');
+        console.log(data)
         return data;
     } catch (err) {
         showToast(`${err.error}`, 'error');

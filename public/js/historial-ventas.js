@@ -190,30 +190,30 @@ function setProductos(data) {
             const tipoVenta = producto.tipo == 'servicio' ? 
             `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
-            </svg>` : `<svg role="img" aria-label="Producto - caja" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M21 16V8a1 1 0 0 0-.553-.894l-8-4.5a1 1 0 0 0-.894 0l-8 4.5A1 1 0 0 0 3 8v8a1 1 0 0 0 .553.894l8 4.5a1 1 0 0 0 .894 0l8-4.5A1 1 0 0 0 21 16z"/>
-  <path d="M3.27 6.96 12 11.4l8.73-4.44"/>
-  <path d="M12 11.4v9.6"/>
-</svg>
-`
+                            </svg>` : `<svg role="img" aria-label="Producto - caja" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a1 1 0 0 0-.553-.894l-8-4.5a1 1 0 0 0-.894 0l-8 4.5A1 1 0 0 0 3 8v8a1 1 0 0 0 .553.894l8 4.5a1 1 0 0 0 .894 0l8-4.5A1 1 0 0 0 21 16z"/>
+                    <path d="M3.27 6.96 12 11.4l8.73-4.44"/>
+                    <path d="M12 11.4v9.6"/>
+                </svg>
+                `
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center gap-1">
-            <span class="rounded-full px-1 py-1 text-xs ${tipoClass}" > ${tipoVenta} </span>
-            ${producto.nombre}
+                <span class="rounded-full px-1 py-1 text-xs ${tipoClass}" > ${tipoVenta} </span>
+                ${producto.nombre}
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-            ${producto.codigo ?? 'sin codigo'}
+                ${producto.codigo ?? 'sin codigo'}
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-            ${producto.detalles[0].cantidad}
+                ${producto.detalles[0].cantidad}
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-            ${producto.detalles[0].producto_con_descuento ? producto.detalles[0].precio_descuento.toLocaleString('es-PY') : producto.precio_venta.toLocaleString('es-PY')}
+                ${producto.detalles[0].producto_con_descuento ? producto.detalles[0].precio_descuento.toLocaleString('es-PY') : producto.precio_venta.toLocaleString('es-PY')}
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-            Gs. ${producto.detalles[0].producto_con_descuento ? (producto.detalles[0].precio_descuento * producto.detalles[0].cantidad).toLocaleString('es-PY') : (producto.precio_venta * producto.detalles[0].cantidad).toLocaleString('es-PY')}
+                Gs. ${producto.detalles[0].producto_con_descuento ? (producto.detalles[0].precio_descuento * producto.detalles[0].cantidad).toLocaleString('es-PY') : (producto.precio_venta * producto.detalles[0].cantidad).toLocaleString('es-PY')}
             </td>
             `
             bodyTabla.appendChild(tr);
@@ -222,7 +222,6 @@ function setProductos(data) {
 
     }
 }
-
 
 if (document.getElementById('dv-buscar')) {
     document.getElementById('dv-buscar').addEventListener('click', () => {
@@ -635,9 +634,9 @@ document.getElementById('export-pdf').addEventListener('click', async () => {
     }
 });
 
-if (document.querySelectorAll('.cancelar-venta')) {
-    anularVenta();
-}
+ if (document.querySelectorAll('.cancelar-venta')) {
+     anularVenta();
+ }
 function anularVenta() {
     const btnsCancelar = document.querySelectorAll('.cancelar-venta');
     btnsCancelar.forEach(btn => {
@@ -674,7 +673,7 @@ function anularVenta() {
                     }
                     console.log(datad)
                     window.location.reload();
-                });
+                }, {once: true});
             } catch (err) {
                 console.error(err)
             }
