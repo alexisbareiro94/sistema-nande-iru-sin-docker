@@ -1,6 +1,6 @@
 <!-- Modal Detalle de Venta -->
 <div id="modal-detalle-movimiento"
-    class=" hidden opacity-0  transition-opacity duration-150 fixed inset-0 backdrop-blur-xs bg-black/20 items-center justify-center z-50">
+    class="hidden opacity-0  transition-opacity duration-150 fixed inset-0 backdrop-blur-xs bg-black/20 items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
         <!-- Header del Modal -->
         <div class="border-b px-6 py-4 flex justify-between items-center">
@@ -16,7 +16,7 @@
         </div>
 
         <!-- Contenido del Modal -->
-        <div class="p-6">            
+        <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <h3 id="dm-info-mov" class="text-lg font-medium text-gray-900 mb-3">Información del movimiento</h3>
@@ -27,9 +27,8 @@
                         </div>
                         <div id="dm-tipo-cont" class="flex justify-between">
                             <span class="text-gray-600">tipo:</span>
-                            <span id="dm-tipo"
-                                class="">Completado</span>
-                        </div>                        
+                            <span id="dm-tipo" class="">Completado</span>
+                        </div>
                     </div>
                 </div>
 
@@ -52,13 +51,13 @@
             <div class="mb-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Concepto</h3>
                 <div class="overflow-x-auto">
-                    <li id="dm-concepto" > Pago a proveedor </li>
+                    <li id="dm-concepto"> Pago a proveedor </li>
                 </div>
             </div>
 
             <!-- Totales -->
             <div class="bg-gray-50 rounded-lg p-4">
-                <div class="space-y-2">                    
+                <div class="space-y-2">
                     <div class="flex justify-between border-t border-gray-300 pt-2">
                         <span class="text-lg font-bold text-gray-900">Total:</span>
                         <span id="dm-total" class="text-lg font-bold text-gray-900">Cargando...</span>

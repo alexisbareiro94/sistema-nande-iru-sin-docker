@@ -27,25 +27,27 @@ class StoreUserRequest extends FormRequest
             'name' => 'nullable|string',
             'surname' => 'nullable|string',
             'razon_social' => 'required|string',
-            'ruc_ci' => 'required|string',
+            'ruc_ci' => 'nullable|string',
             'email' => 'nullable|email',
-            'telefono' => 'nullable|numeric'
+            'telefono' => 'nullable|numeric',
+            'role' => 'nullable|string|in:cliente,mecanico,personal',
         ];
     }
 
-    public function messages() :array
+    public function messages(): array
     {
         return [
             'name.string' => 'El nombre tiene que ser una cadena de string',
             'surname.string' => 'El apellido tiene que ser un cadena de string',
             'razon_social.required' => 'Tienes que completar el campo Razón Social',
-            'razon_social.string' =>'La rozon social debe ser un cadena de texto',
+            'razon_social.string' => 'La rozon social debe ser un cadena de texto',
             'ruc_ci.required' => 'Tienes que completar el campo Ruc o CI',
             'ruc_ci.string' => 'El ruc o ci tiene que ser una cadena de texto',
-        ];        
+        ];
     }
 
-    public function failedValidation(Validator $validator){
+    public function failedValidation(Validator $validator)
+    {
         return response()->json([
             'success' => false,
             'error' => $validator->errors()->first(),

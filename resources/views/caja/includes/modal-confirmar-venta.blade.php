@@ -1,9 +1,9 @@
-{{-- public/procesar-caja.js --}}
+{{-- public/js/procesar-caja.js --}}
 <div id="modal-confirmar-venta"
     class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300">
     <div class="bg-white md:rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[92vh]">
         <!-- header -->
-        <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4 flex justify-between items-center">
+        <div class="bg-gray-500 p-4 flex justify-between items-center">
             <div class="flex space-x-20 items-center text-center object-center">
                 <h2 class="text-white md:text-2xl font-bold flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
@@ -39,7 +39,7 @@
             <!-- datos del cliente -->
             <div id="datos-cliente"
                 class="flex flex-col mt-4 py-4 px-2 border border-gray-200 bg-gray-100 rounded-md shadow-md">
-                <div class="flex text-center items-center gap-2 mb-4 mx-auto">                    
+                <div class="flex text-center items-center gap-2 mb-4 mx-auto">
                     <h3 class="font-semibold text-lg text-center">
                         Datos del cliente
                     </h3>
@@ -70,17 +70,104 @@
             </div>
             <!-- /datos del cliente -->
 
+            <!-- datos del vehiculo y mecanico -->
+            <div id="datos-vehiculo"
+                class="flex flex-col mt-4 py-4 px-2 border border-gray-200 bg-gray-100 rounded-md shadow-md">
+                <div class="flex text-center items-center gap-2 mb-4 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <h3 class="font-semibold text-lg text-center">
+                        Vehículo y Mecánico
+                    </h3>
+                </div>
+
+                <div class="px-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Patente del vehículo -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Patente del Vehículo</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="input-patente"
+                                class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 uppercase"
+                                placeholder="ABC123" maxlength="10">
+                            {{-- <button type="button" id="btn-buscar-patente"
+                                class="px-3 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </button> --}}
+                        </div>
+                        <input type="hidden" id="vehiculo-id-venta" value="">
+                    </div>
+
+                    <!-- Info del vehículo encontrado -->
+                    <div id="info-vehiculo-encontrado" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Vehículo</label>
+                        <div class="bg-green-50 border border-green-200 rounded-md p-2 flex items-center gap-2">
+                            {{-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> --}}
+                            <span id="vehiculo-info-texto" class="text-sm text-green-800 font-medium"></span>
+                        </div>
+                    </div>
+
+                    <!-- Mecánico referidor -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mecánico Referidor
+                            (opcional)</label>
+                        <div class="flex gap-2">
+                            <select id="select-mecanico-venta"
+                                class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                <option value="">Sin mecánico</option>
+                            </select>
+                            <button type="button" id="btn-nuevo-mecanico-modal"
+                                class="px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition"
+                                title="Agregar nuevo mecánico">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botón nuevo vehículo si no existe -->
+                    <div id="cont-btn-nuevo-vehiculo" class="hidden flex items-end">
+                        <button type="button" id="btn-nuevo-vehiculo-modal"
+                            class="w-full px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Registrar Nuevo Vehículo
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- /datos del vehiculo y mecanico -->
+
             <!-- metodo de pago -->
             <div id="" class="py-4 shadow-md rounded-md mt-4 bg-gray-100 border border-gray-200 ">
                 <h3 class="mb-4 font-semibold text-gray-900 text-lg text-center">Seleccionar método de pago</h3>
-                <p id="no-radio" class="hidden text-center mb-4 text-red-500 font-semibold px-2 bg-red-100 mx-auto max-w-[300px] rounded-md">Debes seleccionar un método de pago</p>
+                <p id="no-radio"
+                    class="hidden text-center mb-4 text-red-500 font-semibold px-2 bg-red-100 mx-auto max-w-[300px] rounded-md">
+                    Debes seleccionar un método de pago</p>
                 <ul id="ul-pagos"
                     class="items-center w-full p-2 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-200 sm:flex">
                     <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r">
                         <div class="flex items-center ps-3">
                             <input id="efectivo" type="radio" value="" name="list-radio"
                                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
-                            <label for="efectivo" class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
+                            <label for="efectivo"
+                                class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
                                 Efectivo
                             </label>
                             <span class="mr-5">
@@ -97,7 +184,8 @@
                         <div class="flex items-center ps-3">
                             <input id="transf" type="radio" value="" name="list-radio"
                                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
-                            <label for="transf" class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
+                            <label for="transf"
+                                class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
                                 Transferencia
                             </label>
                             <span class="mr-5">
@@ -113,7 +201,8 @@
                         <div class="flex items-center ps-3">
                             <input id="mixto" type="radio" value="" name="list-radio"
                                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
-                            <label for="mixto" class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
+                            <label for="mixto"
+                                class="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900">
                                 Mixto
                             </label>
                             <span class="mr-5 flex">
@@ -135,9 +224,11 @@
 
                 <!-- monto recibido -->
                 <form id="form-monto-recibido" action="">
-                    <div id="monto-recibido" class="flex flex-col object-center text-center gap-2 px-4 md:px-10 py-4 ">
+                    <div id="monto-recibido"
+                        class="flex flex-col object-center text-center gap-2 px-4 md:px-10 py-4 ">
                         <div class="flex justify-between">
-                            <label for="monto-recibido" class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">
+                            <label for="monto-recibido"
+                                class="text-sm text-gray-800 font-semibold mt-1 pr-4 md:pr-12">
                                 Monto Recibido:
                             </label>
                             <input class="border border-gray-300 px-3 py-1 w-auto rounded-md" type="number"
@@ -145,7 +236,7 @@
                         </div>
                         <p id="vuelto"></p>
                     </div>
-                </form>           
+                </form>
                 <!-- /monto recibido -->
             </div>
             <!-- /metodo de pago -->
@@ -202,3 +293,127 @@
         document.getElementById('modal-confirmar-venta').classList.add('hidden')
     })
 </script>
+
+<!-- Modal Nuevo Vehículo desde Venta -->
+<div id="modal-nuevo-vehiculo-venta"
+    class="fixed inset-0 hidden z-50 items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-700">
+            <h3 class="text-lg font-semibold text-white">Registrar Nuevo Vehículo</h3>
+            <button type="button" id="cerrar-modal-nuevo-vehiculo" class="text-white hover:text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="form-nuevo-vehiculo-venta" class="p-6">
+            @csrf
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Patente *</label>
+                    <input type="text" name="patente" id="nuevo-vehiculo-patente" required maxlength="10"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 uppercase"
+                        placeholder="ABC123">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
+                    <input type="text" name="marca" id="nuevo-vehiculo-marca" required maxlength="50"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Toyota">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Modelo *</label>
+                    <input type="text" name="modelo" id="nuevo-vehiculo-modelo" required maxlength="100"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Corolla">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                    <input type="number" name="anio" id="nuevo-vehiculo-anio" min="1900"
+                        max="{{ date('Y') + 1 }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="{{ date('Y') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                    <input type="text" name="color" id="nuevo-vehiculo-color" maxlength="30"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Blanco">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
+                    <input type="number" name="kilometraje" id="nuevo-vehiculo-km" min="0"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="50000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mecánico</label>
+                    <select name="mecanico_id" id="nuevo-vehiculo-mecanico"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Sin mecánico</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="cancelar-nuevo-vehiculo"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    Guardar y Usar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Nuevo Mecánico desde Venta -->
+<div id="modal-nuevo-mecanico-venta"
+    class="fixed inset-0 hidden z-50 items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-600">
+            <h3 class="text-lg font-semibold text-white">Registrar Nuevo Mecánico</h3>
+            <button type="button" id="cerrar-modal-nuevo-mecanico" class="text-white hover:text-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="form-nuevo-mecanico-venta" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                    <input type="text" name="name" id="nuevo-mecanico-nombre" required maxlength="100"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        placeholder="Nombre del mecánico">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">RUC o CI</label>
+                    <input type="text" name="ruc_ci" id="nuevo-mecanico-ruc" maxlength="20"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        placeholder="Ej: 1234567">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                    <input type="number" name="telefono" id="nuevo-mecanico-telefono"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        placeholder="Ej: 0981123456">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="cancelar-nuevo-mecanico"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    Guardar Mecánico
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

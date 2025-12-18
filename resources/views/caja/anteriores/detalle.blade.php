@@ -7,7 +7,7 @@
 @section('contenido')
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <div class="flex flex-col hidden md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
                 <h2 class="text-2xl font-bold text-gray-800">Detalle de Caja #{{ $caja->id }}</h2>
                 <p class="text-gray-600 text-sm mt-1">

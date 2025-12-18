@@ -17,6 +17,7 @@ class Venta extends Model
         'codigo',
         'caja_id',
         'cliente_id',
+        'vehiculo_id',
         'nro_ticket',
         'nro_factura',
         'cantidad_productos',
@@ -33,7 +34,6 @@ class Venta extends Model
         'monto_recibido',
     ];
 
-
     // En tu modelo Auditoria
     protected static function booted(): void
     {
@@ -47,7 +47,6 @@ class Venta extends Model
             }
         });
     }
-
 
     // En tu modelo Producto
     protected static function boot()
@@ -100,5 +99,10 @@ class Venta extends Model
     public function vendedor()
     {
         return $this->belongsTo(User::class, 'vendedor_id');
+    }
+
+    public function vehiculo()
+    {
+        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
     }
 }

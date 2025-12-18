@@ -113,4 +113,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'tenant_id');
     }
+
+    public function vehiculos()
+    {
+        return $this->hasMany(Vehiculo::class, 'cliente_id');
+    }
+
+    public function vehiculosReferidos()
+    {
+        return $this->hasMany(Vehiculo::class, 'mecanico_id');
+    }
 }

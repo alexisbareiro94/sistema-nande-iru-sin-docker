@@ -210,7 +210,8 @@ class VentaController extends Controller
                         'cliente',
                         'pagos',
                         'caja.user',
-                        'vendedor'
+                        'vendedor',
+                        'vehiculo'
                     ])->first();
 
                 $productos = Producto::whereHas('detalles', function ($query) use ($venta) {
@@ -270,6 +271,7 @@ class VentaController extends Controller
                 'codigo' => generate_code(),
                 'vendedor_id' => auth()->user()->id,
                 'cliente_id' => $userId,
+                'vehiculo_id' => $data['vehiculo_id'] ?? null,
                 'cantidad_productos' => $totalCarrito['cantidadTotal'],
                 'forma_pago' => $metodoPago[0],
                 'con_descuento' => $tieneDescuento,

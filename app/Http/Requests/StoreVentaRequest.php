@@ -30,10 +30,12 @@ class StoreVentaRequest extends FormRequest
             'total' => 'required',
             'forma_pago' => 'required',
             'monto_recibido' => 'required',
+            'vehiculo_id' => 'nullable|exists:vehiculos,id',
+            'mecanico_id' => 'nullable|exists:users,id',
         ];
     }
 
-    public function messages() :array
+    public function messages(): array
     {
         return [
             'carrito.required' => 'Error al procesar la venta',
@@ -44,7 +46,8 @@ class StoreVentaRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator){
+    public function failedValidation(Validator $validator)
+    {
         return response()->json([
             'success' => false,
             'error' => $validator->errors()->first(),

@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\VehiculoController;
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CajaMiddleware;
@@ -80,6 +81,14 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/api/movimientos/charts_caja', [MovimientoCajaController::class, 'charts_caja']);
         Route::get('/api/productos', [ProductoController::class, 'search'])->name('productos.search');
         Route::post('/api/eliminar-mov/{id}', [MovimientoCajaController::class, 'destroy'])->name('mov.destroy');
+
+        // Vehículos
+        Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculo.index');
+        Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculo.store');
+        Route::get('/vehiculos/{id}', [VehiculoController::class, 'show'])->name('vehiculo.show');
+        Route::put('/vehiculos/{id}', [VehiculoController::class, 'update'])->name('vehiculo.update');
+        Route::get('/api/vehiculo/buscar', [VehiculoController::class, 'buscarPorPatente']);
+        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {

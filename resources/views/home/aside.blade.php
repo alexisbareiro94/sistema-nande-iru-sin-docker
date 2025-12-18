@@ -35,11 +35,22 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('vehiculo.index') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'vehiculo.index',
+                        'vehiculo.show'),
+                ])> <span
+                        class="font-semibold">Vehículos</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('producto.index') }}" @class([
                     'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
                     'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
                         'producto.index'),
-                ])> <span class="font-semibold">Gestión
+                ])> <span
+                        class="font-semibold">Gestión
                         de Productos</span>
                 </a>
             </li>

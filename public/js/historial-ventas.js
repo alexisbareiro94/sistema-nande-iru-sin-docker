@@ -117,6 +117,7 @@ function setDataDetalleVenta(data) {
     //productos
     setProductos(data);
     //total gral
+    setVehiculo(data);
     if (data.productos == '') {
         total.innerText = 'Gs ' + data.venta.monto.toLocaleString('es-PY');
     } else {
@@ -163,16 +164,32 @@ function setCliente(data) {
     if (data.productos != '') {
         const razon = document.getElementById('d-v-razon');
         const rucCi = document.getElementById('d-v-ruc');
+        const tel = document.getElementById('d-v-tel');
 
-        if (!razon && !rucCi) {
-            return;
-        }
-
+        console.log(data.venta.cliente);
         razon.innerText = data.venta.cliente.razon_social;
         rucCi.innerText = data.venta.cliente.ruc_ci;
+        tel.innerText = data.venta.cliente.telefono ? data.venta.cliente.telefono : 'N/A';
     } else {
         return;
     }
+}
+
+
+function setVehiculo(data) {
+    if (!data.venta.vehiculo) {
+        document.getElementById('dv-vehiculo-seccion').classList.add('hidden');
+        return;
+    }
+    document.getElementById('dv-vehiculo-seccion').classList.remove('hidden');
+    const modelo = document.getElementById('dv-v-modelo');
+    const chapa = document.getElementById('dv-v-chapa');
+    const color = document.getElementById('dv-v-color');
+
+    console.log(data.venta.vehiculo);
+    modelo.innerText = data.venta.vehiculo.marca + ' ' + data.venta.vehiculo.modelo + ' ' + data.venta.vehiculo.anio;
+    chapa.innerText = data.venta.vehiculo.patente;
+    color.innerText = data.venta.vehiculo.color;
 }
 
 function setProductos(data) {
@@ -187,8 +204,8 @@ function setProductos(data) {
                 ? 'bg-green-100 text-green-800 border border-green-300 '
                 : 'bg-blue-100 text-blue-800 border border-blue-300 ';
 
-            const tipoVenta = producto.tipo == 'servicio' ? 
-            `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            const tipoVenta = producto.tipo == 'servicio' ?
+                `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                             </svg>` : `<svg role="img" aria-label="Producto - caja" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 16V8a1 1 0 0 0-.553-.894l-8-4.5a1 1 0 0 0-.894 0l-8 4.5A1 1 0 0 0 3 8v8a1 1 0 0 0 .553.894l8 4.5a1 1 0 0 0 .894 0l8-4.5A1 1 0 0 0 21 16z"/>
@@ -634,9 +651,9 @@ document.getElementById('export-pdf').addEventListener('click', async () => {
     }
 });
 
- if (document.querySelectorAll('.cancelar-venta')) {
-     anularVenta();
- }
+if (document.querySelectorAll('.cancelar-venta')) {
+    anularVenta();
+}
 function anularVenta() {
     const btnsCancelar = document.querySelectorAll('.cancelar-venta');
     btnsCancelar.forEach(btn => {
@@ -673,7 +690,7 @@ function anularVenta() {
                     }
                     console.log(datad)
                     window.location.reload();
-                }, {once: true});
+                }, { once: true });
             } catch (err) {
                 console.error(err)
             }

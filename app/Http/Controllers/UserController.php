@@ -16,18 +16,22 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $q = $request->query('q');
-        $tenantId = tenant_id();        
+        $role = $request->query('role');
+        $tenantId = tenant_id();
         try {
-            $users = User::where(function ($query) use ($q) {
-                $query->whereLike('name', "%$q%")
+            $users = User::when($q, function ($query) use ($q) {
+                return $query->whereLike('name', "%$q%")
                     ->orWhereLike('razon_social', "%$q%")
                     ->orWhereLike('ruc_ci', "%$q%");
             })
-                ->with('compras')             
+                ->when($role, function ($query) use ($role) {
+                    return $query->where('role', $role);
+                })
+                ->with('compras')
                 ->where('tenant_id', $tenantId)
                 ->whereNotIn('role', ['admin', 'caja', 'personal'])
                 ->orderByDesc('created_at')
-                ->get();            
+                ->get();
             return response()->json([
                 'success' => true,
                 'users' => $users,
@@ -98,7 +102,7 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
-            $data = $request->validated();            
+            $data = $request->validated();
             $user = User::where('tenant_id', tenant_id())->findOrFail($id);
             $user->update([
                 'razon_social' => $data['razon_social'] ?? $user->razon_social,
@@ -135,7 +139,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $userId = Crypt::decrypt($id);
-            $user = User::where('tenant_id', tenant_id())->findOrFail($userId);            
+            $user = User::where('tenant_id', tenant_id())->findOrFail($userId);
             $validated = Validator::make($request->all(), [
                 'password' => 'required|confirmed|min:6'
             ]);
@@ -155,7 +159,7 @@ class UserController extends Controller
                 'datos' => [
                     'Usuario: ' => $user->name ?? $user->razon_social,
                 ]
-            ]);            
+            ]);
             DB::commit();
             return redirect()->route('login')->with('success', 'Contraseña cambiada');
         } catch (\Exception $e) {
