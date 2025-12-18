@@ -7,7 +7,8 @@
         <div class="border-b px-6 py-4 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
             <div>
                 <h2 id="dc-detalle-caja" class="text-2xl font-bold text-gray-800">Detalle de Caja #C-001</h2>
-                <p id="dc-cajero-fechas" class="text-gray-600 text-sm">Juan Pérez - 15/01/2024 08:00 - 15/01/2024 18:00</p>
+                <p id="dc-cajero-fechas" class="text-gray-600 text-sm">Juan Pérez - 15/01/2024 08:00 - 15/01/2024 18:00
+                </p>
             </div>
             <button onclick="cerrarModalCaja()" class="cursor-pointer text-gray-500 hover:text-gray-700 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -54,7 +55,8 @@
                         </div>
                     </div>
 
-                    <div id="dif-cont-one" class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-4">
+                    <div id="dif-cont-one"
+                        class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-4">
                         <div class="flex items-center">
                             <div id="dif-cont-dos" class="p-2 bg-red-500 rounded-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
@@ -101,14 +103,14 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                     <div id="dc-ef-por" class="bg-green-500 h-2 rounded-full"></div>
                                 </div>
-                            </div>                            
+                            </div>
                             <div>
                                 <div class="flex justify-between text-sm mb-1">
                                     <span class="text-gray-600">Transferencia</span>
                                     <span id="dc-transferencia" class="font-medium">Gs. 75,000 (32%)</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="dc-tr-por" class="bg-blue-500 h-2 rounded-full" ></div>
+                                    <div id="dc-tr-por" class="bg-blue-500 h-2 rounded-full"></div>
                                 </div>
                             </div>
                         </div>
@@ -129,7 +131,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Clientes Únicos</span>
                                 <span id="dc-clientes" class="font-bold text-gray-900">38</span>
-                            </div>                         
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -200,7 +202,8 @@
                         </div>
                     </div>
                     <div class="pt-4 pl-4">
-                        <p class="font-semibold text-red-500 text-xl">Total Egresos: <span id="total-ingreso-dc"></span></p>
+                        <p class="font-semibold text-red-500 text-xl">Total Egresos: <span
+                                id="total-ingreso-dc"></span></p>
                     </div>
                 </div>
             </div>
@@ -208,15 +211,16 @@
 
         <!-- Footer del Modal -->
         <div class="border-t px-6 py-4 flex justify-end space-x-3 bg-gray-50">
-            <button
-                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            <a id="btn-ver-detalle-completo" href="#"
+                class="cursor-pointer hover:bg-gray-100 transition px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center active:scale-90">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
-                Imprimir
-            </button>
+                Ver Detalle completo
+            </a>
             <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">

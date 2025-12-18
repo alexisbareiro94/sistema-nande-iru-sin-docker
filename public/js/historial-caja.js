@@ -72,6 +72,7 @@ function mapearDetalleCaja(data) {
     const promedio = document.getElementById("dc-promedio");
     const egresos = document.getElementById('dc-egresos');
     const totalEgreso = document.getElementById('total-ingreso-dc');
+    const btnVerDetalleCompleto = document.getElementById('btn-ver-detalle-completo');
 
     let simbolo = "";
     if (data.datos.caja.monto_cierre > data.datos.caja.saldo_esperado) {
@@ -120,6 +121,11 @@ function mapearDetalleCaja(data) {
     dcDiferencia.innerText = `Gs. ${simbolo} ${data.datos.caja.diferencia.toLocaleString("es-PY")}`;
     dcTransacciones.innerText = `${data.datos.transacciones}`;
     dcClientes.innerText = `${data.datos.clientes}`;
+
+    // Actualizar enlace de ver detalle completo
+    if (btnVerDetalleCompleto) {
+        btnVerDetalleCompleto.href = `/caja/${data.datos.caja.id}/detalle`;
+    }
 
     const efectivo = Number(data.datos.efectivo ?? 0);
     const transferencia = Number(data.datos.transferencia ?? 0);
@@ -171,7 +177,7 @@ function mapearDetalleCaja(data) {
                 hour12: false,
             })
             .replace(",", " ");
- 
+
         div.className = 'space-y-3';
         div.innerHTML = `
                         <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">

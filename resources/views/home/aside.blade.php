@@ -3,47 +3,62 @@
         {{-- <a href="/">
             <img class="w-26 ml-6" src="{{ asset('images/logo/logo.png') }}" alt="">
         </a> --}}
-        <p>{{ auth()->user()->admin->empresa ?? ''}}</p>
+        <p>{{ auth()->user()->admin->empresa ?? '' }}</p>
     </h1>
     <nav>
         <ul class="space-y-2">
             <li>
-                <a href="{{ route('home') }}"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-                    <span class="font-semibold">Inicio</span>
+                <a href="{{ route('home') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'home'),
+                ])> <span class="font-semibold">Inicio</span>
                 </a>
             </li>
             <li>
-                <a href="#"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-
-                    <span class="font-semibold text-sm">
+                <a href="{{ route('cliente.dist.index') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'cliente.dist.index'),
+                ])> <span
+                        class="font-semibold text-sm">
                         Gestión de Clientes y Distribuidores
                     </span>
                 </a>
             </li>
             <li>
-                <a href="#"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-                    <span class="font-semibold">Caja</span>
+                <a href="{{ route('caja.index') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'caja.index'),
+                ])> <span class="font-semibold">Caja</span>
                 </a>
             </li>
             <li>
-                <a href="#"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-                    <span class="font-semibold">Inventario</span>
+                <a href="{{ route('producto.index') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'producto.index'),
+                ])> <span class="font-semibold">Gestión
+                        de Productos</span>
                 </a>
             </li>
             <li>
-                <a href="#"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-                    <span class="font-semibold">Gestión de Usuarios</span>
+                <a href="{{ route('gestion.index.view') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'gestion.index.view'),
+                ])> <span
+                        class="font-semibold">Gestión de Usuarios y Seguridad</span>
                 </a>
             </li>
             <li>
-                <a href="#"
-                    class="flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl">
-                    <span class="font-semibold">Reportes</span>
+                <a href="{{ route('reporte.index') }}" @class([
+                    'flex items-center p-3 rounded-lg hover:bg-[#b6c4c2] hover:text-gray-800 hover:scale-110 transition-all hover:shadow-xl',
+                    'bg-[#b6c4c2] text-gray-800 scale-110 shadow-xl' => request()->routeIs(
+                        'reporte.index'),
+                ])> <span
+                        class="font-semibold">Reportes</span>
                 </a>
             </li>
             <li class="border-t border-gray-400 mt-10">

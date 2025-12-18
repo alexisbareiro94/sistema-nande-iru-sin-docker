@@ -28,9 +28,11 @@ class CajaController extends Controller
                 ->where('tenant_id', $tenantId);
         })
             ->orderByDesc('created_at')
-            ->with(['user' => function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
-            }])
+            ->with([
+                'user' => function ($q) use ($tenantId) {
+                    $q->where('tenant_id', $tenantId);
+                }
+            ])
 
             ->get()
             ->unique('user_id');
@@ -221,5 +223,85 @@ class CajaController extends Controller
         return view("caja.anteriores.index", [
             "cajas" => Caja::all(),
         ]);
+    }
+
+    public function detalle(string $id)
+    {
+        try {
+            $caja = Caja::with('user')->findOrFail($id);
+            $transacciones = Venta::where("caja_id", $caja->id)->count();
+
+            $mayorVentaRecord = Venta::where("caja_id", $caja->id)
+                ->orderByDesc("total")
+                ->first();
+            $mayorVenta = $mayorVentaRecord ? $mayorVentaRecord->total : 0;
+
+            $egresos = MovimientoCaja::where('tipo', 'egreso')
+                ->where('caja_id', $caja->id)
+                ->orderByDesc('monto')
+                ->get();
+
+            $totalEgreso = $egresos->sum('monto');
+
+            $ingresos = MovimientoCaja::where('tipo', 'ingreso')
+                ->where('caja_id', $caja->id)
+                ->orderByDesc('monto')
+                ->get();
+
+            $totalIngreso = $ingresos->sum('monto');
+
+            $promedioVenta = $transacciones > 0 ? $caja->monto_cierre / $transacciones : 0;
+
+            $clientes = Venta::where("caja_id", $caja->id)
+                ->get()
+                ->unique("cliente_id")
+                ->count();
+
+            $efectivo = Pago::where("caja_id", $caja->id)
+                ->where("metodo", "efectivo")
+                ->sum("monto");
+
+            $transferencia = Pago::where("caja_id", $caja->id)
+                ->where("metodo", "transferencia")
+                ->sum("monto");
+
+            // Top 5 productos más vendidos
+            $ventas = DetalleVenta::where("caja_id", $caja->id)
+                ->with("producto:id,nombre")
+                ->get()
+                ->groupBy("producto_id")
+                ->map(function ($items) {
+                    return [
+                        "cantidad" => $items->sum("cantidad"),
+                        "producto" => $items->first()->producto->nombre ?? 'Producto eliminado',
+                        "total" => $items->sum("total"),
+                    ];
+                })
+                ->sortByDesc("total")
+                ->take(5);
+
+            $total = $efectivo + $transferencia;
+            $efecPorcentaje = $total > 0 ? round((100 * $efectivo) / $total, 0) : 0;
+            $transfPorcentaje = $total > 0 ? round((100 * $transferencia) / $total, 0) : 0;
+
+            return view('caja.anteriores.detalle', [
+                'caja' => $caja,
+                'ventas' => $ventas->values(),
+                'transacciones' => $transacciones,
+                'clientes' => $clientes,
+                'efectivo' => $efectivo,
+                'efecPorcentaje' => $efecPorcentaje,
+                'transferencia' => $transferencia,
+                'transfPorcentaje' => $transfPorcentaje,
+                'mayorVenta' => $mayorVenta,
+                'promedio' => round($promedioVenta, 0),
+                'egresos' => $egresos->take(5),
+                'totalEgreso' => $totalEgreso,
+                'ingresos' => $ingresos->take(5),
+                'totalIngreso' => $totalIngreso,
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('caja.anteriores')->with('error', 'No se pudo cargar el detalle de la caja');
+        }
     }
 }

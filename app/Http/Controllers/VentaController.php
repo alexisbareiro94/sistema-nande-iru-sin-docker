@@ -19,12 +19,14 @@ use App\Jobs\VentaRealizada;
 
 class VentaController extends Controller
 {
-    public function __construct(protected VentaService $ventaService) {}
+    public function __construct(protected VentaService $ventaService)
+    {
+    }
 
     public function index_view()
     {
         $query = Venta::query();
-        $users = User::where('role', 'cliente')
+        $users = User::whereIn('role', ['cliente', 'personal'])
             ->where('tenant_id', tenant_id())
             ->get();
         $clientes = $users->count();
@@ -32,6 +34,7 @@ class VentaController extends Controller
         $totalVentas = count($query->get());
         $ingresos = $query->sum('total');
         $ingresosHoy = $query->where('created_at', '>=', now()->format('Y-m-d'))->get()->sum('total');
+
         if (auth()->user()->role === 'admin') {
             $ventas = MovimientoCaja::orderByDesc('created_at')
                 ->with('venta.productos')
@@ -69,18 +72,25 @@ class VentaController extends Controller
             $orderBy = $request->query('orderBy');
             $dir = $request->query('direction');
             $cliente = $request->query('cliente');
+            $caja = $request->query('caja');
 
-            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy) && !filled($cliente)) {
+            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy) && !filled($cliente) && !filled($caja)) {
                 if (auth()->user()->role === 'admin') {
-                    $ventas = $query->with(['caja.user', 'venta' => function ($query) {
-                        $query->with(['cliente', 'detalleVentas', 'productos']);
-                    }])->orderByDesc('created_at')->get()->take(10);
+                    $ventas = $query->with([
+                        'caja.user',
+                        'venta' => function ($query) {
+                            $query->with(['cliente', 'detalleVentas', 'productos']);
+                        }
+                    ])->orderByDesc('created_at')->get()->take(10);
                 } else {
                     $ventas = $query->whereHas('venta', function ($query) {
                         return $query->where('vendedor_id', auth()->user()->id);
-                    })->with(['caja.user', 'venta' => function ($query) {
-                        $query->with(['cliente', 'detalleVentas', 'productos']);
-                    }])->orderByDesc('created_at')->get()->take(10);
+                    })->with([
+                                'caja.user',
+                                'venta' => function ($query) {
+                                    $query->with(['cliente', 'detalleVentas', 'productos']);
+                                }
+                            ])->orderByDesc('created_at')->get()->take(10);
                 }
 
                 return response()->json([
@@ -95,7 +105,11 @@ class VentaController extends Controller
                     $q->where('cliente_id', $cliente);
                 });
             }
-
+            if (filled($caja)) {
+                $query->whereHas('caja', function ($q) use ($caja) {
+                    $q->where('user_id', $caja);
+                });
+            }
             if (filled($desdeC)) {
                 $desde = Carbon::parse($desdeC)->startOfDay();
                 $query->where('created_at', '>=', $desde);
@@ -151,15 +165,21 @@ class VentaController extends Controller
             }
 
             if (auth()->user()->role === 'admin') {
-                $ventas = $query->with(['caja.user', 'venta' => function ($query) {
-                    $query->with(['cliente', 'detalleVentas', 'productos']);
-                }])->orderByDesc('created_at')->get();
+                $ventas = $query->with([
+                    'caja.user',
+                    'venta' => function ($query) {
+                        $query->with(['cliente', 'detalleVentas', 'productos']);
+                    }
+                ])->orderByDesc('created_at')->get();
             } else {
                 $ventas = $query->whereHas('venta', function ($query) {
                     return $query->where('vendedor_id', auth()->user()->id);
-                })->with(['caja.user', 'venta' => function ($query) {
-                    $query->with(['cliente', 'detalleVentas', 'productos']);
-                }])->orderByDesc('created_at')->get();
+                })->with([
+                            'caja.user',
+                            'venta' => function ($query) {
+                                $query->with(['cliente', 'detalleVentas', 'productos']);
+                            }
+                        ])->orderByDesc('created_at')->get();
             }
 
             $egresosFiltros = $ventas->filter(fn($item) => $item->tipo === 'egreso')->sum('monto');
@@ -195,9 +215,11 @@ class VentaController extends Controller
 
                 $productos = Producto::whereHas('detalles', function ($query) use ($venta) {
                     return $query->where('venta_id', $venta->id);
-                })->with(['detalles' => function ($query) use ($venta) {
-                    $query->where('venta_id', $venta->id);
-                }])->get();
+                })->with([
+                            'detalles' => function ($query) use ($venta) {
+                                $query->where('venta_id', $venta->id);
+                            }
+                        ])->get();
             }
             if (is_numeric($codigo)) {
                 $venta = MovimientoCaja::find($codigo)->load(['caja.user', 'venta.vendedor']);
@@ -227,7 +249,7 @@ class VentaController extends Controller
                 'es en el service'
             ], 400);
         }
-    
+
         $carrito = collect(json_decode($data['carrito']));
         $totalCarrito = collect(json_decode($data['total']));
         $formaPago = collect(json_decode($data['forma_pago']));
@@ -360,7 +382,7 @@ class VentaController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             $venta = Venta::findOrFail($id);
-            if($venta->estado == 'cancelado'){
+            if ($venta->estado == 'cancelado') {
                 return response()->json([
                     'message' => 'venta anulada'
                 ]);
@@ -371,19 +393,19 @@ class VentaController extends Controller
             $ventas = 0;
             $detalleVenta = DetalleVenta::where('venta_id', $venta->id)
                 ->with('producto')
-                ->get();            
-                        
+                ->get();
+
             foreach ($detalleVenta as $detalle) {
-                $producto = $detalle->producto;                
+                $producto = $detalle->producto;
                 if ($producto->tipo == 'producto') {
                     $stock = $producto->stock + $detalle->cantidad;
-                    $ventas = $producto->ventas - $detalle->cantidad;                    
+                    $ventas = $producto->ventas - $detalle->cantidad;
                     $producto->update([
                         'ventas' => $ventas,
                         'stock' => $stock,
-                    ]);                
+                    ]);
                 }
-            }            
+            }
             Auditoria::create([
                 'created_by' => auth()->user()->id,
                 'entidad_type' => Venta::class,

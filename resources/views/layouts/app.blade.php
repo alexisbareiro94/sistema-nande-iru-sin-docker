@@ -22,11 +22,11 @@
     <div id="notificaciones" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     @include('alertas.alerts')
     <main class="flex-grow grid grid-cols-1 md:grid-cols-5 gap-1 relative">
-        
+
         <div @class([
             'bg-gris pl-6 animate-fade-in hidden z-5 md:block',
-            'hidden' => request()->routeIs('home') || auth()->user()->role != 'admin',
-            'col-span-1 animate-slide-in-right' => !request()->routeIs('home'),
+            'hidden' => auth()->user()->role != 'admin',
+            'col-span-1 animate-slide-in-right',
         ])>
             <aside class="col-span-1 p-4 fixed transform transition-transform duration-300 ">
                 @include('home.aside')
@@ -34,8 +34,8 @@
         </div>
         <section @class([
             'md:p-6 z-10',
-            'col-span-5' => request()->routeIs('home') || auth()->user()->role != 'admin',
-            'col-span-4' => !request()->routeIs('home'),
+            'col-span-5' => auth()->user()->role != 'admin',
+            'col-span-4' => auth()->user()->role == 'admin',
         ])>
             <div class="w-full mx-auto px-2 md:px-4 sm:px-6 lg:px-8 py-6 bg-gray-200 rounded-lg min-h-screen shadow-lg">
                 <nav @class([

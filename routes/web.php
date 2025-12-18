@@ -6,6 +6,7 @@ use App\Http\Controllers\CajaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteDistController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistribuidorController;
 use App\Http\Controllers\GestionUsersController;
 use App\Http\Controllers\MarcaController;
@@ -29,7 +30,7 @@ Route::get('/restablecer_pass', [GestionUsersController::class, 'restablecer_pas
 Route::post('/restablecer/{id}', [UserController::class, 'reset_password'])->name('reset.password');
 
 Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
-    Route::get('/', [AuthController::class, 'index'])->name('home');
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/download', function () {
@@ -49,6 +50,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         //cajas anteriores
         Route::get('/caja/anteriores', [CajaController::class, 'anteriores'])->name('caja.anteriores');
         Route::get('/api/caja/{id}', [CajaController::class, 'show'])->name('caja.show');
+        Route::get('/caja/{id}/detalle', [CajaController::class, 'detalle'])->name('caja.detalle');
 
         //users
         Route::get('/api/users', [UserController::class, 'index'])->name('user.index');
@@ -110,6 +112,11 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/api/egresos/{periodo}', [ReporteController::class, 'egresos']);
         Route::get('/api/egresos/concepto/{periodo}', [ReporteController::class, 'egresos_concepto']);
 
+        // Dashboard de estadísticas
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+        Route::get('/api/dashboard/stats/{periodo}', [DashboardController::class, 'stats']);
+        Route::get('/api/dashboard/movimientos/{periodo}', [DashboardController::class, 'movimientosDia']);
+
         Route::get('/gestion_usuarios', [GestionUsersController::class, 'index_view'])->name('gestion.index.view');
         Route::post('/gestion_usuarios', [GestionUsersController::class, 'store'])->name('gestion.users.store');
 
@@ -142,7 +149,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
 
 Route::get('/session/{nombre}', function (string $nombre) {
     return [session("$nombre"), gettype(session("$nombre"))];
-    session()->forget($nombre);
+    // session()->forget($nombre);
 });
 
 Route::get('/borrar-session', function () {
@@ -227,9 +234,9 @@ Route::get('/test-redis', function () {
 });
 
 
-Route::get('/debug', function(){
-    $a= 0;
-    for($i = 0; $i < 5; $i++){
+Route::get('/debug', function () {
+    $a = 0;
+    for ($i = 0; $i < 5; $i++) {
         $a += 1;
     }
 
