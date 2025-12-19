@@ -1,7 +1,3 @@
-/**
- * Dashboard JavaScript
- * Maneja los gráficos y la interactividad del dashboard
- */
 import Chart from 'chart.js/auto';
 
 // Variables globales para los gráficos
@@ -137,10 +133,30 @@ function updateFormasPagoChart(formasPago) {
  */
 function initPeriodoFilters() {
     const buttons = document.querySelectorAll('.btn-periodo');
+    const btnPersonalizado = document.getElementById('btn-personalizado');
+    const panelFechasCustom = document.getElementById('panel-fechas-custom');
+    const btnAplicarFechas = document.getElementById('btn-aplicar-fechas');
+    const fechaInicioInput = document.getElementById('fecha-inicio-input');
+    const fechaFinInput = document.getElementById('fecha-fin-input');
 
+    // Establecer fecha por defecto (hoy)
+    const hoy = new Date().toISOString().split('T')[0];
+    if (fechaFinInput) fechaFinInput.value = hoy;
+    if (fechaInicioInput) {
+        const hace7dias = new Date();
+        hace7dias.setDate(hace7dias.getDate() - 7);
+        fechaInicioInput.value = hace7dias.toISOString().split('T')[0];
+    }
+
+    // Botones de período predefinido
     buttons.forEach(btn => {
+        if (btn.id === 'btn-personalizado') return; // Saltar el botón personalizado
+        
         btn.addEventListener('click', function () {
             const periodo = this.dataset.periodo;
+
+            // Ocultar panel de fechas personalizadas
+            if (panelFechasCustom) panelFechasCustom.classList.add('hidden');
 
             // Actualizar estilos de botones
             buttons.forEach(b => {
@@ -154,6 +170,42 @@ function initPeriodoFilters() {
             fetchDashboardData(periodo);
         });
     });
+
+    // Botón de personalizado - toggle del panel
+    if (btnPersonalizado) {
+        btnPersonalizado.addEventListener('click', function () {
+            // Toggle del panel
+            panelFechasCustom.classList.toggle('hidden');
+            
+            // Actualizar estilos
+            buttons.forEach(b => {
+                b.classList.remove('bg-gray-800', 'text-white');
+                b.classList.add('text-gray-600', 'hover:bg-gray-200');
+            });
+            this.classList.add('bg-gray-800', 'text-white');
+            this.classList.remove('text-gray-600', 'hover:bg-gray-200');
+        });
+    }
+
+    // Botón aplicar fechas personalizadas
+    if (btnAplicarFechas) {
+        btnAplicarFechas.addEventListener('click', function () {
+            const fechaInicio = fechaInicioInput.value;
+            const fechaFin = fechaFinInput.value;
+
+            if (!fechaInicio || !fechaFin) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+
+            if (new Date(fechaInicio) > new Date(fechaFin)) {
+                alert('La fecha de inicio debe ser anterior o igual a la fecha de fin');
+                return;
+            }
+
+            fetchDashboardDataByDateRange(fechaInicio, fechaFin);
+        });
+    }
 }
 
 /**
@@ -176,6 +228,37 @@ async function fetchDashboardData(periodo) {
         }
     } catch (error) {
         console.error('Error al cargar datos:', error);
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * Obtener datos del dashboard por rango de fechas personalizado
+ */
+async function fetchDashboardDataByDateRange(fechaInicio, fechaFin) {
+    try {
+        showLoading();
+
+        const response = await fetch(`/api/dashboard/stats-by-date?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+        const result = await response.json();        
+        if (result.success) {
+            updateResumen(result.datos.resumen);
+            updateFormasPagoChart(result.datos.formas_pago);
+            updateFormasPagoLeyenda(result.datos.formas_pago);
+            updateTopProductos(result.datos.top_productos);
+            updateCajerosStats(result.datos.cajeros_stats);
+            updateRangoFechas(result.datos.fecha_inicio, result.datos.fecha_fin);
+            
+            // Ocultar el panel después de aplicar
+            const panelFechasCustom = document.getElementById('panel-fechas-custom');
+            if (panelFechasCustom) panelFechasCustom.classList.add('hidden');
+        } else {
+            alert('Error al cargar datos: ' + (result.error || 'Error desconocido'));
+        }
+    } catch (error) {
+        console.error('Error al cargar datos:', error);
+        alert('Error al cargar datos del servidor');
     } finally {
         hideLoading();
     }

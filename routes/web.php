@@ -139,6 +139,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
         Route::get('/api/dashboard/stats/{periodo}', [DashboardController::class, 'stats']);
         Route::get('/api/dashboard/movimientos/{periodo}', [DashboardController::class, 'movimientosDia']);
+        Route::get('/api/dashboard/stats-by-date', [DashboardController::class, 'statsByDateRange']);
 
         Route::get('/gestion_usuarios', [GestionUsersController::class, 'index_view'])->name('gestion.index.view');
         Route::post('/gestion_usuarios', [GestionUsersController::class, 'store'])->name('gestion.users.store');

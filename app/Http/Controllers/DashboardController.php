@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __construct(protected DashboardService $dashboardService) {}
+    public function __construct(protected DashboardService $dashboardService)
+    {
+    }
 
     public function index()
     {
@@ -42,6 +44,31 @@ class DashboardController extends Controller
             $fin = now()->endOfDay();
 
             $datos = $this->dashboardService->getMovimientosPorDia($inicio, $fin);
+
+            return response()->json([
+                'success' => true,
+                'datos' => $datos,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Obtener estadísticas por rango de fechas personalizado
+     */
+    public function statsByDateRange(Request $request)
+    {
+        try {
+            $request->validate([
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            ]);
+
+            $datos = $this->dashboardService->getDashboardDataByDateRange($request->fecha_inicio, $request->fecha_fin);
 
             return response()->json([
                 'success' => true,

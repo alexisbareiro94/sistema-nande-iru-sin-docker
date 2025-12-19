@@ -25,8 +25,40 @@
                             días</button>
                         <button data-periodo="90" class="btn-periodo px-3 py-1.5 text-sm rounded-md transition-all">90
                             días</button>
+                        <button id="btn-personalizado" class="btn-periodo px-3 py-1.5 text-sm rounded-md transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Personalizado
+                        </button>
                     </div>
                 </div>
+
+                <!-- Panel de fechas personalizadas (oculto por defecto) -->
+                <div id="panel-fechas-custom"
+                    class="hidden flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-600">Desde:</label>
+                        <input type="date" id="fecha-inicio-input"
+                            class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-gray-400 focus:border-gray-400">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-600">Hasta:</label>
+                        <input type="date" id="fecha-fin-input"
+                            class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-gray-400 focus:border-gray-400">
+                    </div>
+                    <button id="btn-aplicar-fechas"
+                        class="bg-gray-800 text-white px-3 py-1.5 text-sm rounded-md hover:bg-gray-700 transition-all flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Aplicar
+                    </button>
+                </div>
+
                 <!-- Rango de fechas -->
                 <div id="rango-fechas"
                     class="flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg">

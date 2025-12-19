@@ -29,28 +29,56 @@ class DashboardService
     }
 
     /**
+     * Obtener datos del dashboard por rango de fechas personalizado
+     */
+    public function getDashboardDataByDateRange(string $fechaInicio, string $fechaFin): array
+    {
+        $inicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fin = Carbon::parse($fechaFin)->endOfDay();
+
+        return [
+            'resumen' => $this->getResumenMovimientos($inicio, $fin),
+            'formas_pago' => $this->getFormasPago($inicio, $fin),
+            'top_productos' => $this->getTopProductos($inicio, $fin),
+            'cajeros_stats' => $this->getCajerosStats($inicio, $fin),
+            'periodo' => 'custom',
+            'fecha_inicio' => $inicio->format('d/m/Y'),
+            'fecha_fin' => $fin->format('d/m/Y'),
+        ];
+    }
+
+    /**
      * Resumen de movimientos: ingresos, egresos, total
      */
     public function getResumenMovimientos(Carbon $inicio, Carbon $fin): array
     {
         $movimientos = MovimientoCaja::whereBetween('created_at', [$inicio, $fin])->get();
 
-        $ingresos = $movimientos->where('tipo', 'ingreso')
+        // Ingresos de movimientos (excluyendo apertura de caja y ventas para no duplicar)
+        $ingresosOtros = $movimientos->where('tipo', 'ingreso')
             ->where('concepto', '!=', 'Apertura de caja')
+            ->where('concepto', '!=', 'Venta') // Excluir ventas ya que se cuentan aparte
+            ->whereNotIn('concepto', ['Venta de productos', 'Venta']) // Variantes posibles del concepto
             ->sum('monto');
 
         $egresos = $movimientos->where('tipo', 'egreso')->sum('monto');
 
-        $ventas = Venta::whereBetween('created_at', [$inicio, $fin])->get();
+        $ventas = Venta::whereBetween('created_at', [$inicio, $fin])
+            ->orderBy('created_at', 'desc')
+            ->get();
         $totalVentas = $ventas->sum('total');
         $cantidadVentas = $ventas->count();
 
+        // Total ingresos = ventas + otros ingresos (sin duplicar)
+        $totalIngresos = $totalVentas + $ingresosOtros;
+
         return [
-            'total_ingresos' => $ingresos + $totalVentas,
+            'total_ingresos' => $totalIngresos,
             'total_egresos' => $egresos,
-            'balance' => ($ingresos + $totalVentas) - $egresos,
+            'balance' => $totalIngresos - $egresos,
             'cantidad_ventas' => $cantidadVentas,
             'cantidad_movimientos' => $movimientos->count(),
+            'ventas' => $ventas,
         ];
     }
 

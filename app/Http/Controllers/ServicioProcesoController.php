@@ -25,7 +25,6 @@ class ServicioProcesoController extends Controller
             ->where('tenant_id', $tenantId)
             ->get();
 
-        // dd($servicios);
         return view('servicio-proceso.index', [
             'servicios' => $servicios,
             'mecanicos' => $mecanicos,
