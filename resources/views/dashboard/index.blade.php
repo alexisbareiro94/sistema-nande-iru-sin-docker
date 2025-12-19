@@ -38,7 +38,7 @@
 
                 <!-- Panel de fechas personalizadas (oculto por defecto) -->
                 <div id="panel-fechas-custom"
-                    class="hidden flex flex-wrap  items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+                    class="hidden flex flex-wrap items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
                     <div class="flex items-center gap-2">
                         <label class="text-sm text-gray-600">Desde:</label>
                         <input type="date" id="fecha-inicio-input"

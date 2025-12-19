@@ -44,12 +44,16 @@
             class="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 hidden transition-opacity duration-300"></div>
 
         <div id="aside-container" @class([
-            'bg-gris pl-4 animate-fade-in z-40 transition-all duration-300',
+            'bg-gris pl-4 animate-fade-in transition-all duration-300',
+            'z-40 md:z-auto',
             'hidden' => auth()->user()->role != 'admin',
-            'col-span-1 animate-slide-in-right',
-            'fixed md:relative inset-y-0 left-0 w-full md:w-auto -translate-x-full md:translate-x-0',
+            'col-span-1',
+            'fixed inset-y-0 left-0 w-full',
+            'md:relative md:w-auto md:inset-auto',
+            'md:translate-x-0',
+            '-translate-x-full',
         ])>
-            <aside class="col-span-1 p-4 md:fixed transform transition-transform duration-300 h-full overflow-y-auto">
+            <aside class="col-span-1 p-4 transform transition-transform duration-300 h-full overflow-y-auto">
                 @include('home.aside')
             </aside>
         </div>
