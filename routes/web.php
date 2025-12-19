@@ -17,6 +17,7 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\ServicioProcesoController;
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CajaMiddleware;
@@ -89,6 +90,19 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::put('/vehiculos/{id}', [VehiculoController::class, 'update'])->name('vehiculo.update');
         Route::get('/api/vehiculo/buscar', [VehiculoController::class, 'buscarPorPatente']);
         Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);
+
+        // Servicio en Proceso
+        Route::get('/servicio-proceso', [ServicioProcesoController::class, 'index'])->name('servicio.proceso.index');
+        Route::get('/servicio-proceso/{id}', [ServicioProcesoController::class, 'show'])->name('servicio.proceso.show');
+        Route::post('/api/servicio-proceso', [ServicioProcesoController::class, 'store'])->name('servicio.proceso.store');
+        Route::put('/api/servicio-proceso/{id}', [ServicioProcesoController::class, 'update'])->name('servicio.proceso.update');
+        Route::post('/api/servicio-proceso/{id}/foto', [ServicioProcesoController::class, 'subirFoto'])->name('servicio.proceso.foto');
+        Route::delete('/api/servicio-proceso/foto/{id}', [ServicioProcesoController::class, 'eliminarFoto'])->name('servicio.proceso.foto.delete');
+        Route::get('/api/servicio-proceso/buscar-vehiculo', [ServicioProcesoController::class, 'buscarVehiculo']);
+        Route::get('/api/servicio-proceso/activos', [ServicioProcesoController::class, 'serviciosActivos']);
+        Route::post('/api/servicio-proceso/crear-vehiculo', [ServicioProcesoController::class, 'crearVehiculo']);
+        Route::post('/api/servicio-proceso/crear-cliente', [ServicioProcesoController::class, 'crearCliente']);
+        Route::post('/api/servicio-proceso/crear-mecanico', [ServicioProcesoController::class, 'crearMecanico']);
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {

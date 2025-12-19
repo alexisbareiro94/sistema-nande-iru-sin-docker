@@ -9,6 +9,7 @@ import './dashboard';
 import './componentes/clientes';
 import './componentes/restablecer-pass';
 import './exportar-stock'
+import './servicio-proceso'
 import { showToast } from './toast';
 
 let myChart = null;

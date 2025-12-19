@@ -43,6 +43,9 @@ class StoreVentaRequest extends FormRequest
             'ruc.required' => 'Error al procesar la venta',
             'total.required' => 'Error al procesar la venta',
             'forma_pago' => 'Error al procesar la venta',
+            'monto_recibido' => 'Error al procesar la venta',
+            'vehiculo_id' => 'Error al procesar la venta (vehiculo)',
+            'mecanico_id' => 'Error al procesar la venta (mecanico)',
         ];
     }
 

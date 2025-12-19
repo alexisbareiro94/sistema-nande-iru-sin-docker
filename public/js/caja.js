@@ -109,10 +109,10 @@ async function recargarTablaVentas(data) {
         const row = document.createElement('tr');
         const stockClass = producto.tipo == 'servicio' ? 'text-gray-300 font-semibold' : producto.stock < producto.stock_minimo ? 'text-red-500 font-semibold' : 'text-green-500 font-semibold'
 
-        row.className = 'productos select-product-mobil hover:bg-gray-50 transition-colors border-b border-gray-300 transition-all active:bg-gray-300';
+        row.className = ' productos select-product-mobil hover:bg-gray-50 transition-colors border-b border-gray-300 transition-all active:bg-gray-300';
         row.dataset.producto = JSON.stringify(producto)
         row.innerHTML = `
-                                <td class="px-5 py-3">
+                                <td class=" px-5 py-3 ">
                                     <div class="flex items-center gap-3">
                                         <div class="bg-gray-100 p-2 rounded-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600"

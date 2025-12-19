@@ -74,6 +74,8 @@
     <script src="{{ asset('js/categoria.js') }}"></script>
     <script src="{{ asset('js/filtros.js') }}"></script>
     <script src="{{ asset('js/historial-ventas.js') }}"></script>
+    <script src="{{ asset('js/caja.js') }}"></script>
+    <script src="{{ asset('js/procesar-caja.js') }}"></script>
     <script>
         if (sessionStorage.getItem('pdf-toast')) {
             toastLoading();

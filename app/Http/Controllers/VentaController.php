@@ -7,7 +7,7 @@ use App\Events\UltimaActividadEvent;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto};
+use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso};
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Exports\VentasExport;
@@ -16,6 +16,7 @@ use App\Jobs\GenerarPdfJob;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\VentaRealizada;
+use function Symfony\Component\Clock\now;
 
 class VentaController extends Controller
 {
@@ -241,7 +242,7 @@ class VentaController extends Controller
 
     public function store(StoreVentaRequest $request)
     {
-        $data = $request->validated();  //aca se valida que llegue el carrito y demas datos
+        $data = $request->validated();  //aca se valida que llegue el carrito y demas datos        
         $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario        
         if ($errores->count() > 0) {
             return response()->json([
@@ -254,6 +255,13 @@ class VentaController extends Controller
         $carrito = collect(json_decode($data['carrito']));
         $totalCarrito = collect(json_decode($data['total']));
         $formaPago = collect(json_decode($data['forma_pago']));
+        $vehiculoId = $data['vehiculo_id'];
+
+        // return response()->json([
+        //     'success' => true,
+        //     'vehiculo_id' => $vehiculoId,
+        // ]);
+
         $ruc = $data['ruc'];
         $userId = User::where('ruc_ci', $ruc)
             ->where('tenant_id', tenant_id())
@@ -271,7 +279,7 @@ class VentaController extends Controller
                 'codigo' => generate_code(),
                 'vendedor_id' => auth()->user()->id,
                 'cliente_id' => $userId,
-                'vehiculo_id' => $data['vehiculo_id'] ?? null,
+                'vehiculo_id' => $vehiculoId ?? null,
                 'cantidad_productos' => $totalCarrito['cantidadTotal'],
                 'forma_pago' => $metodoPago[0],
                 'con_descuento' => $tieneDescuento,
@@ -281,6 +289,16 @@ class VentaController extends Controller
                 'total' => $totalCarrito['total'],
                 'estado' => 'completado',
             ]);
+
+            if ($vehiculoId) {
+                ServicioProceso::where('vehiculo_id', $vehiculoId)
+                    ->update([
+                        'estado' => 'cobrado',
+                        'venta_id' => $venta->id,
+                        'updated_by' => auth()->user()->id,
+                        'fecha_fin' => now(),
+                    ]);
+            }
 
             Auditoria::create([
                 'created_by' => auth()->user()->id,

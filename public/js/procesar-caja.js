@@ -88,18 +88,25 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
         showToast('El monto recibido es menor al total de la venta', 'error');
         return;
     }
-    const data = await confirmarVenta(formaPago, montoRecibido);
+    const data = await confirmarVenta(formaPago, montoRecibido);    
     document.getElementById('modal-carga').classList.remove('hidden');
     setTimeout(() => {
         document.getElementById('modal-carga').classList.add('hidden');
-        resumenVenta(data);
-        limpiarUI();
-    }, 800);
+        if(sessionStorage.getItem('vehiculo')){
+            sessionStorage.removeItem('vehiculo');
+            document.getElementById('modal-ventas').classList.add('hidden');
+            document.getElementById('modal-confirmar-venta').classList.add('hidden');
+            resumenVenta(data);
+        }else{
+            resumenVenta(data);
+            limpiarUI();
+        }
+    }, 500);
 
 });
 
 
-function resumenVenta(data) {
+function resumenVenta(data) {    
     console.log(data)
     const modalVentaCompletada = document.getElementById('modal-venta-completada');
     const resumenVenta = document.getElementById('resumen-venta');
@@ -222,8 +229,10 @@ async function confirmarVenta(formaPago, montoRecibido) {
         const vehiculoId = document.getElementById('vehiculo-id-venta')?.value || '';
         const mecanicoId = document.getElementById('select-mecanico-venta')?.value || '';
         if (vehiculoId) ventaData.append('vehiculo_id', vehiculoId);
-        if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);
+        if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);        
 
+        console.log(ventaData.get('vehiculo_id'));
+                
         const res = await fetch(`/api/venta`, {
             method: 'POST',
             headers: {
@@ -231,13 +240,14 @@ async function confirmarVenta(formaPago, montoRecibido) {
             },
             body: ventaData,
         });
-        const data = await res.json();
+        const data = await res.json();        
+        console.log(data, 'sdasads');
+        return;
         if (!res.ok) {
             throw data;
         }
         document.getElementById('input-b-producto-ventas').value = '';
-        showToast('Venta realizado con éxito');
-        console.log(data)
+        showToast('Venta realizado con éxito');        
         return data;
     } catch (err) {
         showToast(`${err.error}`, 'error');
@@ -282,8 +292,7 @@ async function cargarMecanicos() {
     try {
         const res = await fetch('/api/users?role=mecanico');
         const data = await res.json();
-        mecanicos = data.users || [];
-        console.log(mecanicos)
+        mecanicos = data.users || [];        
         const selectMecanico = document.getElementById('select-mecanico-venta');
         const selectMecanicoModal = document.getElementById('nuevo-vehiculo-mecanico');
 

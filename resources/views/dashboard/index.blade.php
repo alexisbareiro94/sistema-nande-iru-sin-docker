@@ -41,7 +41,22 @@
                 </div>
             </div>
         </header>
-
+        <div class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Panel de Control</h1>
+            @if (auth()->check() && !auth()->user()->temp_used && auth()->user()->role == 'admin')
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <p class="font-bold">Cuenta temporal</p>
+                    <p>Esta cuenta es temporal y vencerá el
+                        <strong>{{ format_time(auth()->user()->expires_at) }}</strong>.
+                        Por favor, configurá tu cuenta permanente antes de esa fecha.
+                    </p>
+                    <a href="{{ route('auth.config.view') }}"
+                        class="text-blue-600 underline font-medium hover:text-blue-800">
+                        Configurar ahora
+                    </a>
+                </div>
+            @endif
+        </div>
         <!-- Cards de resumen -->
         @include('dashboard.includes.resumen-movimientos')
 

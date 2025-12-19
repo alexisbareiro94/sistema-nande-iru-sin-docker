@@ -68,6 +68,11 @@ class Vehiculo extends Model
         return $this->hasOne(Venta::class, 'vehiculo_id')->latest('created_at');
     }
 
+    public function servicioProceso()
+    {
+        return $this->hasOne(ServicioProceso::class, 'vehiculo_id');
+    }
+
     public function getServiciosCountAttribute()
     {
         return $this->ventas()->count();

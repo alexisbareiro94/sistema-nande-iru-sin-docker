@@ -1,8 +1,8 @@
 {{-- public/caja.js --}}
-<div @class([
+<div id="modal-ventas" @class([
     'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300',
     'hidden' => Auth::user()->role == 'admin' || !session('caja'),
-]) id="modal-ventas">
+])>
     <div
         class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[92vh] md:h-[90vh]">
         <!-- Header con título y botón de cierre -->
@@ -26,6 +26,7 @@
                     </svg>
                     {{ auth()->user()->name }}
                 </span>
+
             </div>
             <!-- cerrar modal x -->
             <button id="cerrar-modal-ventas"
@@ -35,11 +36,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-        </div>
-        <div id="div-procesar-cobro" class="hidden p-2">
-            <p class="font-semibold">Procesar Cobro de servicio:
-                <span class="font-normal" id="servicio-codigo">asdasdas </span>
-            </p>
         </div>
 
         <div class="flex flex-1 overflow-hidden ">
@@ -225,7 +221,6 @@
             </div>
         </div>
         @include('caja.includes.modal-confirmar-venta')
-
     </div>
 
     <script>
