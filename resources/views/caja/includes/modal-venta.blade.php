@@ -72,21 +72,10 @@
                     </form>
                 </div>
 
-                <!-- Tabla de productos con mejor diseño -->
-                <div class=" rounded-xl border border-gray-200 shadow-sm flex-1">
-                    <table class="w-full text-left overflow-y-scroll">
-                        <thead class="bg-gradient-to-r from-gray-100 to-gray-100 sticky top-0 z-10">
-                            <tr class="text-gray-800">
-                                <th class="px-5 py-3 font-semibold">Producto</th>
-                                <th class="px-5 py-3 font-semibold">Precio</th>
-                                <th class="px-5 py-3 font-semibold">Stock</th>
-                                <th class="px-5 py-3 font-semibold text-center hidden md:block">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-venta-productos" class="divide-y divide-gray-100 ">
-                            {{-- aca se renderizan los productos /public/caja.js --}}
-                        </tbody>
-                    </table>
+                <!-- Grid de productos en cards -->
+                <div id="tabla-venta-productos"
+                    class="rounded-xl border border-gray-200 shadow-sm flex-1 overflow-y-auto max-h-[calc(100vh-220px)] p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-max content-start">
+                    {{-- aca se renderizan los productos /public/caja.js --}}
                 </div>
             </div>
 
@@ -119,8 +108,7 @@
                                                 d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H5a2 2 0 00-2 2v11a2 2 0 00.293 1.207l5.414 5.414A1 1 0 009.414 21z" />
                                         </svg>
                                     </div>
-                                    <input id="i-ruc-ci" type="string" placeholder="Ingrese RUC o CI"
-                                        value=""
+                                    <input id="i-ruc-ci" type="string" placeholder="Ingrese RUC o CI" value=""
                                         class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400">
                                 </div>
                             </div>

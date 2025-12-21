@@ -27,7 +27,7 @@ class VentaController extends Controller
     public function index_view()
     {
         $query = Venta::query();
-        $users = User::whereIn('role', ['cliente', 'personal'])
+        $users = User::whereIn('role', ['cliente', 'personal', 'mecanico'])
             ->where('tenant_id', tenant_id())
             ->get();
         $clientes = $users->count();
@@ -74,8 +74,9 @@ class VentaController extends Controller
             $dir = $request->query('direction');
             $cliente = $request->query('cliente');
             $caja = $request->query('caja');
+            $mecanico = $request->query('mecanico');
 
-            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy) && !filled($cliente) && !filled($caja)) {
+            if ($paginacion === 'true' && !filled($desdeC) && !filled($hastaC) && !filled($formaPago) && !filled($tipo) && !filled($search) && !filled($orderBy) && !filled($cliente) && !filled($caja) && !filled($mecanico)) {
                 if (auth()->user()->role === 'admin') {
                     $ventas = $query->with([
                         'caja.user',
@@ -99,6 +100,14 @@ class VentaController extends Controller
                     'paginacion' => $paginacion,
                     'ventas' => $ventas,
                 ]);
+            }
+
+            if (filled($mecanico)) {
+                $query->whereHas('venta', function ($q) use ($mecanico) {
+                    $q->whereHas('servicio', function ($query) use ($mecanico) {
+                        $query->where('servicios_proceso.mecanico_id', $mecanico);
+                    });
+                });
             }
 
             if (filled($cliente)) {

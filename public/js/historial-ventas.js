@@ -248,10 +248,11 @@ if (document.getElementById('dv-buscar')) {
         const formaPago = document.getElementById('dv-forma-pago').value;
         const tipo = document.getElementById('dv-tipo').value;
         const cliente = document.getElementById('dv-cliente').value;
-
+        const mecanico = document.getElementById('dv-mecanico').value;
+        
         console.log(cliente);
 
-        if (desde == '' && hasta == '' && estado == '' && formaPago == '' && tipo == '' && cliente == '') {
+        if (desde == '' && hasta == '' && estado == '' && formaPago == '' && tipo == '' && cliente == '' && mecanico == '') {
             window.location.href = '/movimientos'
             return;
         }
@@ -265,6 +266,7 @@ if (document.getElementById('dv-buscar')) {
             formaPago: formaPago,
             tipo: tipo,
             cliente: cliente,
+            mecanico: mecanico,
         }
         sessionStorage.setItem('datos', JSON.stringify(datos))
         buscar();
@@ -302,11 +304,12 @@ async function buscar(orderBy = '', direction = '') {
     const formaPago = datos.formaPago ?? '';
     const tipo = datos.tipo ?? '';
     const cliente = datos.cliente ?? '';
+    const mecanico = document.getElementById('dv-mecanico').value;
     const q = document.getElementById('dv-input-s').value;
     let paginacion = false;
     // console.log(cliente);
 
-    if (q === '' && desde == "" && hasta == "" && estado == "" && formaPago == "" && tipo == "" && cliente == "") {
+    if (q === '' && desde == "" && hasta == "" && estado == "" && formaPago == "" && tipo == "" && cliente == "" && mecanico == "") {
         if (!ingresoFiltro.classList.contains('hidden') || !egresosFiltro.classList.contains('hidden')) {
             ingresoFiltro.classList.add('hidden');
             egresosFiltro.classList.add('hidden');
@@ -314,7 +317,7 @@ async function buscar(orderBy = '', direction = '') {
         paginacion = true;
     }
     try {
-        const res = await fetch(`/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&cliente=${encodeURIComponent(cliente)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`);
+        const res = await fetch(`/venta?q=${encodeURIComponent(q)}&desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&estado=${encodeURIComponent(estado)}&formaPago=${encodeURIComponent(formaPago)}&tipo=${encodeURIComponent(tipo)}&cliente=${encodeURIComponent(cliente)}&mecanico=${encodeURIComponent(mecanico)}&paginacion=${encodeURIComponent(paginacion)}&orderBy=${encodeURIComponent(orderBy)}&direction=${encodeURIComponent(direction)}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;

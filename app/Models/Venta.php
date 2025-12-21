@@ -105,4 +105,9 @@ class Venta extends Model
     {
         return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
     }
+
+    public function servicio()
+    {
+        return $this->hasOne(ServicioProceso::class, 'venta_id');
+    }
 }

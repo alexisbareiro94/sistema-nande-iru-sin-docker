@@ -121,14 +121,10 @@ class ServicioProcesoController extends Controller
             'descripcion' => 'nullable|string|max:1000',
             'observaciones' => 'nullable|string|max:2000',
         ]);
-
         try {
             $servicio = ServicioProceso::findOrFail($id);
-
-            $data = $request->only(['vehiculo_id', 'mecanico_id', 'estado', 'descripcion', 'observaciones']);
             $data['updated_by'] = auth()->user()->id;
 
-            // Si se marca como completado, agregar fecha_fin
             if ($request->estado === 'completado' && $servicio->estado !== 'completado') {
                 $data['fecha_fin'] = now();
             }
@@ -136,10 +132,10 @@ class ServicioProcesoController extends Controller
             // Si se cambia el vehículo, actualizar cliente
             if ($request->vehiculo_id && $request->vehiculo_id != $servicio->vehiculo_id) {
                 $vehiculo = Vehiculo::find($request->vehiculo_id);
-                $data['cliente_id'] = $vehiculo?->cliente_id;
+                $request->cliente_id = $vehiculo?->cliente_id;
             }
 
-            $servicio->update($data);
+            $servicio->update($request->all());
 
             return response()->json([
                 'success' => true,

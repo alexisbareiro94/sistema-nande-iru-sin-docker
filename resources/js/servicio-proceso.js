@@ -1,5 +1,6 @@
 import { showToast } from "./toast.js";
 import { csrfToken } from "./csrf-token.js";
+import axios from 'axios';
 
 document.addEventListener('DOMContentLoaded', function () {
     // Modal de selección
@@ -177,7 +178,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const result = await response.json();
 
-                if (!result.success) {
+                if (result.success) {
+                    location.reload();
+                } else {
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
@@ -217,6 +220,59 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Error al guardar las observaciones');
             }
         });
+    }
+
+    // Preview de foto antes de subir
+    const inputFoto = document.getElementById('input-foto-servicio');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImagen = document.getElementById('preview-imagen');
+    const previewNombre = document.getElementById('preview-nombre');
+    const previewTamano = document.getElementById('preview-tamano');
+    const btnCancelarPreview = document.getElementById('btn-cancelar-preview');
+
+    if (inputFoto) {
+        inputFoto.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validar que sea una imagen
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor selecciona un archivo de imagen válido.');
+                    inputFoto.value = '';
+                    return;
+                }
+                
+                // Crear preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImagen.src = event.target.result;
+                    previewNombre.textContent = file.name;
+                    previewTamano.textContent = formatFileSize(file.size);
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        });
+    }
+
+    // Cancelar preview / limpiar selección
+    if (btnCancelarPreview) {
+        btnCancelarPreview.addEventListener('click', function() {
+            inputFoto.value = '';
+            previewContainer.classList.add('hidden');
+            previewImagen.src = '';
+        });
+    }
+
+    // Función para formatear el tamaño del archivo
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     // Subir foto
@@ -548,10 +604,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                     },
                     body: JSON.stringify({ cliente_id: clienteId })
-                });
+                });                
 
-                const result = await response.json();
-                if (!result.success) {
+                const result = await response.json();                
+                if (result.success) {
+                    location.reload();
+                } else {
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
@@ -573,10 +631,35 @@ if(document.getElementById('btn-procesar-cobro')){
         if(servicio){
             divProcesarCobro.classList.remove('hidden');
             if(servicio.vehiculo){
-                servicioCodigo.textContent = servicio.codigo + ' | ' + servicio.vehiculo?.marca + ' ' + servicio.vehiculo?.modelo + ' | ' + servicio.vehiculo?.patente;                
+                servicioCodigo.textContent = servicio.codigo + ' | ' + servicio.vehiculo?.marca + ' ' + servicio.vehiculo?.modelo + ' | ' + servicio.vehiculo?.patente;
+                
+                // Guardar datos del vehículo en sessionStorage para pre-llenar en modal de confirmación
+                sessionStorage.setItem('servicioVehiculo', JSON.stringify({
+                    id: servicio.vehiculo.id,
+                    patente: servicio.vehiculo.patente,
+                    marca: servicio.vehiculo.marca,
+                    modelo: servicio.vehiculo.modelo,
+                    anio: servicio.vehiculo.anio || '',
+                    mecanico_id: servicio.vehiculo.mecanico_id || servicio.mecanico_id || null
+                }));
             }else{
                 servicioCodigo.textContent = servicio.codigo;
+                sessionStorage.removeItem('servicioVehiculo');
             }
+            
+            // Guardar datos del cliente si existe
+            if(servicio.cliente){
+                sessionStorage.setItem('servicioCliente', JSON.stringify({
+                    id: servicio.cliente.id,
+                    razon_social: servicio.cliente.razon_social || servicio.cliente.name,
+                    ruc_ci: servicio.cliente.ruc_ci || ''
+                }));
+            }
+            
+            // Guardar que viene de un servicio
+            sessionStorage.setItem('fromServicio', 'true');
+            sessionStorage.setItem('servicioId', servicio.id);
+            
             modalVentas.classList.remove('hidden');
             sessionStorage.setItem('vehiculo', 'true');
         }

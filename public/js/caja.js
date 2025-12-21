@@ -85,11 +85,12 @@ if (document.getElementById('input-b-producto-ventas')) {
                     } else {
                         const tablaVentaProductos = document.getElementById('tabla-venta-productos');
                         tablaVentaProductos.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-gray-500">
-                                No hay resultados
-                            </td>
-                        </tr>
+                        <div class="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <p class="text-sm font-medium">No hay resultados</p>
+                        </div>
                         `;
                     }
 
@@ -106,46 +107,50 @@ async function recargarTablaVentas(data) {
     tablaVentaProductos.innerHTML = '';
 
     data.productos.forEach(producto => {
-        const row = document.createElement('tr');
-        const stockClass = producto.tipo == 'servicio' ? 'text-gray-300 font-semibold' : producto.stock < producto.stock_minimo ? 'text-red-500 font-semibold' : 'text-green-500 font-semibold'
+        const card = document.createElement('div');
+        const stockClass = producto.tipo == 'servicio' ? 'text-gray-400' : producto.stock < producto.stock_minimo ? 'text-red-500' : 'text-green-600';
+        const stockBgClass = producto.tipo == 'servicio' ? 'bg-gray-100' : producto.stock < producto.stock_minimo ? 'bg-red-50' : 'bg-green-50';
 
-        row.className = ' productos select-product-mobil hover:bg-gray-50 transition-colors border-b border-gray-300 transition-all active:bg-gray-300';
-        row.dataset.producto = JSON.stringify(producto)
-        row.innerHTML = `
-                                <td class=" px-5 py-3 ">
-                                    <div class="flex items-center gap-3">
-                                        <div class="bg-gray-100 p-2 rounded-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 5v2m0 4v2m0 4v2M5 8a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V8z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium">${producto.nombre}</p>
-                                            <p class="text-xs text-gray-500">Código: ${producto.codigo ?? 'sin codigo'}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-5 py-3 font-medium">Gs. ${producto.precio_venta.toLocaleString('es-PY')}</td>
-                                <td class="px-5 py-3 ${stockClass}">${producto.tipo == 'servicio' ? 'servicio' : producto.stock}</td>
-                                <td class="px-5 py-3 text-center">
-                                    <button data-producto='${JSON.stringify(producto)}'
-                                        class="productos hidden md:flex cursor-pointer bg-gray-100 hover:bg-gray-300 border broder-gray-700 text-gray-800 px-2 py-1 rounded-md items-center justify-center transition-all shadow-md hover:shadow-lg">
-                                        <span class="font-semibold text-xs">
-                                            ADD     
-                                        </span>
-                            
-                                        <span class="">
-                                        <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7h-1M8 7h-.688M13 5v4m-2-2h4"/>
-                                            </svg>
-                                        </span>
-                                    </button>
-                                </td>
-                    `
-        tablaVentaProductos.appendChild(row);
+        card.className = 'productos select-product-mobil bg-white border border-gray-200 rounded-xl p-3 hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer active:scale-95 flex flex-col justify-between';
+        card.dataset.producto = JSON.stringify(producto);
+        const tipoBadgeClass = producto.tipo == 'servicio' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700';
+        const tipoBadgeText = producto.tipo == 'servicio' ? 'Servicio' : 'Producto';
 
+        card.innerHTML = `
+            <div class="flex flex-col h-full relative">
+                <span class="absolute -top-1 -right-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${tipoBadgeClass}">
+                    ${tipoBadgeText}
+                </span>
+                <div class="flex items-center justify-center mb-2 mt-2">
+                    <div class="bg-gradient-to-br from-gray-100 to-gray-200 p-3 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 text-center mb-2">
+                    <p class="font-semibold text-gray-800 text-sm leading-tight line-clamp-2">${producto.nombre}</p>
+                    <p class="text-xs text-gray-400 mt-1">${producto.codigo ?? 'Sin código'}</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-center">
+                        <span class="text-lg font-bold text-gray-800">Gs. ${producto.precio_venta.toLocaleString('es-PY')}</span>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <span class="text-xs px-2 py-1 rounded-full ${stockBgClass} ${stockClass} font-medium">
+                            ${producto.tipo == 'servicio' ? '🔧 Servicio' : '📦 Stock: ' + producto.stock}
+                        </span>
+                    </div>
+                </div>
+                <button data-producto='${JSON.stringify(producto)}' class="productos mt-3 w-full bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Agregar
+                </button>
+            </div>
+        `;
+        tablaVentaProductos.appendChild(card);
     });
 }
 
@@ -778,3 +783,46 @@ if($('#cerrar-tabla-productos')){
         tabla.classList.add('hidden');
     })
 }
+
+// Función para pre-llenar datos del cliente cuando viene de un servicio
+function preLlenarClienteServicio() {
+    const servicioCliente = sessionStorage.getItem('servicioCliente');
+    
+    if (servicioCliente) {
+        const cliente = JSON.parse(servicioCliente);
+        
+        const inputRuc = document.getElementById('i-ruc-ci');
+        const inputRazon = document.getElementById('i-nombre-razon');
+        
+        if (inputRuc && cliente.ruc_ci) {
+            inputRuc.value = cliente.ruc_ci;
+        }
+        
+        if (inputRazon && cliente.razon_social) {
+            inputRazon.value = cliente.razon_social;
+        }
+    }
+}
+
+// Verificar si viene de un servicio cuando se abre el modal de ventas
+document.addEventListener('DOMContentLoaded', () => {
+    // Observar cuando el modal de ventas se hace visible
+    const modalVentas = document.getElementById('modal-ventas');
+    if (modalVentas) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (!modalVentas.classList.contains('hidden')) {
+                        // El modal se ha abierto, verificar si viene de un servicio
+                        const fromServicio = sessionStorage.getItem('fromServicio');
+                        if (fromServicio === 'true') {
+                            preLlenarClienteServicio();
+                        }
+                    }
+                }
+            });
+        });
+        
+        observer.observe(modalVentas, { attributes: true });
+    }
+});

@@ -22,8 +22,65 @@ document.getElementById('procesar-venta').addEventListener('click', () => {
         document.getElementById('razon-venta').innerHTML = razon.value.trim();
         document.getElementById('ruc-venta').innerHTML = ruc.value.trim();
         resumenCarrito();
+        
+        // Pre-llenar datos del vehículo si viene de un servicio
+        preLlenarVehiculoServicio();
     }
 });
+
+// Función para pre-llenar datos del vehículo cuando viene de un servicio
+function preLlenarVehiculoServicio() {
+    const fromServicio = sessionStorage.getItem('fromServicio');
+    const servicioVehiculo = sessionStorage.getItem('servicioVehiculo');
+    
+    if (fromServicio === 'true' && servicioVehiculo) {
+        const vehiculo = JSON.parse(servicioVehiculo);
+        
+        // Pre-llenar el input de patente
+        const inputPatente = document.getElementById('input-patente');
+        if (inputPatente && vehiculo.patente) {
+            inputPatente.value = vehiculo.patente;
+        }
+        
+        // Pre-llenar el ID del vehículo
+        const vehiculoIdInput = document.getElementById('vehiculo-id-venta');
+        if (vehiculoIdInput && vehiculo.id) {
+            vehiculoIdInput.value = vehiculo.id;
+        }
+        
+        // Mostrar info del vehículo encontrado
+        const infoEncontrado = document.getElementById('info-vehiculo-encontrado');
+        const infoTexto = document.getElementById('vehiculo-info-texto');
+        const btnNuevoVehiculo = document.getElementById('cont-btn-nuevo-vehiculo');
+        
+        if (infoEncontrado && infoTexto) {
+            infoTexto.textContent = `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.anio || ''} - ${vehiculo.patente}`;
+            infoEncontrado.classList.remove('hidden');
+            btnNuevoVehiculo?.classList.add('hidden');
+        }
+        
+        // Pre-seleccionar el mecánico si existe
+        if (vehiculo.mecanico_id) {
+            const selectMecanico = document.getElementById('select-mecanico-venta');
+            if (selectMecanico) {
+                selectMecanico.value = vehiculo.mecanico_id;
+            }
+        }
+        
+        // Ocultar la sección de vehículo ya que viene pre-llenado
+        const datosVehiculo = document.getElementById('datos-vehiculo');
+        if (datosVehiculo) {
+            // Agregar un indicador visual de que el vehículo está pre-cargado
+            const existingBadge = datosVehiculo.querySelector('.servicio-badge');
+            if (!existingBadge) {
+                const badge = document.createElement('span');
+                badge.className = 'servicio-badge ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full';
+                badge.textContent = '✓ Del servicio';
+                datosVehiculo.querySelector('h3')?.appendChild(badge);
+            }
+        }
+    }
+}
 
 document.getElementById('confirmar-venta').addEventListener('click', async () => {
     const mixtoEfectivo = document.getElementById('mixto-efectivo') ?? '';
@@ -231,7 +288,9 @@ async function confirmarVenta(formaPago, montoRecibido) {
         if (vehiculoId) ventaData.append('vehiculo_id', vehiculoId);
         if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);        
 
-        console.log(ventaData.get('vehiculo_id'));
+        // Agregar ID del servicio si viene de un cobro de servicio
+        const servicioId = sessionStorage.getItem('servicioId');
+        if (servicioId) ventaData.append('servicio_id', servicioId);
                 
         const res = await fetch(`/api/venta`, {
             method: 'POST',
@@ -241,13 +300,12 @@ async function confirmarVenta(formaPago, montoRecibido) {
             body: ventaData,
         });
         const data = await res.json();        
-        console.log(data, 'sdasads');
-        return;
+        
         if (!res.ok) {
             throw data;
         }
         document.getElementById('input-b-producto-ventas').value = '';
-        showToast('Venta realizado con éxito');        
+        showToast('Venta realizada con éxito');        
         return data;
     } catch (err) {
         showToast(`${err.error}`, 'error');
@@ -458,6 +516,18 @@ limpiarUI = async function () {
     document.getElementById('info-vehiculo-encontrado')?.classList.add('hidden');
     document.getElementById('cont-btn-nuevo-vehiculo')?.classList.add('hidden');
     document.getElementById('select-mecanico-venta').value = '';
+    
+    // Limpiar badge de servicio si existe
+    const servicioBadge = document.querySelector('.servicio-badge');
+    if (servicioBadge) {
+        servicioBadge.remove();
+    }
+    
+    // Limpiar datos de servicio del sessionStorage
+    sessionStorage.removeItem('fromServicio');
+    sessionStorage.removeItem('servicioVehiculo');
+    sessionStorage.removeItem('servicioCliente');
+    sessionStorage.removeItem('servicioId');
 };
 
 // ========== NUEVO MECÁNICO ==========
