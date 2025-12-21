@@ -148,16 +148,9 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
     const data = await confirmarVenta(formaPago, montoRecibido);    
     document.getElementById('modal-carga').classList.remove('hidden');
     setTimeout(() => {
-        document.getElementById('modal-carga').classList.add('hidden');
-        if(sessionStorage.getItem('vehiculo')){
-            sessionStorage.removeItem('vehiculo');
-            document.getElementById('modal-ventas').classList.add('hidden');
-            document.getElementById('modal-confirmar-venta').classList.add('hidden');
-            resumenVenta(data);
-        }else{
-            resumenVenta(data);
-            limpiarUI();
-        }
+        document.getElementById('modal-carga').classList.add('hidden');        
+        resumenVenta(data);
+        limpiarUI();
     }, 500);
 
 });
@@ -334,7 +327,9 @@ async function limpiarUI() {
     document.getElementById('form-b-productos-ventas').reset();
     await recargarMovimientos();
     await recargarSaldo();
+    document.getElementById('no-radio').classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
+    sessionStorage.addItem('vehiculo', 'true')
 }
 
 document.getElementById('form-monto-recibido').addEventListener('submit', (e) => {

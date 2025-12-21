@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function buscarVehiculo() {
         const patente = inputBuscarPatente?.value.trim();
         if (!patente) {
-            alert('Ingresa una patente para buscar');
+            showToast('Ingresa una patente para buscar', 'error');
             return;
         }
 
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error('Error buscando vehículo:', error);
-            alert('Error al buscar el vehículo');
+            showToast('Error al buscar el vehículo', 'error');
         }
     }
 
@@ -150,11 +150,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error actualizando estado:', error);
-                alert('Error al actualizar el estado');
+                showToast('Error al actualizar el estado', 'error');
             }
         });
     }
@@ -181,11 +181,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error actualizando mecánico:', error);
-                alert('Error al actualizar el mecánico');
+                showToast('Error al actualizar el mecánico', 'error');
             }
         });
     }
@@ -211,13 +211,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('Observaciones guardadas correctamente');
+                    showToast('Observaciones guardadas correctamente', 'success');
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error guardando observaciones:', error);
-                alert('Error al guardar las observaciones');
+                showToast('Error al guardar las observaciones', 'error');
             }
         });
     }
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (file) {
                 // Validar que sea una imagen
                 if (!file.type.startsWith('image/')) {
-                    alert('Por favor selecciona un archivo de imagen válido.');
+                    showToast('Por favor selecciona un archivo de imagen válido.', 'error');
                     inputFoto.value = '';
                     return;
                 }
@@ -298,11 +298,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error subiendo foto:', error);
-                alert('Error al subir la foto');
+                showToast('Error al subir la foto', 'error');
             }
         });
     }
@@ -343,11 +343,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         `;
                     }
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error eliminando foto:', error);
-                alert('Error al eliminar la foto');
+                showToast('Error al eliminar la foto', 'error');
             }
         });
     });
@@ -441,11 +441,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     cerrarModalGeneral('modal-crear-vehiculo');
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error creando vehículo:', error);
-                alert('Error al crear el vehículo');
+                showToast('Error al crear el vehículo', 'error');
             }
         });
     }
@@ -496,11 +496,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     cerrarModalGeneral('modal-crear-cliente');
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error creando cliente:', error);
-                alert('Error al crear el cliente');
+                showToast('Error al crear el cliente', 'error');
             }
         });
     }
@@ -551,11 +551,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     cerrarModalGeneral('modal-crear-mecanico');
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error creando mecánico:', error);
-                alert('Error al crear el mecánico');
+                showToast('Error al crear el mecánico', 'error');
             }
         });
     }
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error actualizando vehículo:', error);
@@ -610,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error actualizando cliente:', error);
@@ -672,4 +672,9 @@ if(document.getElementById('cerrar-modal-ventas')){
         const modalVentas = document.getElementById('modal-ventas');
         modalVentas.classList.add('hidden');
     });
+}
+
+if(sessionStorage.getItem('vehiculo')){
+    sessionStorage.removeItem('vehiculo')
+    window.location.reload();
 }

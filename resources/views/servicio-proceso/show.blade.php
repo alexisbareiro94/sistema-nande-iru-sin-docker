@@ -80,10 +80,10 @@
                             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                             <option value="">Seleccionar vehículo</option>
                             @foreach ($vehiculos as $vehiculo)
-                                @if ($vehiculo->id != $vehiculo->servicioProceso?->vehiculo_id)
-                                    <option value="{{ $vehiculo->id }}">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}
-                                        {{ $vehiculo->anio }} | {{ $vehiculo->patente }}</option>
-                                @endif
+                                {{-- @if ($vehiculo->id != $vehiculo->servicioProceso?->vehiculo_id && $vehiculo->servicioProceso?->estado == 'cobrado') --}}
+                                <option value="{{ $vehiculo->id }}">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                    {{ $vehiculo->anio }} | {{ $vehiculo->patente }}</option>
+                                {{-- @endif --}}
                             @endforeach
                         </select>
                         <button type="button" id="btn-abrir-modal-vehiculo"
@@ -338,8 +338,4 @@
     @include('caja.includes.cargando')
 
     @include('caja.venta-completada')
-@endsection
-
-@section('js')
-    <script src="{{ asset('js/servicio-proceso.js') }}"></script>
 @endsection

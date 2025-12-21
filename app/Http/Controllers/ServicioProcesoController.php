@@ -117,16 +117,31 @@ class ServicioProcesoController extends Controller
         $request->validate([
             'vehiculo_id' => 'nullable|exists:vehiculos,id',
             'mecanico_id' => 'nullable|exists:users,id',
+            'cliente_id' => 'nullable|exists:users,id',
             'estado' => 'nullable|in:pendiente,en_proceso,completado,cancelado',
             'descripcion' => 'nullable|string|max:1000',
             'observaciones' => 'nullable|string|max:2000',
         ]);
+
+        if (filled($request->vehiculo_id)) {
+            $vehiculo = ServicioProceso::where('vehiculo_id', $request->vehiculo_id)
+                ->whereIn('estado', ['pendiente', 'en_proceso'])
+                ->first();
+
+            if (filled($vehiculo)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'El vehículo ya tiene un servicio en proceso',
+                ]);
+            }
+        }
+
         try {
             $servicio = ServicioProceso::findOrFail($id);
-            $data['updated_by'] = auth()->user()->id;
+            $request->updated_by = auth()->user()->id;
 
             if ($request->estado === 'completado' && $servicio->estado !== 'completado') {
-                $data['fecha_fin'] = now();
+                $request->fecha_fin = now();
             }
 
             // Si se cambia el vehículo, actualizar cliente

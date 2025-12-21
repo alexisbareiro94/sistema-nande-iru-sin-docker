@@ -264,7 +264,7 @@ class VentaController extends Controller
         $carrito = collect(json_decode($data['carrito']));
         $totalCarrito = collect(json_decode($data['total']));
         $formaPago = collect(json_decode($data['forma_pago']));
-        $vehiculoId = $data['vehiculo_id'];
+        $vehiculoId = $data['vehiculo_id'] ?? null;
 
         // return response()->json([
         //     'success' => true,
@@ -299,7 +299,7 @@ class VentaController extends Controller
                 'estado' => 'completado',
             ]);
 
-            if ($vehiculoId) {
+            if ($vehiculoId != null) {
                 ServicioProceso::where('vehiculo_id', $vehiculoId)
                     ->update([
                         'estado' => 'cobrado',
@@ -457,7 +457,6 @@ class VentaController extends Controller
 
 
             DB::commit();
-            // return redirect()->back()->with('success', 'Venta Anulada');
             return response()->json([
                 'message' => 'Venta Actualizado'
             ]);
