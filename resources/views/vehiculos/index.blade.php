@@ -102,10 +102,26 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('vehiculo.show', $vehiculo->id) }}"
-                                        class="text-blue-600 hover:text-blue-800 font-medium">
-                                        Ver Historial
-                                    </a>
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="{{ route('vehiculo.show', $vehiculo->id) }}"
+                                            class="text-blue-600 hover:text-blue-800 font-medium" title="Ver Historial">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+                                        <button onclick="abrirModalEditarVehiculo({{ json_encode($vehiculo) }})"
+                                            class="text-gray-500 hover:text-blue-600 transition" title="Editar Vehículo">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -209,6 +225,92 @@
         </div>
     </div>
 
+    <!-- Modal Editar Vehículo -->
+    <div id="modal-editar-vehiculo"
+        class="fixed inset-0 hidden z-50 items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Editar Vehículo</h3>
+                <button onclick="cerrarModalEditarVehiculo()" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="form-editar-vehiculo" class="p-6">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_vehiculo_id" name="vehiculo_id">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Patente *</label>
+                        <input type="text" id="edit_patente" name="patente" required maxlength="10"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 uppercase"
+                            placeholder="ABC123">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
+                        <input type="text" id="edit_marca" name="marca" required maxlength="50"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Toyota">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Modelo *</label>
+                        <input type="text" id="edit_modelo" name="modelo" required maxlength="100"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Corolla">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                        <input type="number" id="edit_anio" name="anio" min="1900" max="{{ date('Y') + 1 }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="{{ date('Y') }}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                        <input type="text" id="edit_color" name="color" maxlength="30"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Blanco">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
+                        <input type="number" id="edit_kilometraje" name="kilometraje" min="0"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="50000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mecánico Referidor</label>
+                        <select id="edit_mecanico_id" name="mecanico_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleccionar...</option>
+                            @foreach ($mecanicos as $mecanico)
+                                <option value="{{ $mecanico->id }}">{{ $mecanico->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                        <textarea id="edit_observaciones" name="observaciones" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalEditarVehiculo()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @section('js')
         <script>
             function abrirModalNuevoVehiculo() {
@@ -219,6 +321,26 @@
             function cerrarModalNuevoVehiculo() {
                 document.getElementById('modal-nuevo-vehiculo').classList.add('hidden');
                 document.getElementById('modal-nuevo-vehiculo').classList.remove('flex');
+            }
+
+            function abrirModalEditarVehiculo(vehiculo) {
+                document.getElementById('edit_vehiculo_id').value = vehiculo.id;
+                document.getElementById('edit_patente').value = vehiculo.patente;
+                document.getElementById('edit_marca').value = vehiculo.marca;
+                document.getElementById('edit_modelo').value = vehiculo.modelo;
+                document.getElementById('edit_anio').value = vehiculo.anio || '';
+                document.getElementById('edit_color').value = vehiculo.color || '';
+                document.getElementById('edit_kilometraje').value = vehiculo.kilometraje || '';
+                document.getElementById('edit_mecanico_id').value = vehiculo.mecanico_id || '';
+                document.getElementById('edit_observaciones').value = vehiculo.observaciones || '';
+
+                document.getElementById('modal-editar-vehiculo').classList.remove('hidden');
+                document.getElementById('modal-editar-vehiculo').classList.add('flex');
+            }
+
+            function cerrarModalEditarVehiculo() {
+                document.getElementById('modal-editar-vehiculo').classList.add('hidden');
+                document.getElementById('modal-editar-vehiculo').classList.remove('flex');
             }
 
             function buscarVehiculos() {
@@ -255,6 +377,37 @@
                     }
                 } catch (error) {
                     showToast('Error al guardar el vehículo', 'error');
+                }
+            });
+
+            document.getElementById('form-editar-vehiculo').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const id = document.getElementById('edit_vehiculo_id').value;
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(`/vehiculos/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showToast('Vehículo actualizado correctamente', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showToast(result.error || 'Error al actualizar', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error al procesar la solicitud', 'error');
                 }
             });
         </script>

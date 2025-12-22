@@ -111,6 +111,7 @@ class VehiculoController extends Controller
         $vehiculo = Vehiculo::findOrFail($id);
 
         $data = $request->validate([
+            'patente' => 'required|string|max:10|unique:vehiculos,patente,' . $id,
             'marca' => 'required|string|max:50',
             'modelo' => 'required|string|max:100',
             'anio' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
