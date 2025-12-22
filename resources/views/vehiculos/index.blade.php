@@ -12,7 +12,7 @@
                 <h2 class="text-2xl font-bold text-gray-800">Vehículos Registrados</h2>
                 <p class="text-gray-600 text-sm mt-1">Gestiona y visualiza el historial de vehículos atendidos</p>
             </div>
-            <button onclick="abrirModalNuevoVehiculo()"
+            <button onclick="abrirModalNuevoVehiculoVehiculos()"
                 class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition flex items-center cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -113,7 +113,7 @@
                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
-                                        <button onclick="abrirModalEditarVehiculo({{ json_encode($vehiculo) }})"
+                                        <button onclick="abrirModalEditarVehiculoVehiculos({{ json_encode($vehiculo) }})"
                                             class="cursor-pointer text-gray-500 hover:text-blue-600 transition"
                                             title="Editar Vehículo">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -149,7 +149,8 @@
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800">Registrar Nuevo Vehículo</h3>
-                <button onclick="cerrarModalNuevoVehiculo()" class="text-gray-500 hover:text-gray-700">
+                <button type="button" onclick="cerrarModalNuevoVehiculoVehiculos()"
+                    class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -196,6 +197,18 @@
                             placeholder="50000">
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select name="cliente_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleccionar...</option>
+                            @foreach ($clientes as $cliente)
+                                <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Mecánico Referidor</label>
                         <select name="mecanico_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -213,7 +226,7 @@
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="cerrarModalNuevoVehiculo()"
+                    <button type="button" onclick="cerrarModalNuevoVehiculoVehiculos()"
                         class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
                         Cancelar
                     </button>
@@ -232,7 +245,8 @@
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800">Editar Vehículo</h3>
-                <button onclick="cerrarModalEditarVehiculo()" class="text-gray-500 hover:text-gray-700">
+                <button type="button" onclick="cerrarModalEditarVehiculoVehiculos()"
+                    class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -282,6 +296,16 @@
                             placeholder="50000">
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select id="edit_cliente_id" name="cliente_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleccionar...</option>
+                            @foreach ($clientes as $cliente)
+                                <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Mecánico Referidor</label>
                         <select id="edit_mecanico_id" name="mecanico_id"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -299,7 +323,7 @@
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="cerrarModalEditarVehiculo()"
+                    <button type="button" onclick="cerrarModalEditarVehiculoVehiculos()"
                         class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
                         Cancelar
                     </button>
@@ -312,105 +336,108 @@
         </div>
     </div>
 
-    @section('js')
-        <script>
-            function abrirModalNuevoVehiculo() {
-                document.getElementById('modal-nuevo-vehiculo').classList.remove('hidden');
-                document.getElementById('modal-nuevo-vehiculo').classList.add('flex');
-            }
+@endsection
 
-            function cerrarModalNuevoVehiculo() {
-                document.getElementById('modal-nuevo-vehiculo').classList.add('hidden');
-                document.getElementById('modal-nuevo-vehiculo').classList.remove('flex');
-            }
+@section('js')
+    <script>
+        function abrirModalNuevoVehiculoVehiculos() {
+            document.getElementById('modal-nuevo-vehiculo').classList.remove('hidden');
+            document.getElementById('modal-nuevo-vehiculo').classList.add('flex');
+        }
 
-            function abrirModalEditarVehiculo(vehiculo) {
-                document.getElementById('edit_vehiculo_id').value = vehiculo.id;
-                document.getElementById('edit_patente').value = vehiculo.patente;
-                document.getElementById('edit_marca').value = vehiculo.marca;
-                document.getElementById('edit_modelo').value = vehiculo.modelo;
-                document.getElementById('edit_anio').value = vehiculo.anio || '';
-                document.getElementById('edit_color').value = vehiculo.color || '';
-                document.getElementById('edit_kilometraje').value = vehiculo.kilometraje || '';
-                document.getElementById('edit_mecanico_id').value = vehiculo.mecanico_id || '';
-                document.getElementById('edit_observaciones').value = vehiculo.observaciones || '';
+        function cerrarModalNuevoVehiculoVehiculos() {
+            document.getElementById('modal-nuevo-vehiculo').classList.add('hidden');
+            document.getElementById('modal-nuevo-vehiculo').classList.remove('flex');
+        }
 
-                document.getElementById('modal-editar-vehiculo').classList.remove('hidden');
-                document.getElementById('modal-editar-vehiculo').classList.add('flex');
-            }
+        function abrirModalEditarVehiculoVehiculos(vehiculo) {
+            document.getElementById('edit_vehiculo_id').value = vehiculo.id;
+            document.getElementById('edit_patente').value = vehiculo.patente;
+            document.getElementById('edit_marca').value = vehiculo.marca;
+            document.getElementById('edit_modelo').value = vehiculo.modelo;
+            document.getElementById('edit_anio').value = vehiculo.anio || '';
+            document.getElementById('edit_color').value = vehiculo.color || '';
+            document.getElementById('edit_kilometraje').value = vehiculo.kilometraje || '';
 
-            function cerrarModalEditarVehiculo() {
-                document.getElementById('modal-editar-vehiculo').classList.add('hidden');
-                document.getElementById('modal-editar-vehiculo').classList.remove('flex');
-            }
+            document.getElementById('edit_cliente_id').value = vehiculo.cliente_id || '';
+            document.getElementById('edit_mecanico_id').value = vehiculo.mecanico_id || '';
+            document.getElementById('edit_observaciones').value = vehiculo.observaciones || '';
 
-            function buscarVehiculos() {
-                const search = document.getElementById('input-buscar').value;
-                window.location.href = `{{ route('vehiculo.index') }}?search=${encodeURIComponent(search)}`;
-            }
+            document.getElementById('modal-editar-vehiculo').classList.remove('hidden');
+            document.getElementById('modal-editar-vehiculo').classList.add('flex');
+        }
 
-            document.getElementById('input-buscar').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') buscarVehiculos();
-            });
+        function cerrarModalEditarVehiculoVehiculos() {
+            document.getElementById('modal-editar-vehiculo').classList.add('hidden');
+            document.getElementById('modal-editar-vehiculo').classList.remove('flex');
+        }
 
-            document.getElementById('form-nuevo-vehiculo').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
+        function buscarVehiculos() {
+            const search = document.getElementById('input-buscar').value;
+            window.location.href = `{{ route('vehiculo.index') }}?search=${encodeURIComponent(search)}`;
+        }
 
-                try {
-                    const response = await fetch('{{ route('vehiculo.store') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(data)
-                    });
+        document.getElementById('input-buscar').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') buscarVehiculos();
+        });
 
-                    const result = await response.json();
+        document.getElementById('form-nuevo-vehiculo').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-                    if (result.success) {
-                        showToast(result.message, 'success');
-                        setTimeout(() => window.location.reload(), 1000);
-                    } else {
-                        showToast(result.error, 'error');
-                    }
-                } catch (error) {
-                    showToast('Error al guardar el vehículo', 'error');
+            try {
+                const response = await fetch('{{ route('vehiculo.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(result.error, 'error');
                 }
-            });
+            } catch (error) {
+                showToast('Error al guardar el vehículo', 'error');
+            }
+        });
 
-            document.getElementById('form-editar-vehiculo').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const id = document.getElementById('edit_vehiculo_id').value;
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
+        document.getElementById('form-editar-vehiculo').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_vehiculo_id').value;
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-                try {
-                    const response = await fetch(`/vehiculos/${id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+            try {
+                const response = await fetch(`/vehiculos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-                    const result = await response.json();
+                const result = await response.json();
 
-                    if (result.success) {
-                        showToast('Vehículo actualizado correctamente', 'success');
-                        setTimeout(() => window.location.reload(), 1000);
-                    } else {
-                        showToast(result.error || 'Error al actualizar', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showToast('Error al procesar la solicitud', 'error');
+                if (result.success) {
+                    showToast('Vehículo actualizado correctamente', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(result.error || 'Error al actualizar', 'error');
                 }
-            });
-        </script>
-    @endsection
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error al procesar la solicitud', 'error');
+            }
+        });
+    </script>
 @endsection
