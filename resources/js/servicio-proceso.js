@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify(data)
                 });
 
-                const result = await response.json();                
+                const result = await response.json();
                 if (result.success) {
                     window.location.href = result.redirect;
                 } else {
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
         selectEstado.addEventListener('change', async function () {
             const servicioId = this.dataset.id;
             const nuevoEstado = this.value;
-            
+
             try {
                 const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
                     method: 'PUT',
@@ -231,9 +231,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnCancelarPreview = document.getElementById('btn-cancelar-preview');
 
     if (inputFoto) {
-        inputFoto.addEventListener('change', function(e) {
+        inputFoto.addEventListener('change', function (e) {
             const file = e.target.files[0];
-            
+
             if (file) {
                 // Validar que sea una imagen
                 if (!file.type.startsWith('image/')) {
@@ -241,10 +241,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     inputFoto.value = '';
                     return;
                 }
-                
+
                 // Crear preview
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     previewImagen.src = event.target.result;
                     previewNombre.textContent = file.name;
                     previewTamano.textContent = formatFileSize(file.size);
@@ -257,9 +257,98 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // === Lógica de la Cámara ===
+    const btnAbrirCamara = document.getElementById('btn-abrir-camara');
+    const modalCamara = document.getElementById('modal-camara');
+    const btnCerrarCamara = document.getElementById('btn-cerrar-camara');
+    const videoCamara = document.getElementById('video-camara');
+    const btnTomarFoto = document.getElementById('btn-tomar-foto');
+    const canvasCamara = document.getElementById('canvas-camara');
+    let stream = null;
+
+    if (btnAbrirCamara && modalCamara) {
+        // Abrir cámara
+        btnAbrirCamara.addEventListener('click', async () => {
+            try {
+                // Solicitar acceso a la cámara
+                // Preferir cámara trasera en móviles (environment)
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+
+                videoCamara.srcObject = stream;
+                modalCamara.classList.remove('hidden');
+                modalCamara.classList.add('flex');
+            } catch (err) {
+                console.error("Error al acceder a la cámara:", err);
+                showToast("No se pudo acceder a la cámara via HTTPS. Verifica permisos.", "error");
+            }
+        });
+
+        // Cerrar cámara
+        const detenerCamara = () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            videoCamara.srcObject = null;
+            modalCamara.classList.add('hidden');
+            modalCamara.classList.remove('flex');
+        };
+
+        btnCerrarCamara?.addEventListener('click', detenerCamara);
+
+        // Cerrar al hacer Click fuera
+        modalCamara.addEventListener('click', (e) => {
+            if (e.target === modalCamara) {
+                detenerCamara();
+            }
+        });
+
+        // Tomar Foto
+        btnTomarFoto?.addEventListener('click', () => {
+            if (!stream) return;
+
+            const context = canvasCamara.getContext('2d');
+
+            // Configurar dimensiones del canvas para que coincidan con el video
+            canvasCamara.width = videoCamara.videoWidth;
+            canvasCamara.height = videoCamara.videoHeight;
+
+            // Dibujar el frame actual del video en el canvas
+            context.drawImage(videoCamara, 0, 0, canvasCamara.width, canvasCamara.height);
+
+            // Convertir a blob/file
+            canvasCamara.toBlob((blob) => {
+                const now = new Date();
+                const filename = `foto_camara_${now.getTime()}.jpg`;
+                const file = new File([blob], filename, { type: 'image/jpeg' });
+
+                // Asignar al input file
+                // Nota: Setear input.files requiere usar DataTransfer
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                inputFoto.files = dataTransfer.files;
+
+                // Disparar evento change para que se ejecute la lógica de preview existente
+                inputFoto.dispatchEvent(new Event('change'));
+
+                // Cerrar modal
+                detenerCamara();
+
+            }, 'image/jpeg', 0.85); // 0.85 calidad jpg
+        });
+    }
+
+
     // Cancelar preview / limpiar selección
     if (btnCancelarPreview) {
-        btnCancelarPreview.addEventListener('click', function() {
+        btnCancelarPreview.addEventListener('click', function () {
             inputFoto.value = '';
             previewContainer.classList.add('hidden');
             previewImagen.src = '';
@@ -402,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
-            
+
             try {
                 const response = await fetch('/api/servicio-proceso/crear-vehiculo', {
                     method: 'POST',
@@ -604,9 +693,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                     },
                     body: JSON.stringify({ cliente_id: clienteId })
-                });                
+                });
 
-                const result = await response.json();                
+                const result = await response.json();
                 if (result.success) {
                     location.reload();
                 } else {
@@ -620,19 +709,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 //procesar venta
-if(document.getElementById('btn-procesar-cobro')){
+if (document.getElementById('btn-procesar-cobro')) {
     document.getElementById('btn-procesar-cobro').addEventListener('click', async e => {
         e.preventDefault();
         const modalVentas = document.getElementById('modal-ventas');
         const data = e.target.dataset.servicio;
         const servicioCodigo = document.getElementById('servicio-codigo');
-        const divProcesarCobro = document.getElementById('div-procesar-cobro');    
+        const divProcesarCobro = document.getElementById('div-procesar-cobro');
         const servicio = JSON.parse(data);
-        if(servicio){
+        if (servicio) {
             divProcesarCobro.classList.remove('hidden');
-            if(servicio.vehiculo){
+            if (servicio.vehiculo) {
                 servicioCodigo.textContent = servicio.codigo + ' | ' + servicio.vehiculo?.marca + ' ' + servicio.vehiculo?.modelo + ' | ' + servicio.vehiculo?.patente;
-                
+
                 // Guardar datos del vehículo en sessionStorage para pre-llenar en modal de confirmación
                 sessionStorage.setItem('servicioVehiculo', JSON.stringify({
                     id: servicio.vehiculo.id,
@@ -642,31 +731,31 @@ if(document.getElementById('btn-procesar-cobro')){
                     anio: servicio.vehiculo.anio || '',
                     mecanico_id: servicio.vehiculo.mecanico_id || servicio.mecanico_id || null
                 }));
-            }else{
+            } else {
                 servicioCodigo.textContent = servicio.codigo;
                 sessionStorage.removeItem('servicioVehiculo');
             }
-            
+
             // Guardar datos del cliente si existe
-            if(servicio.cliente){
+            if (servicio.cliente) {
                 sessionStorage.setItem('servicioCliente', JSON.stringify({
                     id: servicio.cliente.id,
                     razon_social: servicio.cliente.razon_social || servicio.cliente.name,
                     ruc_ci: servicio.cliente.ruc_ci || ''
                 }));
             }
-            
+
             // Guardar que viene de un servicio
             sessionStorage.setItem('fromServicio', 'true');
             sessionStorage.setItem('servicioId', servicio.id);
-            
+
             modalVentas.classList.remove('hidden');
             sessionStorage.setItem('vehiculo', 'true');
         }
     });
 }
 
-if(document.getElementById('cerrar-modal-ventas')){
+if (document.getElementById('cerrar-modal-ventas')) {
     document.getElementById('cerrar-modal-ventas').addEventListener('click', e => {
         e.preventDefault();
         const modalVentas = document.getElementById('modal-ventas');
@@ -674,279 +763,279 @@ if(document.getElementById('cerrar-modal-ventas')){
     });
 }
 
-if(sessionStorage.getItem('vehiculo')){
+if (sessionStorage.getItem('vehiculo')) {
     sessionStorage.removeItem('vehiculo')
     window.location.reload();
 }
 
-if(document.getElementById('ver-foto')){
-   const btns = document.querySelectorAll('#ver-foto');
-   const modalFoto = document.getElementById('modal-foto');
-   const imgModalFoto = document.getElementById('img-modal-foto');
-   const contenedorFoto = document.getElementById('contenedor-modal-foto');
-   const zoomIndicator = document.getElementById('zoom-indicator');
-   const zoomInstructions = document.getElementById('zoom-instructions');
-   const btnResetZoom = document.getElementById('btn-reset-zoom');
-   
-   // Estado del zoom
-   let scale = 1;
-   let translateX = 0;
-   let translateY = 0;
-   let isDragging = false;
-   let startX = 0;
-   let startY = 0;
-   let lastTranslateX = 0;
-   let lastTranslateY = 0;
-   
-   // Constantes
-   const MIN_SCALE = 1;
-   const MAX_SCALE = 5;
-   const ZOOM_SENSITIVITY = 0.002;
-   
-   // Función para actualizar la transformación
-   function updateTransform() {
-       imgModalFoto.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-       
-       // Actualizar indicador
-       const percentage = Math.round(scale * 100);
-       zoomIndicator.textContent = percentage + '%';
-       zoomIndicator.style.opacity = scale > 1 ? '1' : '0';
-       
-       // Mostrar/ocultar botón reset
-       if (scale > 1) {
-           btnResetZoom.classList.remove('hidden');
-           zoomInstructions.style.opacity = '0';
-           imgModalFoto.style.cursor = isDragging ? 'grabbing' : 'grab';
-       } else {
-           btnResetZoom.classList.add('hidden');
-           zoomInstructions.style.opacity = '1';
-           imgModalFoto.style.cursor = 'zoom-in';
-       }
-   }
-   
-   // Función para resetear zoom
-   function resetZoom() {
-       scale = 1;
-       translateX = 0;
-       translateY = 0;
-       imgModalFoto.style.transition = 'transform 0.3s ease-out';
-       updateTransform();
-       setTimeout(() => {
-           imgModalFoto.style.transition = 'transform 0.1s ease-out';
-       }, 300);
-   }
-   
-   // Función para limitar el desplazamiento
-   function clampTranslation() {
-       if (scale <= 1) {
-           translateX = 0;
-           translateY = 0;
-           return;
-       }
-       
-       const rect = imgModalFoto.getBoundingClientRect();
-       const containerRect = contenedorFoto.getBoundingClientRect();
-       
-       const maxTranslateX = Math.max(0, (rect.width - containerRect.width) / 2);
-       const maxTranslateY = Math.max(0, (rect.height - containerRect.height) / 2);
-       
-       translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
-       translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
-   }
-   
-   // Zoom con rueda del ratón (desktop)
-   contenedorFoto.addEventListener('wheel', e => {
-       e.preventDefault();
-       
-       const delta = -e.deltaY * ZOOM_SENSITIVITY;
-       const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + delta * scale));
-       
-       if (newScale !== scale) {
-           // Zoom hacia el cursor
-           const rect = imgModalFoto.getBoundingClientRect();
-           const centerX = rect.left + rect.width / 2;
-           const centerY = rect.top + rect.height / 2;
-           
-           const mouseX = e.clientX - centerX;
-           const mouseY = e.clientY - centerY;
-           
-           const scaleRatio = newScale / scale;
-           
-           translateX = mouseX - (mouseX - translateX) * scaleRatio;
-           translateY = mouseY - (mouseY - translateY) * scaleRatio;
-           
-           scale = newScale;
-           clampTranslation();
-           updateTransform();
-       }
-   }, { passive: false });
-   
-   // Variables para pinch-to-zoom (móvil)
-   let initialDistance = 0;
-   let initialScale = 1;
-   let initialMidpoint = { x: 0, y: 0 };
-   
-   function getDistance(touch1, touch2) {
-       return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
-   }
-   
-   function getMidpoint(touch1, touch2) {
-       return {
-           x: (touch1.clientX + touch2.clientX) / 2,
-           y: (touch1.clientY + touch2.clientY) / 2
-       };
-   }
-   
-   // Touch start
-   imgModalFoto.addEventListener('touchstart', e => {
-       if (e.touches.length === 2) {
-           e.preventDefault();
-           initialDistance = getDistance(e.touches[0], e.touches[1]);
-           initialScale = scale;
-           initialMidpoint = getMidpoint(e.touches[0], e.touches[1]);
-           lastTranslateX = translateX;
-           lastTranslateY = translateY;
-       } else if (e.touches.length === 1 && scale > 1) {
-           isDragging = true;
-           startX = e.touches[0].clientX - translateX;
-           startY = e.touches[0].clientY - translateY;
-           updateTransform();
-       }
-   }, { passive: false });
-   
-   // Touch move
-   imgModalFoto.addEventListener('touchmove', e => {
-       if (e.touches.length === 2) {
-           e.preventDefault();
-           const currentDistance = getDistance(e.touches[0], e.touches[1]);
-           const currentMidpoint = getMidpoint(e.touches[0], e.touches[1]);
-           
-           // Calcular nuevo scale
-           const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, initialScale * (currentDistance / initialDistance)));
-           
-           // Calcular movimiento del midpoint
-           const midpointDeltaX = currentMidpoint.x - initialMidpoint.x;
-           const midpointDeltaY = currentMidpoint.y - initialMidpoint.y;
-           
-           scale = newScale;
-           translateX = lastTranslateX + midpointDeltaX;
-           translateY = lastTranslateY + midpointDeltaY;
-           
-           clampTranslation();
-           updateTransform();
-       } else if (e.touches.length === 1 && isDragging && scale > 1) {
-           e.preventDefault();
-           translateX = e.touches[0].clientX - startX;
-           translateY = e.touches[0].clientY - startY;
-           clampTranslation();
-           updateTransform();
-       }
-   }, { passive: false });
-   
-   // Touch end
-   imgModalFoto.addEventListener('touchend', e => {
-       if (e.touches.length < 2) {
-           initialDistance = 0;
-       }
-       if (e.touches.length === 0) {
-           isDragging = false;
-           updateTransform();
-       }
-   });
-   
-   // Arrastrar con ratón (desktop)
-   imgModalFoto.addEventListener('mousedown', e => {
-       if (scale > 1) {
-           e.preventDefault();
-           isDragging = true;
-           startX = e.clientX - translateX;
-           startY = e.clientY - translateY;
-           updateTransform();
-       }
-   });
-   
-   document.addEventListener('mousemove', e => {
-       if (isDragging && scale > 1) {
-           translateX = e.clientX - startX;
-           translateY = e.clientY - startY;
-           clampTranslation();
-           updateTransform();
-       }
-   });
-   
-   document.addEventListener('mouseup', () => {
-       isDragging = false;
-       updateTransform();
-   });
-   
-   // Doble clic para zoom rápido
-   imgModalFoto.addEventListener('dblclick', e => {
-       e.preventDefault();
-       if (scale > 1) {
-           resetZoom();
-       } else {
-           // Zoom 2x hacia el punto del clic
-           const rect = imgModalFoto.getBoundingClientRect();
-           const centerX = rect.left + rect.width / 2;
-           const centerY = rect.top + rect.height / 2;
-           
-           const mouseX = e.clientX - centerX;
-           const mouseY = e.clientY - centerY;
-           
-           scale = 2;
-           translateX = -mouseX;
-           translateY = -mouseY;
-           
-           clampTranslation();
-           imgModalFoto.style.transition = 'transform 0.3s ease-out';
-           updateTransform();
-           setTimeout(() => {
-               imgModalFoto.style.transition = 'transform 0.1s ease-out';
-           }, 300);
-       }
-   });
-   
-   // Botón reset zoom
-   btnResetZoom?.addEventListener('click', e => {
-       e.preventDefault();
-       e.stopPropagation();
-       resetZoom();
-   });
-   
-   // Abrir modal
-   btns.forEach(btn => {
-       btn.addEventListener('click', e => {
-           e.preventDefault();           
-           const rutaFoto = e.target.dataset.ruta;
-           
-           resetZoom();
-           imgModalFoto.src = rutaFoto;
-           modalFoto.classList.remove('hidden');
-           zoomInstructions.style.opacity = '1';
-       });
-   });
+if (document.getElementById('ver-foto')) {
+    const btns = document.querySelectorAll('#ver-foto');
+    const modalFoto = document.getElementById('modal-foto');
+    const imgModalFoto = document.getElementById('img-modal-foto');
+    const contenedorFoto = document.getElementById('contenedor-modal-foto');
+    const zoomIndicator = document.getElementById('zoom-indicator');
+    const zoomInstructions = document.getElementById('zoom-instructions');
+    const btnResetZoom = document.getElementById('btn-reset-zoom');
 
-   // Cerrar modal
-   document.getElementById('btn-cerrar-modal-foto').addEventListener('click', e => {
-       e.preventDefault();
-       resetZoom();
-       modalFoto.classList.add('hidden');
-   });
-   
-   // Cerrar con Escape
-   document.addEventListener('keydown', e => {
-       if (e.key === 'Escape' && !modalFoto.classList.contains('hidden')) {
-           resetZoom();
-           modalFoto.classList.add('hidden');
-       }
-   });
-   
-   // Cerrar al hacer clic fuera de la imagen
-   modalFoto.addEventListener('click', e => {
-       if (e.target === modalFoto || e.target === contenedorFoto) {
-           resetZoom();
-           modalFoto.classList.add('hidden');
-       }
-   });
+    // Estado del zoom
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let lastTranslateX = 0;
+    let lastTranslateY = 0;
+
+    // Constantes
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 5;
+    const ZOOM_SENSITIVITY = 0.002;
+
+    // Función para actualizar la transformación
+    function updateTransform() {
+        imgModalFoto.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+        // Actualizar indicador
+        const percentage = Math.round(scale * 100);
+        zoomIndicator.textContent = percentage + '%';
+        zoomIndicator.style.opacity = scale > 1 ? '1' : '0';
+
+        // Mostrar/ocultar botón reset
+        if (scale > 1) {
+            btnResetZoom.classList.remove('hidden');
+            zoomInstructions.style.opacity = '0';
+            imgModalFoto.style.cursor = isDragging ? 'grabbing' : 'grab';
+        } else {
+            btnResetZoom.classList.add('hidden');
+            zoomInstructions.style.opacity = '1';
+            imgModalFoto.style.cursor = 'zoom-in';
+        }
+    }
+
+    // Función para resetear zoom
+    function resetZoom() {
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+        imgModalFoto.style.transition = 'transform 0.3s ease-out';
+        updateTransform();
+        setTimeout(() => {
+            imgModalFoto.style.transition = 'transform 0.1s ease-out';
+        }, 300);
+    }
+
+    // Función para limitar el desplazamiento
+    function clampTranslation() {
+        if (scale <= 1) {
+            translateX = 0;
+            translateY = 0;
+            return;
+        }
+
+        const rect = imgModalFoto.getBoundingClientRect();
+        const containerRect = contenedorFoto.getBoundingClientRect();
+
+        const maxTranslateX = Math.max(0, (rect.width - containerRect.width) / 2);
+        const maxTranslateY = Math.max(0, (rect.height - containerRect.height) / 2);
+
+        translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+        translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+    }
+
+    // Zoom con rueda del ratón (desktop)
+    contenedorFoto.addEventListener('wheel', e => {
+        e.preventDefault();
+
+        const delta = -e.deltaY * ZOOM_SENSITIVITY;
+        const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + delta * scale));
+
+        if (newScale !== scale) {
+            // Zoom hacia el cursor
+            const rect = imgModalFoto.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const mouseX = e.clientX - centerX;
+            const mouseY = e.clientY - centerY;
+
+            const scaleRatio = newScale / scale;
+
+            translateX = mouseX - (mouseX - translateX) * scaleRatio;
+            translateY = mouseY - (mouseY - translateY) * scaleRatio;
+
+            scale = newScale;
+            clampTranslation();
+            updateTransform();
+        }
+    }, { passive: false });
+
+    // Variables para pinch-to-zoom (móvil)
+    let initialDistance = 0;
+    let initialScale = 1;
+    let initialMidpoint = { x: 0, y: 0 };
+
+    function getDistance(touch1, touch2) {
+        return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+    }
+
+    function getMidpoint(touch1, touch2) {
+        return {
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2
+        };
+    }
+
+    // Touch start
+    imgModalFoto.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            initialDistance = getDistance(e.touches[0], e.touches[1]);
+            initialScale = scale;
+            initialMidpoint = getMidpoint(e.touches[0], e.touches[1]);
+            lastTranslateX = translateX;
+            lastTranslateY = translateY;
+        } else if (e.touches.length === 1 && scale > 1) {
+            isDragging = true;
+            startX = e.touches[0].clientX - translateX;
+            startY = e.touches[0].clientY - translateY;
+            updateTransform();
+        }
+    }, { passive: false });
+
+    // Touch move
+    imgModalFoto.addEventListener('touchmove', e => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const currentDistance = getDistance(e.touches[0], e.touches[1]);
+            const currentMidpoint = getMidpoint(e.touches[0], e.touches[1]);
+
+            // Calcular nuevo scale
+            const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, initialScale * (currentDistance / initialDistance)));
+
+            // Calcular movimiento del midpoint
+            const midpointDeltaX = currentMidpoint.x - initialMidpoint.x;
+            const midpointDeltaY = currentMidpoint.y - initialMidpoint.y;
+
+            scale = newScale;
+            translateX = lastTranslateX + midpointDeltaX;
+            translateY = lastTranslateY + midpointDeltaY;
+
+            clampTranslation();
+            updateTransform();
+        } else if (e.touches.length === 1 && isDragging && scale > 1) {
+            e.preventDefault();
+            translateX = e.touches[0].clientX - startX;
+            translateY = e.touches[0].clientY - startY;
+            clampTranslation();
+            updateTransform();
+        }
+    }, { passive: false });
+
+    // Touch end
+    imgModalFoto.addEventListener('touchend', e => {
+        if (e.touches.length < 2) {
+            initialDistance = 0;
+        }
+        if (e.touches.length === 0) {
+            isDragging = false;
+            updateTransform();
+        }
+    });
+
+    // Arrastrar con ratón (desktop)
+    imgModalFoto.addEventListener('mousedown', e => {
+        if (scale > 1) {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            updateTransform();
+        }
+    });
+
+    document.addEventListener('mousemove', e => {
+        if (isDragging && scale > 1) {
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            clampTranslation();
+            updateTransform();
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        updateTransform();
+    });
+
+    // Doble clic para zoom rápido
+    imgModalFoto.addEventListener('dblclick', e => {
+        e.preventDefault();
+        if (scale > 1) {
+            resetZoom();
+        } else {
+            // Zoom 2x hacia el punto del clic
+            const rect = imgModalFoto.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const mouseX = e.clientX - centerX;
+            const mouseY = e.clientY - centerY;
+
+            scale = 2;
+            translateX = -mouseX;
+            translateY = -mouseY;
+
+            clampTranslation();
+            imgModalFoto.style.transition = 'transform 0.3s ease-out';
+            updateTransform();
+            setTimeout(() => {
+                imgModalFoto.style.transition = 'transform 0.1s ease-out';
+            }, 300);
+        }
+    });
+
+    // Botón reset zoom
+    btnResetZoom?.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        resetZoom();
+    });
+
+    // Abrir modal
+    btns.forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const rutaFoto = e.target.dataset.ruta;
+
+            resetZoom();
+            imgModalFoto.src = rutaFoto;
+            modalFoto.classList.remove('hidden');
+            zoomInstructions.style.opacity = '1';
+        });
+    });
+
+    // Cerrar modal
+    document.getElementById('btn-cerrar-modal-foto').addEventListener('click', e => {
+        e.preventDefault();
+        resetZoom();
+        modalFoto.classList.add('hidden');
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modalFoto.classList.contains('hidden')) {
+            resetZoom();
+            modalFoto.classList.add('hidden');
+        }
+    });
+
+    // Cerrar al hacer clic fuera de la imagen
+    modalFoto.addEventListener('click', e => {
+        if (e.target === modalFoto || e.target === contenedorFoto) {
+            resetZoom();
+            modalFoto.classList.add('hidden');
+        }
+    });
 }
 
