@@ -191,7 +191,7 @@
                 </div>
 
                 <div class="flex gap-3 pt-2">
-                    <button id="cancelar-venta"
+                    <button id="cancelar-modal-venta"
                         class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -217,16 +217,6 @@
     </div>
 
     <script>
-        document.getElementById('cancelar-venta').addEventListener('click', () => {
-            document.getElementById('modal-ventas').classList.add('hidden');
-            sessionStorage.clear();
-            renderCarrito();
-            document.getElementById('totalCarrito').innerHTML = ''
-            document.getElementById('subTotalCarrito').innerHTML = ''
-            document.getElementById('form-cliente-venta').reset();
-        })
-
-
         document.getElementById('limpiar-carrito').addEventListener('click', () => {
             sessionStorage.clear();
             document.getElementById('totalCarrito').innerHTML = ''

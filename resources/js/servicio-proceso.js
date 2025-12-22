@@ -678,3 +678,275 @@ if(sessionStorage.getItem('vehiculo')){
     sessionStorage.removeItem('vehiculo')
     window.location.reload();
 }
+
+if(document.getElementById('ver-foto')){
+   const btns = document.querySelectorAll('#ver-foto');
+   const modalFoto = document.getElementById('modal-foto');
+   const imgModalFoto = document.getElementById('img-modal-foto');
+   const contenedorFoto = document.getElementById('contenedor-modal-foto');
+   const zoomIndicator = document.getElementById('zoom-indicator');
+   const zoomInstructions = document.getElementById('zoom-instructions');
+   const btnResetZoom = document.getElementById('btn-reset-zoom');
+   
+   // Estado del zoom
+   let scale = 1;
+   let translateX = 0;
+   let translateY = 0;
+   let isDragging = false;
+   let startX = 0;
+   let startY = 0;
+   let lastTranslateX = 0;
+   let lastTranslateY = 0;
+   
+   // Constantes
+   const MIN_SCALE = 1;
+   const MAX_SCALE = 5;
+   const ZOOM_SENSITIVITY = 0.002;
+   
+   // Función para actualizar la transformación
+   function updateTransform() {
+       imgModalFoto.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+       
+       // Actualizar indicador
+       const percentage = Math.round(scale * 100);
+       zoomIndicator.textContent = percentage + '%';
+       zoomIndicator.style.opacity = scale > 1 ? '1' : '0';
+       
+       // Mostrar/ocultar botón reset
+       if (scale > 1) {
+           btnResetZoom.classList.remove('hidden');
+           zoomInstructions.style.opacity = '0';
+           imgModalFoto.style.cursor = isDragging ? 'grabbing' : 'grab';
+       } else {
+           btnResetZoom.classList.add('hidden');
+           zoomInstructions.style.opacity = '1';
+           imgModalFoto.style.cursor = 'zoom-in';
+       }
+   }
+   
+   // Función para resetear zoom
+   function resetZoom() {
+       scale = 1;
+       translateX = 0;
+       translateY = 0;
+       imgModalFoto.style.transition = 'transform 0.3s ease-out';
+       updateTransform();
+       setTimeout(() => {
+           imgModalFoto.style.transition = 'transform 0.1s ease-out';
+       }, 300);
+   }
+   
+   // Función para limitar el desplazamiento
+   function clampTranslation() {
+       if (scale <= 1) {
+           translateX = 0;
+           translateY = 0;
+           return;
+       }
+       
+       const rect = imgModalFoto.getBoundingClientRect();
+       const containerRect = contenedorFoto.getBoundingClientRect();
+       
+       const maxTranslateX = Math.max(0, (rect.width - containerRect.width) / 2);
+       const maxTranslateY = Math.max(0, (rect.height - containerRect.height) / 2);
+       
+       translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+       translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+   }
+   
+   // Zoom con rueda del ratón (desktop)
+   contenedorFoto.addEventListener('wheel', e => {
+       e.preventDefault();
+       
+       const delta = -e.deltaY * ZOOM_SENSITIVITY;
+       const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + delta * scale));
+       
+       if (newScale !== scale) {
+           // Zoom hacia el cursor
+           const rect = imgModalFoto.getBoundingClientRect();
+           const centerX = rect.left + rect.width / 2;
+           const centerY = rect.top + rect.height / 2;
+           
+           const mouseX = e.clientX - centerX;
+           const mouseY = e.clientY - centerY;
+           
+           const scaleRatio = newScale / scale;
+           
+           translateX = mouseX - (mouseX - translateX) * scaleRatio;
+           translateY = mouseY - (mouseY - translateY) * scaleRatio;
+           
+           scale = newScale;
+           clampTranslation();
+           updateTransform();
+       }
+   }, { passive: false });
+   
+   // Variables para pinch-to-zoom (móvil)
+   let initialDistance = 0;
+   let initialScale = 1;
+   let initialMidpoint = { x: 0, y: 0 };
+   
+   function getDistance(touch1, touch2) {
+       return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+   }
+   
+   function getMidpoint(touch1, touch2) {
+       return {
+           x: (touch1.clientX + touch2.clientX) / 2,
+           y: (touch1.clientY + touch2.clientY) / 2
+       };
+   }
+   
+   // Touch start
+   imgModalFoto.addEventListener('touchstart', e => {
+       if (e.touches.length === 2) {
+           e.preventDefault();
+           initialDistance = getDistance(e.touches[0], e.touches[1]);
+           initialScale = scale;
+           initialMidpoint = getMidpoint(e.touches[0], e.touches[1]);
+           lastTranslateX = translateX;
+           lastTranslateY = translateY;
+       } else if (e.touches.length === 1 && scale > 1) {
+           isDragging = true;
+           startX = e.touches[0].clientX - translateX;
+           startY = e.touches[0].clientY - translateY;
+           updateTransform();
+       }
+   }, { passive: false });
+   
+   // Touch move
+   imgModalFoto.addEventListener('touchmove', e => {
+       if (e.touches.length === 2) {
+           e.preventDefault();
+           const currentDistance = getDistance(e.touches[0], e.touches[1]);
+           const currentMidpoint = getMidpoint(e.touches[0], e.touches[1]);
+           
+           // Calcular nuevo scale
+           const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, initialScale * (currentDistance / initialDistance)));
+           
+           // Calcular movimiento del midpoint
+           const midpointDeltaX = currentMidpoint.x - initialMidpoint.x;
+           const midpointDeltaY = currentMidpoint.y - initialMidpoint.y;
+           
+           scale = newScale;
+           translateX = lastTranslateX + midpointDeltaX;
+           translateY = lastTranslateY + midpointDeltaY;
+           
+           clampTranslation();
+           updateTransform();
+       } else if (e.touches.length === 1 && isDragging && scale > 1) {
+           e.preventDefault();
+           translateX = e.touches[0].clientX - startX;
+           translateY = e.touches[0].clientY - startY;
+           clampTranslation();
+           updateTransform();
+       }
+   }, { passive: false });
+   
+   // Touch end
+   imgModalFoto.addEventListener('touchend', e => {
+       if (e.touches.length < 2) {
+           initialDistance = 0;
+       }
+       if (e.touches.length === 0) {
+           isDragging = false;
+           updateTransform();
+       }
+   });
+   
+   // Arrastrar con ratón (desktop)
+   imgModalFoto.addEventListener('mousedown', e => {
+       if (scale > 1) {
+           e.preventDefault();
+           isDragging = true;
+           startX = e.clientX - translateX;
+           startY = e.clientY - translateY;
+           updateTransform();
+       }
+   });
+   
+   document.addEventListener('mousemove', e => {
+       if (isDragging && scale > 1) {
+           translateX = e.clientX - startX;
+           translateY = e.clientY - startY;
+           clampTranslation();
+           updateTransform();
+       }
+   });
+   
+   document.addEventListener('mouseup', () => {
+       isDragging = false;
+       updateTransform();
+   });
+   
+   // Doble clic para zoom rápido
+   imgModalFoto.addEventListener('dblclick', e => {
+       e.preventDefault();
+       if (scale > 1) {
+           resetZoom();
+       } else {
+           // Zoom 2x hacia el punto del clic
+           const rect = imgModalFoto.getBoundingClientRect();
+           const centerX = rect.left + rect.width / 2;
+           const centerY = rect.top + rect.height / 2;
+           
+           const mouseX = e.clientX - centerX;
+           const mouseY = e.clientY - centerY;
+           
+           scale = 2;
+           translateX = -mouseX;
+           translateY = -mouseY;
+           
+           clampTranslation();
+           imgModalFoto.style.transition = 'transform 0.3s ease-out';
+           updateTransform();
+           setTimeout(() => {
+               imgModalFoto.style.transition = 'transform 0.1s ease-out';
+           }, 300);
+       }
+   });
+   
+   // Botón reset zoom
+   btnResetZoom?.addEventListener('click', e => {
+       e.preventDefault();
+       e.stopPropagation();
+       resetZoom();
+   });
+   
+   // Abrir modal
+   btns.forEach(btn => {
+       btn.addEventListener('click', e => {
+           e.preventDefault();           
+           const rutaFoto = e.target.dataset.ruta;
+           
+           resetZoom();
+           imgModalFoto.src = rutaFoto;
+           modalFoto.classList.remove('hidden');
+           zoomInstructions.style.opacity = '1';
+       });
+   });
+
+   // Cerrar modal
+   document.getElementById('btn-cerrar-modal-foto').addEventListener('click', e => {
+       e.preventDefault();
+       resetZoom();
+       modalFoto.classList.add('hidden');
+   });
+   
+   // Cerrar con Escape
+   document.addEventListener('keydown', e => {
+       if (e.key === 'Escape' && !modalFoto.classList.contains('hidden')) {
+           resetZoom();
+           modalFoto.classList.add('hidden');
+       }
+   });
+   
+   // Cerrar al hacer clic fuera de la imagen
+   modalFoto.addEventListener('click', e => {
+       if (e.target === modalFoto || e.target === contenedorFoto) {
+           resetZoom();
+           modalFoto.classList.add('hidden');
+       }
+   });
+}
+

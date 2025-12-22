@@ -276,12 +276,14 @@
                 {{-- Galería de fotos --}}
                 <div id="galeria-fotos" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-12 md:mb-1">
                     @forelse ($servicio->fotos as $foto)
-                        <div class="foto-item relative group rounded-xl overflow-hidden shadow-md"
-                            data-foto-id="{{ $foto->id }}">
+                        <div id="ver-foto"
+                            class="foto-item cursor-pointer relative group rounded-xl overflow-hidden shadow-md"
+                            data-foto-id="{{ $foto->id }}" data-ruta="{{ asset("servicios/$foto->ruta_foto") }}">
                             <img src="{{ asset('servicios/' . $foto->ruta_foto) }}" alt="{{ $foto->descripcion }}"
-                                class="w-full h-48 object-cover">
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                class=" w-full h-48 object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity"
+                                data-foto-id="{{ $foto->id }}"
+                                data-ruta="{{ asset("servicios/$foto->ruta_foto") }}">
                                 <div class="absolute bottom-0 left-0 right-0 p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
@@ -338,4 +340,6 @@
     @include('caja.includes.cargando')
 
     @include('caja.venta-completada')
+
+    @include('servicio-proceso.includes.modal-ver-fotos')
 @endsection

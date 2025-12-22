@@ -97,7 +97,17 @@
                                         d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <span id="vehiculo-info-texto" class="text-sm text-green-800 font-medium"></span>
+                            <div class="relative w-full">
+                                <span id="vehiculo-info-texto" class="text-sm text-green-800 font-medium"></span>
+                                <span id="vehiculo-info-borrar"
+                                    class="absolute cursor-pointer -top-4 -right-4 rounded-full bg-red-500 text-white font-semibold p-0.5 transition hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="size-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </span>
+                            </div>
                         </div>
                     </div>
 

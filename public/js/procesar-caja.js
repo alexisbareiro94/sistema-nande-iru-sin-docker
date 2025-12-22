@@ -22,8 +22,7 @@ document.getElementById('procesar-venta').addEventListener('click', () => {
         document.getElementById('razon-venta').innerHTML = razon.value.trim();
         document.getElementById('ruc-venta').innerHTML = ruc.value.trim();
         resumenCarrito();
-        
-        // Pre-llenar datos del vehículo si viene de un servicio
+
         preLlenarVehiculoServicio();
     }
 });
@@ -32,33 +31,33 @@ document.getElementById('procesar-venta').addEventListener('click', () => {
 function preLlenarVehiculoServicio() {
     const fromServicio = sessionStorage.getItem('fromServicio');
     const servicioVehiculo = sessionStorage.getItem('servicioVehiculo');
-    
+
     if (fromServicio === 'true' && servicioVehiculo) {
         const vehiculo = JSON.parse(servicioVehiculo);
-        
+        document.getElementById('vehiculo-info-borrar').classList.add('hidden');
         // Pre-llenar el input de patente
         const inputPatente = document.getElementById('input-patente');
         if (inputPatente && vehiculo.patente) {
             inputPatente.value = vehiculo.patente;
         }
-        
+
         // Pre-llenar el ID del vehículo
         const vehiculoIdInput = document.getElementById('vehiculo-id-venta');
         if (vehiculoIdInput && vehiculo.id) {
             vehiculoIdInput.value = vehiculo.id;
         }
-        
+
         // Mostrar info del vehículo encontrado
         const infoEncontrado = document.getElementById('info-vehiculo-encontrado');
         const infoTexto = document.getElementById('vehiculo-info-texto');
         const btnNuevoVehiculo = document.getElementById('cont-btn-nuevo-vehiculo');
-        
+
         if (infoEncontrado && infoTexto) {
             infoTexto.textContent = `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.anio || ''} - ${vehiculo.patente}`;
             infoEncontrado.classList.remove('hidden');
             btnNuevoVehiculo?.classList.add('hidden');
         }
-        
+
         // Pre-seleccionar el mecánico si existe
         if (vehiculo.mecanico_id) {
             const selectMecanico = document.getElementById('select-mecanico-venta');
@@ -66,7 +65,7 @@ function preLlenarVehiculoServicio() {
                 selectMecanico.value = vehiculo.mecanico_id;
             }
         }
-        
+
         // Ocultar la sección de vehículo ya que viene pre-llenado
         const datosVehiculo = document.getElementById('datos-vehiculo');
         if (datosVehiculo) {
@@ -145,10 +144,10 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
         showToast('El monto recibido es menor al total de la venta', 'error');
         return;
     }
-    const data = await confirmarVenta(formaPago, montoRecibido);    
+    const data = await confirmarVenta(formaPago, montoRecibido);
     document.getElementById('modal-carga').classList.remove('hidden');
     setTimeout(() => {
-        document.getElementById('modal-carga').classList.add('hidden');        
+        document.getElementById('modal-carga').classList.add('hidden');
         resumenVenta(data);
         limpiarUI();
     }, 500);
@@ -156,7 +155,7 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
 });
 
 
-function resumenVenta(data) {    
+function resumenVenta(data) {
     console.log(data)
     const modalVentaCompletada = document.getElementById('modal-venta-completada');
     const resumenVenta = document.getElementById('resumen-venta');
@@ -279,12 +278,12 @@ async function confirmarVenta(formaPago, montoRecibido) {
         const vehiculoId = document.getElementById('vehiculo-id-venta')?.value || '';
         const mecanicoId = document.getElementById('select-mecanico-venta')?.value || '';
         if (vehiculoId) ventaData.append('vehiculo_id', vehiculoId);
-        if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);        
+        if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);
 
         // Agregar ID del servicio si viene de un cobro de servicio
         const servicioId = sessionStorage.getItem('servicioId');
         if (servicioId) ventaData.append('servicio_id', servicioId);
-                
+
         const res = await fetch(`/api/venta`, {
             method: 'POST',
             headers: {
@@ -292,19 +291,38 @@ async function confirmarVenta(formaPago, montoRecibido) {
             },
             body: ventaData,
         });
-        const data = await res.json();        
-        
+        const data = await res.json();
+
         if (!res.ok) {
             throw data;
         }
         document.getElementById('input-b-producto-ventas').value = '';
-        showToast('Venta realizada con éxito');        
+        showToast('Venta realizada con éxito');
         return data;
     } catch (err) {
         showToast(`${err.error}`, 'error');
     }
 
 }
+
+
+document.getElementById('cancelar-modal-venta').addEventListener('click', () => {
+    document.getElementById('modal-ventas').classList.add('hidden');
+    sessionStorage.clear();
+    renderCarrito();
+    document.getElementById('totalCarrito').innerHTML = ''
+    document.getElementById('subTotalCarrito').innerHTML = ''
+    document.getElementById('form-cliente-venta').reset();
+})
+
+document.getElementById('cancelar-modal-venta').addEventListener('click', () => {
+    document.getElementById('modal-ventas').classList.add('hidden');
+    sessionStorage.clear();
+    renderCarrito();
+    document.getElementById('totalCarrito').innerHTML = ''
+    document.getElementById('subTotalCarrito').innerHTML = ''
+    document.getElementById('form-cliente-venta').reset();
+})
 
 async function limpiarUI() {
     //await loadChart();
@@ -345,7 +363,7 @@ async function cargarMecanicos() {
     try {
         const res = await fetch('/api/users?role=mecanico');
         const data = await res.json();
-        mecanicos = data.users || [];        
+        mecanicos = data.users || [];
         const selectMecanico = document.getElementById('select-mecanico-venta');
         const selectMecanicoModal = document.getElementById('nuevo-vehiculo-mecanico');
 
@@ -389,7 +407,7 @@ async function buscarVehiculoPorPatente() {
         if (data.encontrado && data.vehiculo) {
             vehiculoSeleccionado = data.vehiculo;
             vehiculoIdInput.value = data.vehiculo.id;
-            infoTexto.textContent = `${data.vehiculo.marca} ${data.vehiculo.modelo} ${data.vehiculo.anio || ''} - ${data.vehiculo.patente}`;
+            infoTexto.textContent = `${data.vehiculo.marca} ${data.vehiculo.modelo} ${data.vehiculo.anio || ''}`;
             infoEncontrado.classList.remove('hidden');
             btnNuevoVehiculo.classList.add('hidden');
 
@@ -511,13 +529,13 @@ limpiarUI = async function () {
     document.getElementById('info-vehiculo-encontrado')?.classList.add('hidden');
     document.getElementById('cont-btn-nuevo-vehiculo')?.classList.add('hidden');
     document.getElementById('select-mecanico-venta').value = '';
-    
+
     // Limpiar badge de servicio si existe
     const servicioBadge = document.querySelector('.servicio-badge');
     if (servicioBadge) {
         servicioBadge.remove();
     }
-    
+
     // Limpiar datos de servicio del sessionStorage
     sessionStorage.removeItem('fromServicio');
     sessionStorage.removeItem('servicioVehiculo');
@@ -604,3 +622,14 @@ document.getElementById('form-nuevo-mecanico-venta')?.addEventListener('submit',
         showToast('Error al guardar mecánico', 'error');
     }
 });
+
+
+if (document.getElementById('vehiculo-info-borrar')) {
+    document.getElementById('vehiculo-info-borrar').addEventListener('click', () => {
+        document.getElementById('input-patente').value = '';
+        document.getElementById('vehiculo-id-venta').value = '';
+        document.getElementById('info-vehiculo-encontrado').classList.add('hidden');
+        document.getElementById('cont-btn-nuevo-vehiculo').classList.remove('hidden');
+        document.getElementById('cont-btn-nuevo-vehiculo').classList.add('flex');
+    });
+}
