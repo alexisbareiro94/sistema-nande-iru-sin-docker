@@ -40,36 +40,36 @@ function mostrarNotificacion(tipo = 'tipo', mensaje = 'No se pudo cargar el mens
 
 function listenNotification() {
     if (window.tenantId) {
-        window.Echo.private(`admin-notificaciones.${window.tenantId}`)
-            .listen('NotificacionEvent', (e) => {
-                console.log(e)
-                mostrarNotificacion(e.tipo, e.mensaje, e.color);
-                getDataNotificaciones(); //para las notificaciones dentro del modulo de reportes
+        // window.Echo.private(`admin-notificaciones.${window.tenantId}`)
+        //     .listen('NotificacionEvent', (e) => {
+        //         console.log(e)
+        //         mostrarNotificacion(e.tipo, e.mensaje, e.color);
+        //         getDataNotificaciones(); //para las notificaciones dentro del modulo de reportes
 
-            })
-            .error((error) => {
-                console.log('Error en el canal:', error);
-            });
+        //     })
+        //     .error((error) => {
+        //         console.log('Error en el canal:', error);
+        //     });
     }
 }
 
 listenNotification();
 
 function listenCierreCaja() {
-    if(window.tenantId){
-        window.Echo.private(`cierre-caja.${window.tenantId}`)
-        .listen('CierreCajaEvent', (e) => {
-            if (window.location.pathname === "/caja") {
-                alert('Cierre de Caja');
-                window.location.reload();
-            } else {
-                mostrarNotificacion(e.tipo, e.mensaje, e.color);
-                getDataNotificaciones();
-            }
-        })
-        .error(error => {
-            console.log('Error en el canal: ', error)
-        })
+    if (window.tenantId) {
+        // window.Echo.private(`cierre-caja.${window.tenantId}`)
+        // .listen('CierreCajaEvent', (e) => {
+        //     if (window.location.pathname === "/caja") {
+        //         alert('Cierre de Caja');
+        //         window.location.reload();
+        //     } else {
+        //         mostrarNotificacion(e.tipo, e.mensaje, e.color);
+        //         getDataNotificaciones();
+        //     }
+        // })
+        // .error(error => {
+        //     console.log('Error en el canal: ', error)
+        // })
     }
 }
 
@@ -270,13 +270,13 @@ if (document.getElementById('cargar-mas')) {
     });
 }
 
-window.Echo.private(`auth-event.${window.tenantId}`)    
-    .listen('AuthEvent', (e) => {
-        conexion(e.user, e.tipo, e.ultimaConexion);
-    })
-    .error((error) => {
-        console.log('Error en el canal:', error);
-    });
+// window.Echo.private(`auth-event.${window.tenantId}`)    
+//     .listen('AuthEvent', (e) => {
+//         conexion(e.user, e.tipo, e.ultimaConexion);
+//     })
+//     .error((error) => {
+//         console.log('Error en el canal:', error);
+//     });
 
 function conexion(userFromEvent, tipo, ultimaConexion = null) {
     const tds = document.querySelectorAll('.td-personal');
@@ -296,43 +296,43 @@ function conexion(userFromEvent, tipo, ultimaConexion = null) {
     });
 }
 
-window.Echo.private(`pdf-ready.${window.userId}`)
-    .listen('PdfGeneradoEvent', async (e) => {
-        const container = document.getElementById('loading-container');
-        const link = document.createElement('a');
-        link.href = `${e.path}`;
-        console.log(e.path)
-        try {
-            setTimeout(() => {
-                container.classList.add('hidden');
-                sessionStorage.removeItem('pdf-toast')
-                alert('Su pdf esta listo')
-                const url = '/download'
-                const a = document.createElement('a');
-                a.href = url;
-                a.click();
-            }, 500)
-        } catch (err) {
-            console.log(err)
-        }
-    })
-    .error((error) => {
-        console.log('Error en el canal:', error);
-    });
+// window.Echo.private(`pdf-ready.${window.userId}`)
+//     .listen('PdfGeneradoEvent', async (e) => {
+//         const container = document.getElementById('loading-container');
+//         const link = document.createElement('a');
+//         link.href = `${e.path}`;
+//         console.log(e.path)
+//         try {
+//             setTimeout(() => {
+//                 container.classList.add('hidden');
+//                 sessionStorage.removeItem('pdf-toast')
+//                 alert('Su pdf esta listo')
+//                 const url = '/download'
+//                 const a = document.createElement('a');
+//                 a.href = url;
+//                 a.click();
+//             }, 500)
+//         } catch (err) {
+//             console.log(err)
+//         }
+//     })
+//     .error((error) => {
+//         console.log('Error en el canal:', error);
+//     });
 
 
-window.Echo.private(`ultima-actividad.${window.tenantId}`)
-    .listen('UltimaActividadEvent', (e) => {
-        const tds = document.querySelectorAll('.td-total')
-        tds.forEach(td => {
-            const userIdTd = td.dataset.userid;
-            if (e.userId == userIdTd) {
-                td.innerText = `Gs. ${e.totalVenta}`;
-            }
-        })
-    })
-    .error(err => {
-        console.log(err)
-    })
+// window.Echo.private(`ultima-actividad.${window.tenantId}`)
+//     .listen('UltimaActividadEvent', (e) => {
+//         const tds = document.querySelectorAll('.td-total')
+//         tds.forEach(td => {
+//             const userIdTd = td.dataset.userid;
+//             if (e.userId == userIdTd) {
+//                 td.innerText = `Gs. ${e.totalVenta}`;
+//             }
+//         })
+//     })
+//     .error(err => {
+//         console.log(err)
+//     })
 
 

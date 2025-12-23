@@ -7,9 +7,10 @@ use Illuminate\Foundation\Queue\Queueable;
 use App\Events\NotificacionEvent;
 use App\Models\{Notification, Venta, User};
 
-class VentaRealizada implements ShouldQueue
+// class VentaRealizada implements ShouldQueue
+class VentaRealizada
 {
-    use Queueable;
+    // use Queueable;
 
     /**
      * Create a new job instance.
@@ -27,38 +28,38 @@ class VentaRealizada implements ShouldQueue
      */
     public function handle(): void
     {
-        $admins = User::where('role', 'admin')
-            ->where('tenant_id', $this->tenantId)
-            ->get();
-        
-        foreach ($admins as $admin) {
-            Notification::create([
-                'titulo' => 'Nueva Venta',
-                'tenant_id' => $admin->id,
-                'mensaje' => 'Venta de: Gs. ' . moneda($this->venta->total) . ' Registrado',
-                'is_read' => false,
-                'user_id' => $admin->id,
-                'color' => 'blue',
-            ]);
-        }
+        // $admins = User::where('role', 'admin')
+        //     ->where('tenant_id', $this->tenantId)
+        //     ->get();
 
-        NotificacionEvent::dispatch('Nueva Venta', 'Venta de: Gs.' . moneda($this->venta->total) . ' Registrado', 'blue', $this->tenantId);
+        // foreach ($admins as $admin) {
+        //     Notification::create([
+        //         'titulo' => 'Nueva Venta',
+        //         'tenant_id' => $admin->id,
+        //         'mensaje' => 'Venta de: Gs. ' . moneda($this->venta->total) . ' Registrado',
+        //         'is_read' => false,
+        //         'user_id' => $admin->id,
+        //         'color' => 'blue',
+        //     ]);
+        // }
 
-        foreach ($this->venta->productos as $producto) {
-            if ($producto->stock_minimo >= $producto->stock && $producto->tipo == 'producto') {
-                foreach ($admins as $admin) {
-                    Notification::create([
-                        'titulo' => 'Stock Bajo',
-                        'tenant_id' => $admin->id,
-                        'mensaje' => "$producto->nombre: $producto->stock unidades",
-                        'is_read' => false,
-                        'user_id' => $admin->id,
-                        'color' => 'yellow',
-                    ]);
-                }
-                NotificacionEvent::dispatch('Stock Bajo', "$producto->nombre: $producto->stock unidades", 'yellow', $this->tenantId);
-            }
-        }
+        // NotificacionEvent::dispatch('Nueva Venta', 'Venta de: Gs.' . moneda($this->venta->total) . ' Registrado', 'blue', $this->tenantId);
+
+        // foreach ($this->venta->productos as $producto) {
+        //     if ($producto->stock_minimo >= $producto->stock && $producto->tipo == 'producto') {
+        //         foreach ($admins as $admin) {
+        //             Notification::create([
+        //                 'titulo' => 'Stock Bajo',
+        //                 'tenant_id' => $admin->id,
+        //                 'mensaje' => "$producto->nombre: $producto->stock unidades",
+        //                 'is_read' => false,
+        //                 'user_id' => $admin->id,
+        //                 'color' => 'yellow',
+        //             ]);
+        //         }
+        //         NotificacionEvent::dispatch('Stock Bajo', "$producto->nombre: $producto->stock unidades", 'yellow', $this->tenantId);
+        //     }
+        // }
     }
 }
 

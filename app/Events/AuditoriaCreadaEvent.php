@@ -10,13 +10,14 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AuditoriaCreadaEvent implements ShouldBroadcast
+// class AuditoriaCreadaEvent implements ShouldBroadcast
+class AuditoriaCreadaEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
-     */  
+     */
     public $tenantId;
     public function __construct($tenantId)
     {
@@ -31,7 +32,7 @@ class AuditoriaCreadaEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('auditoria-creada.' . (int)$this->tenantId),
+            // new PrivateChannel('auditoria-creada.' . (int)$this->tenantId),
         ];
     }
 }

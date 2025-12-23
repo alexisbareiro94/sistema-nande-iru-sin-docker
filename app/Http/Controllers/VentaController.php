@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\AuditoriaCreadaEvent;
-use App\Events\UltimaActividadEvent;
+// use App\Events\AuditoriaCreadaEvent;
+// use App\Events\UltimaActividadEvent;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Exports\VentasExport;
 use App\Http\Requests\UpdateVentaRequest;
-use App\Jobs\GenerarPdfJob;
+// use App\Jobs\GenerarPdfJob;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\VentaRealizada;
+// use App\Jobs\VentaRealizada;
 use function Symfony\Component\Clock\now;
 
 class VentaController extends Controller
@@ -221,7 +221,8 @@ class VentaController extends Controller
                         'pagos',
                         'caja.user',
                         'vendedor',
-                        'vehiculo'
+                        'vehiculo',
+                        'factura'
                     ])->first();
 
                 $productos = Producto::whereHas('detalles', function ($query) use ($venta) {
@@ -233,7 +234,11 @@ class VentaController extends Controller
                         ])->get();
             }
             if (is_numeric($codigo)) {
-                $venta = MovimientoCaja::find($codigo)->load(['caja.user', 'venta.vendedor']);
+                $venta = MovimientoCaja::with([
+                    'caja.user',
+                    'venta.vendedor',
+                ])->find($codigo);
+
             }
 
             return response()->json([
@@ -301,7 +306,7 @@ class VentaController extends Controller
                     'timbrado' => 18450157,
                     'sucursal' => 001,
                     'punto_emision' => 001,
-                    'numero' => $factura->numero + 1,
+                    'numero' => $factura?->numero !== null ? $factura->numero + 1 : 87,
                     'emision' => now()->format('Y-m-d'),
                     'estado' => 'emitida',
                     'tipo' => 'factura',
@@ -330,7 +335,7 @@ class VentaController extends Controller
                 ]
             ]);
 
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
 
             MovimientoCaja::create([
                 'caja_id' => $cajaId,
@@ -398,8 +403,8 @@ class VentaController extends Controller
             $caja['saldo'] += $venta->total;
             session()->put(['caja' => $caja]);
             DB::commit();
-            VentaRealizada::dispatch($venta, tenant_id());
-            UltimaActividadEvent::dispatch(auth()->user()->id, $venta->total, tenant_id());
+            // VentaRealizada::dispatch($venta, tenant_id());
+            // UltimaActividadEvent::dispatch(auth()->user()->id, $venta->total, tenant_id());
             crear_caja();
             return response()->json([
                 'success' => true,
@@ -456,7 +461,7 @@ class VentaController extends Controller
                 ]
             ]);
 
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
 
             MovimientoCaja::create([
                 'caja_id' => $cajaId,
@@ -509,7 +514,7 @@ class VentaController extends Controller
                 'accion' => 'Reporte Generado',
             ]);
 
-            GenerarPdfJob::dispatch(auth()->user()->id, $ventas, $ingresos, $egresos, tenant_id());
+            // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, $ingresos, $egresos, tenant_id());
             return response()->json([
                 'data' => 'listo',
             ]);
@@ -523,7 +528,7 @@ class VentaController extends Controller
                 'entidad_id' => auth()->user()->id,
                 'accion' => 'Reporte Generado',
             ]);
-            GenerarPdfJob::dispatch(auth()->user()->id, $ventas, null, null, tenant_id());
+            // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, null, null, tenant_id());
             return response()->json([
                 'data' => 'listo',
             ]);

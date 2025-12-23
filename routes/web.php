@@ -18,6 +18,7 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\ServicioProcesoController;
+use App\Http\Controllers\FacturaController;
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CajaMiddleware;
@@ -103,6 +104,12 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/api/servicio-proceso/crear-vehiculo', [ServicioProcesoController::class, 'crearVehiculo']);
         Route::post('/api/servicio-proceso/crear-cliente', [ServicioProcesoController::class, 'crearCliente']);
         Route::post('/api/servicio-proceso/crear-mecanico', [ServicioProcesoController::class, 'crearMecanico']);
+        // Facturas
+        Route::get('/factura', [FacturaController::class, 'index'])->name('facturas.index');
+        Route::get('/facturas/{id}', [FacturaController::class, 'show'])->name('facturas.show');
+        Route::post('/facturas/{id}/anular', [FacturaController::class, 'anular'])->name('facturas.anular');
+        Route::post('/facturas/{id}/foto', [FacturaController::class, 'subirFoto'])->name('facturas.foto');
+        Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {

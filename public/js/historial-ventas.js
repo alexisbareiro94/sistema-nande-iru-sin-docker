@@ -62,8 +62,19 @@ function setDataDetalleVenta(data) {
     const codigo = document.getElementById('d-v-codigo');
     const total = document.getElementById('d-v-total');
     const dvCajero = document.getElementById('dv-cajero');
+    const dvFactura = document.getElementById('dv-factura');
     dvCajero.innerText = `${data.venta.vendedor.name}`
 
+
+    const factura = data.venta.factura;
+    if (factura) {
+        const sucursal = String(factura.sucursal).padStart(3, '0');
+        const puntoEmision = String(factura.punto_emision).padStart(3, '0');
+        const numero = String(factura.numero).padStart(7, '0');
+
+        dvFactura.innerText = `${sucursal}-${puntoEmision} ${numero}`;
+
+    }
     let metodoDePago = '';
     let estadoClass = data.venta.estado === 'completado' ? 'px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium' :
         (data.venta.estado === 'cancelado' ? 'px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium' :
@@ -249,7 +260,7 @@ if (document.getElementById('dv-buscar')) {
         const tipo = document.getElementById('dv-tipo').value;
         const cliente = document.getElementById('dv-cliente').value;
         const mecanico = document.getElementById('dv-mecanico').value;
-        
+
         console.log(cliente);
 
         if (desde == '' && hasta == '' && estado == '' && formaPago == '' && tipo == '' && cliente == '' && mecanico == '') {
@@ -598,47 +609,47 @@ document.addEventListener('click', (e) => {
 });
 
 
-function toastLoading(message = "Generando PDF") {
-    const container = document.getElementById('loading-container');
-    if (container.classList.contains('hidden')) {
-        container.classList.remove('hidden');
-    }
-    sessionStorage.setItem('pdf-toast', JSON.stringify(true))
-    const spinner = `
-        <svg class="animate-spin w-8 h-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>`;
+// function toastLoading(message = "Generando PDF") {
+//     const container = document.getElementById('loading-container');
+//     if (container.classList.contains('hidden')) {
+//         container.classList.remove('hidden');
+//     }
+//     sessionStorage.setItem('pdf-toast', JSON.stringify(true))
+//     const spinner = `
+//         <svg class="animate-spin w-8 h-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//         </svg>`;
 
-    const toast = document.createElement('div');
-    toast.className = `bg-blue-500 font-semibold text-white px-5 py-3 rounded-lg shadow-lg flex items-center space-x-2 opacity-0 transition-all duration-300`;
-    toast.innerHTML = `<span class="spinner">${spinner}</span><span class="toast-message">${message}</span>`;
+//     const toast = document.createElement('div');
+//     toast.className = `bg-blue-500 font-semibold text-white px-5 py-3 rounded-lg shadow-lg flex items-center space-x-2 opacity-0 transition-all duration-300`;
+//     toast.innerHTML = `<span class="spinner">${spinner}</span><span class="toast-message">${message}</span>`;
 
-    container.appendChild(toast);
+//     container.appendChild(toast);
 
-    setTimeout(() => toast.classList.remove('opacity-0'), 10);
+//     setTimeout(() => toast.classList.remove('opacity-0'), 10);
 
-    window.Echo.private(`pdf-ready.${window.userId}`)
-        .listen('PdfGeneradoEvent', async (e) => {
-            const messageEl = toast.querySelector('.toast-message');
-            const spinnerEl = toast.querySelector('.spinner');
+//     window.Echo.private(`pdf-ready.${window.userId}`)
+//         .listen('PdfGeneradoEvent', async (e) => {
+//             const messageEl = toast.querySelector('.toast-message');
+//             const spinnerEl = toast.querySelector('.spinner');
 
-            spinnerEl.innerHTML = `
-                <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>`;
+//             spinnerEl.innerHTML = `
+//                 <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//                     <path stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+//                 </svg>`;
 
-            messageEl.textContent = "PDF generado correctamente";
-            toast.classList.remove('bg-blue-500');
-            toast.classList.add('bg-green-500');
+//             messageEl.textContent = "PDF generado correctamente";
+//             toast.classList.remove('bg-blue-500');
+//             toast.classList.add('bg-green-500');
 
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                sessionStorage.removeItem('pdf-toast')
-                setTimeout(() => toast.remove(), 500);
-            }, 1500);
-        });
-}
+//             setTimeout(() => {
+//                 toast.classList.add('opacity-0');
+//                 sessionStorage.removeItem('pdf-toast')
+//                 setTimeout(() => toast.remove(), 500);
+//             }, 1500);
+//         });
+// }
 
 document.getElementById('export-pdf').addEventListener('click', async () => {
     toastLoading('Generando PDF, te avisaremos cuando esté listo.');

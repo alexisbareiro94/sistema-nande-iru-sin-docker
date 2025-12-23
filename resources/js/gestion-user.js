@@ -81,7 +81,7 @@ async function updatePersonal(activo) {
             },
             body: formData,
         });
-        const data = await res.json();        
+        const data = await res.json();
         console.log(data);
         if (!res.ok) {
             throw data
@@ -186,26 +186,26 @@ async function rerenderForm() {
 }
 
 
-window.Echo.private(`auditoria-creada.${window.tenantId}`)
-    .listen('AuditoriaCreadaEvent', async e => {
-        try {
-            const res = await fetch('/api/auditorias');
-            const data = await res.json();
-            if (!res.ok) {
-                throw data;
-            }
-            renderTableBody(data.data);
-        } catch (err) {
-            console.log(err)
-        }
-    })
-    .error(err => {
-        console.log(err)
-    })
+// window.Echo.private(`auditoria-creada.${window.tenantId}`)
+//     .listen('AuditoriaCreadaEvent', async e => {
+//         try {
+//             const res = await fetch('/api/auditorias');
+//             const data = await res.json();
+//             if (!res.ok) {
+//                 throw data;
+//             }
+//             renderTableBody(data.data);
+//         } catch (err) {
+//             console.log(err)
+//         }
+//     })
+//     .error(err => {
+//         console.log(err)
+//     })
 
 
 function renderTableBody(data) {
-    if(!$('#table-body-auditorias')){
+    if (!$('#table-body-auditorias')) {
         return;
     }
     const body = document.getElementById('table-body-auditorias');

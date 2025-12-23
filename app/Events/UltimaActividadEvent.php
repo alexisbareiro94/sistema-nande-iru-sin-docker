@@ -11,7 +11,8 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UltimaActividadEvent implements ShouldBroadcast
+// class UltimaActividadEvent implements ShouldBroadcast
+class UltimaActividadEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,7 +26,7 @@ class UltimaActividadEvent implements ShouldBroadcast
     public function __construct($userId, $totalVenta, $tenantId)
     {
         $this->userId = $userId;
-        $this->totalVenta =  moneda($totalVenta);
+        $this->totalVenta = moneda($totalVenta);
         $this->tenantId;
     }
 
@@ -37,7 +38,7 @@ class UltimaActividadEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('ultima-actividad.' . $this->tenantId),
+            // new PrivateChannel('ultima-actividad.' . $this->tenantId),
         ];
     }
 }

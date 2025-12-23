@@ -31,6 +31,10 @@
                             <span class="text-gray-600">Fecha:</span>
                             <span id="d-v-fecha" class="font-medium">Cargando...</span>
                         </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">N° Factura:</span>
+                            <span id="dv-factura" class="font-medium">Cargando...</span>
+                        </div>
                         <div id="dv-estado-cont" class="flex justify-between">
                             <span class="text-gray-600">Estado:</span>
                             <span id="d-v-estado"
@@ -108,7 +112,7 @@
             </div>
 
             <div id="dv-vehiculo-seccion" class="hidde border-b border-gray-900 mb-5">
-                <div id="dv-vehiculo-seccion" class="mb-6 border-t pt-4">
+                <div id="" class="mb-6 border-t pt-4">
                     <h3 class="text-lg font-medium text-gray-900 mb-3">Información del Vehículo</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-1">
@@ -127,6 +131,8 @@
                 </div>
 
             </div>
+
+
 
             <!-- Tabla de Productos -->
             <div class="mb-6">

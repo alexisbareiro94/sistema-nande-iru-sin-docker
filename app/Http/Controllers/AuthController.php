@@ -40,14 +40,14 @@ class AuthController extends Controller
                 'email.exists' => 'El email no esta registrado',
                 'password.*' => 'completar el campo contraseña'
             ]);
-            
-                $email = $request->email;
-                $tenantId = User::where('email', $email)->first()?->tenant_id;
-            
+
+            $email = $request->email;
+            // $tenantId = User::where('email', $email)->first()?->tenant_id;
+
             if (Auth::attempt($validate->validated())) {
                 $user = Auth::user();
 
-                if ($user->temp_password && !$user->temp_used) {                    
+                if ($user->temp_password && !$user->temp_used) {
                     if ($user->expires_at < now()) {
                         return redirect()->back()->with('error', 'El usuario ha expirado');
                     }
@@ -63,26 +63,24 @@ class AuthController extends Controller
                     'entidad_id' => $user->id,
                     'accion' => 'Inicio sesion'
                 ]);
-                AuditoriaCreadaEvent::dispatch(tenant_id());
-                AuthEvent::dispatch($user, 'login', tenant_id());
-                NotificacionEvent::dispatch('Nuevo Inicio de Sesion', "$user->name inicio sesion", 'blue', $tenantId);
-                if ($user->role == 'personal' || $user->role == 'caja') {                    
+                // AuditoriaCreadaEvent::dispatch(tenant_id());
+                // AuthEvent::dispatch($user, 'login', tenant_id());
+                // NotificacionEvent::dispatch('Nuevo Inicio de Sesion', "$user->name inicio sesion", 'blue', $tenantId);
+                if ($user->role == 'personal' || $user->role == 'caja') {
                     return redirect()->route('caja.index');
                 }
                 if ($user->role === 'cliente') {
                     session()->flush();
                 }
                 return redirect()->route('home');
-            }else{            
-                
-                NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
+            } else {
+
+                // NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
                 return redirect()->back()->with('error', 'La contraseña es incorrecta');
-            }         
-        } catch (\Exception $e) {            
-            Log::error('Error en login: ' . $e->getMessage());
-            NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
+            }
+        } catch (\Exception $e) {
+            // NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
             return redirect()->route('login')->with('error', $e->getMessage());
-                
         }
     }
 
