@@ -13,7 +13,9 @@ use App\Jobs\MovimientoRealizado;
 
 class MovimientoCajaController extends Controller
 {
-    public function __construct(protected MovimientoService $movimientoService) {}
+    public function __construct(protected MovimientoService $movimientoService)
+    {
+    }
 
     public function index(Request $request)
     {
@@ -72,17 +74,17 @@ class MovimientoCajaController extends Controller
         DB::beginTransaction();
         try {
             $movimiento = MovimientoCaja::create($data);
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => MovimientoCaja::class,
-                'entidad_id' => $movimiento->id,
-                'accion' => 'Registro de movimiento en caja',
-                'datos' => [
-                    'monto' => $data['monto'],
-                    'tipo' => $data['tipo']
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => MovimientoCaja::class,
+            //     'entidad_id' => $movimiento->id,
+            //     'accion' => 'Registro de movimiento en caja',
+            //     'datos' => [
+            //         'monto' => $data['monto'],
+            //         'tipo' => $data['tipo']
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             crear_caja();
             if ($data['personal_id'] != null) {
                 $pago = $this->movimientoService->pago_salario($data, $movimiento, $request->user()->id);
@@ -116,16 +118,16 @@ class MovimientoCajaController extends Controller
 
             if ($periodo == 'mes') {
                 $periodoInicio = now()->startOfMonth();
-                $periodoFin    = now()->endOfMonth();
-                $formatoGroup  = "DATE_FORMAT(created_at, '%m-%Y')";
+                $periodoFin = now()->endOfMonth();
+                $formatoGroup = "DATE_FORMAT(created_at, '%m-%Y')";
             } elseif ($periodo == 'anio' || $periodo == 'año') {
                 $periodoInicio = now()->startOfYear();
-                $periodoFin    = now()->endOfYear();
-                $formatoGroup  = "DATE_FORMAT(created_at, '%Y')";
+                $periodoFin = now()->endOfYear();
+                $formatoGroup = "DATE_FORMAT(created_at, '%Y')";
             } else {
                 $periodoInicio = now()->startOfWeek();
-                $periodoFin    = now()->endOfWeek();
-                $formatoGroup  = "DATE_FORMAT(created_at, '%d-%m-%y')";
+                $periodoFin = now()->endOfWeek();
+                $formatoGroup = "DATE_FORMAT(created_at, '%d-%m-%y')";
             }
 
             $queryDesde = $request->query('desde') ? Carbon::parse($request->query('desde'))->startOfDay() : null;
@@ -146,9 +148,9 @@ class MovimientoCajaController extends Controller
                 ->get();
 
             return response()->json([
-                'labels'   => $movimientos->pluck('periodo'),
+                'labels' => $movimientos->pluck('periodo'),
                 'ingresos' => $movimientos->pluck('ingresos'),
-                'egresos'  => $movimientos->pluck('egresos'),
+                'egresos' => $movimientos->pluck('egresos'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -158,11 +160,11 @@ class MovimientoCajaController extends Controller
         }
     }
 
-    public function destroy(string $id) 
-    {   
+    public function destroy(string $id)
+    {
         DB::beginTransaction();
         // return response()->json($id);
-        try{            
+        try {
             $mov = MovimientoCaja::findOrFail($id);
             $mov->delete();
             $venta = Venta::findOrFail($mov->venta_anulado);
@@ -174,7 +176,7 @@ class MovimientoCajaController extends Controller
             return response()->json([
                 'message' => 'Movimiento eliminado'
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'error' => $e->getMessage(),

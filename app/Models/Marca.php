@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class Marca extends Model
 {
-    // use BelongsToTenant;
+    use Auditable;
 
     // En tu modelo Auditoria
     protected static function booted(): void

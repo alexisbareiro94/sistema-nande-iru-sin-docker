@@ -325,15 +325,15 @@ class VentaController extends Controller
                     ]);
             }
 
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Venta::class,
-                'entidad_id' => $venta->id,
-                'accion' => 'Registro de venta',
-                'datos' => [
-                    'total' => $venta->total,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => Venta::class,
+            //     'entidad_id' => $venta->id,
+            //     'accion' => 'Registro de venta',
+            //     'datos' => [
+            //         'total' => $venta->total,
+            //     ]
+            // ]);
 
             // AuditoriaCreadaEvent::dispatch(tenant_id());
 
@@ -451,15 +451,15 @@ class VentaController extends Controller
                     ]);
                 }
             }
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Venta::class,
-                'entidad_id' => $venta->id,
-                'accion' => "Anulación de venta: #$venta->codigo",
-                'datos' => [
-                    'total' => $venta->total,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => Venta::class,
+            //     'entidad_id' => $venta->id,
+            //     'accion' => "Anulación de venta: #$venta->codigo",
+            //     'datos' => [
+            //         'total' => $venta->total,
+            //     ]
+            // ]);
 
             // AuditoriaCreadaEvent::dispatch(tenant_id());
 
@@ -502,17 +502,17 @@ class VentaController extends Controller
         if (!filled($item) || $mov) {
             $item = Cache::remember('ventas', 20, fn() => MovimientoCaja::with('caja.user:id,name')->get());
             Cache::forget('ventas');
-            $ingresos = $item->sum('monto');
-            $egresos = $item->where('tipo', 'egreso')->sum('monto');
+            // $ingresos = $item->sum('monto');
+            // $egresos = $item->where('tipo', 'egreso')->sum('monto');
             $ventas = $item->toArray();
-            $items = count($ventas);
+            // $items = count($ventas);
 
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => auth()->user()->id,
-                'accion' => 'Reporte Generado',
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => auth()->user()->id,
+            //     'accion' => 'Reporte Generado',
+            // ]);
 
             // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, $ingresos, $egresos, tenant_id());
             return response()->json([
@@ -522,12 +522,12 @@ class VentaController extends Controller
             $ventas = $item->toArray();
             // $items = count($ventas);
             Cache::forget('ventas');
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => auth()->user()->id,
-                'accion' => 'Reporte Generado',
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => auth()->user()->id,
+            //     'accion' => 'Reporte Generado',
+            // ]);
             // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, null, null, tenant_id());
             return response()->json([
                 'data' => 'listo',

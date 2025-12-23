@@ -74,7 +74,6 @@
             </div>
         </header>
         <div class="mb-10">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Panel de Control</h1>
             @if (auth()->check() && !auth()->user()->temp_used && auth()->user()->role == 'admin')
                 <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
                     <p class="font-bold">Cuenta temporal</p>

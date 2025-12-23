@@ -51,15 +51,15 @@ class UserController extends Controller
         try {
             $cliente = User::create($data);
 
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $cliente->id,
-                'accion' => 'Registro de cliente',
-                'datos' => [
-                    'cliente' => $cliente->razon_social,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $cliente->id,
+            //     'accion' => 'Registro de cliente',
+            //     'datos' => [
+            //         'cliente' => $cliente->razon_social,
+            //     ]
+            // ]);
 
             return response()->json([
                 'success' => true,
@@ -109,17 +109,17 @@ class UserController extends Controller
                 'ruc_ci' => $data['ruc_ci'] ?? $user->ruc_ci,
             ]);
 
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $user->id,
-                'accion' => 'Actualización de cliente',
-                'datos' => [
-                    'Usuario ' => $user->name ?? $user->razon_social,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $user->id,
+            //     'accion' => 'Actualización de cliente',
+            //     'datos' => [
+            //         'Usuario ' => $user->name ?? $user->razon_social,
+            //     ]
+            // ]);
 
-            NotificacionEvent::dispatch('Actualización', 'Usuario Actualizado', 'blue', tenant_id());
+            // NotificacionEvent::dispatch('Actualización', 'Usuario Actualizado', 'blue', tenant_id());
             $data = $user->load('compras');
             DB::commit();
             return response()->json([
@@ -151,15 +151,15 @@ class UserController extends Controller
                 'password' => $request->password,
             ]);
 
-            Auditoria::create([
-                'created_by' => $user->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $user->id,
-                'accion' => 'Contraseña cambiada',
-                'datos' => [
-                    'Usuario: ' => $user->name ?? $user->razon_social,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => $user->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $user->id,
+            //     'accion' => 'Contraseña cambiada',
+            //     'datos' => [
+            //         'Usuario: ' => $user->name ?? $user->razon_social,
+            //     ]
+            // ]);
             DB::commit();
             return redirect()->route('login')->with('success', 'Contraseña cambiada');
         } catch (\Exception $e) {

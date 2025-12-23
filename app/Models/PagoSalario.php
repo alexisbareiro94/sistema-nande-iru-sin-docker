@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\Auditable;
 
 class PagoSalario extends Model
 {
-    // use BelongsToTenant;
+    use Auditable;
 
     protected $table = 'pago_salarios';
 

@@ -77,17 +77,17 @@ class CajaController extends Controller
 
             $arrayCaja["saldo"] = $arrayCaja["monto_inicial"];
             session()->put(["caja" => $arrayCaja]);
-            MovimientoRealizado::dispatch($movimiento, $movimiento->tipo, tenant_id());
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => Caja::class,
-                'entidad_id' => $caja->id,
-                'accion' => 'Apertura de caja',
-                'datos' => [
-                    'monto apertura' => $caja['monto_inicial']
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // MovimientoRealizado::dispatch($movimiento, $movimiento->tipo, tenant_id());
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => Caja::class,
+            //     'entidad_id' => $caja->id,
+            //     'accion' => 'Apertura de caja',
+            //     'datos' => [
+            //         'monto apertura' => $caja['monto_inicial']
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return back()->with("success", "Caja Abierta Correctamente");
         } catch (\Exception $e) {
             return back()->with("error", $e->getMessage());
@@ -121,18 +121,18 @@ class CajaController extends Controller
 
             session()->forget("caja");
 
-            CierreCaja::dispatch($caja, tenant_id());
+            // CierreCaja::dispatch($caja, tenant_id());
 
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => Caja::class,
-                'entidad_id' => $caja->id,
-                'accion' => 'Cierre de caja',
-                'datos' => [
-                    'monto cierre' => $data['monto_cierre']
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => Caja::class,
+            //     'entidad_id' => $caja->id,
+            //     'accion' => 'Cierre de caja',
+            //     'datos' => [
+            //         'monto cierre' => $data['monto_cierre']
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 "success" => true,
                 "message" => "Caja cerrada correctamente",

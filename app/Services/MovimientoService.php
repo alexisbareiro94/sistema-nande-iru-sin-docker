@@ -9,7 +9,7 @@ use App\Models\{Auditoria, User, PagoSalario, MovimientoCaja};
 
 class MovimientoService
 {
-    public function pago_salario(array $data, MovimientoCaja $movimiento, string $userId) :bool
+    public function pago_salario(array $data, MovimientoCaja $movimiento, string $userId): bool
     {
         $user = User::find($data['personal_id']);
 
@@ -20,9 +20,9 @@ class MovimientoService
                 ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->orderByDesc('created_at')
                 ->first()
-                ?->restante;
+                    ?->restante;
 
-            if (filled($ultimoPago) && $ultimoPago < $data['monto']) {                
+            if (filled($ultimoPago) && $ultimoPago < $data['monto']) {
                 return false;
             }
 
@@ -33,7 +33,7 @@ class MovimientoService
             } else {
                 $adelanto = true;
                 $restante = $user->salario - $data['monto'];
-            }            
+            }
 
             $pagoSalario = PagoSalario::create([
                 'user_id' => $data['personal_id'],
@@ -44,19 +44,22 @@ class MovimientoService
                 'created_by' => $userId,
             ]);
 
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => PagoSalario::class,
-                'entidad_id' => $pagoSalario->id,
-                'accion' => 'Pago de salario',
-                'data' => [
+            Auditoria::registrar(
+                'crear',
+                $pagoSalario,
+                "Pago de salario a {$user->name} por Gs. " . number_format($pagoSalario->monto, 0, ',', '.'),
+                null,
+                [
                     'user_id' => $pagoSalario->user_id,
+                    'user_name' => $user->name,
                     'monto' => $pagoSalario->monto,
+                    'adelanto' => $adelanto,
+                    'restante' => $restante,
                 ]
-            ]);
+            );
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return true;
-        } else {            
+        } else {
             return false;
         }
     }

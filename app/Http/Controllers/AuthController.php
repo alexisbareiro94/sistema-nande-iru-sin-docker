@@ -57,12 +57,7 @@ class AuthController extends Controller
                 $user->update([
                     'en_linea' => true,
                 ]);
-                Auditoria::create([
-                    'created_by' => $user->id,
-                    'entidad_type' => User::class,
-                    'entidad_id' => $user->id,
-                    'accion' => 'Inicio sesion'
-                ]);
+                // $user->auditable('Inicio sesion');
                 // AuditoriaCreadaEvent::dispatch(tenant_id());
                 // AuthEvent::dispatch($user, 'login', tenant_id());
                 // NotificacionEvent::dispatch('Nuevo Inicio de Sesion', "$user->name inicio sesion", 'blue', $tenantId);
@@ -109,14 +104,8 @@ class AuthController extends Controller
             return back()->with('error', $validate->messages()->first());
         }
         try {
-            $user = User::create($validate->validated());
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $user->id,
-                'accion' => 'Creacion de usuario'
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // $user = User::create($validate->validated());
+            // $user->auditable('Creacion de usuario');
             return redirect()->route('login')->with('success', 'Registro exitoso');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -131,15 +120,15 @@ class AuthController extends Controller
                 'ultima_conexion' => now(),
                 'en_linea' => false,
             ]);
-            Auditoria::create([
-                'created_by' => $user->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $user->id,
-                'accion' => 'Cierre de sesion'
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
-            AuthEvent::dispatch($user, 'logout', tenant_id());
-            NotificacionEvent::dispatch('Cierre de Sesion', "$user->name a cerrado sesion", 'blue', tenant_id());
+            // Auditoria::create([
+            //     'created_by' => $user->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $user->id,
+            //     'accion' => 'Cierre de sesion'
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuthEvent::dispatch($user, 'logout', tenant_id());
+            // NotificacionEvent::dispatch('Cierre de Sesion', "$user->name a cerrado sesion", 'blue', tenant_id());
             Auth::logout();
             return redirect('/');
         } catch (\Exception) {

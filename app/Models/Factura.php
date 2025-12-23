@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class Factura extends Model
 {
+    use Auditable;
     protected $table = "facturas";
     protected $fillable = [
         'venta_id',

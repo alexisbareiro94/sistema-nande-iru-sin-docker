@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Auditable;
 class ServicioProcesoFoto extends Model
 {
+    use Auditable;
     protected $table = 'servicio_proceso_fotos';
 
     protected $fillable = [

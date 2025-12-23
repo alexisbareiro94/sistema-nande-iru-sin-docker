@@ -16,20 +16,22 @@ class CheckSessionTimeout
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {            
-        if (Auth::check()) {             
+    {
+        if (Auth::check()) {
             session(['last_user_id' => Auth::id()]);
-        }        
+        }
         $response = $next($request);
 
         // Si ya no está autenticado pero había un usuario antes
         if (!Auth::check() && session()->has('last_user_id')) {
-            $userId = session('last_user_id');            
+            $userId = session('last_user_id');
             Auditoria::create([
                 'created_by' => $userId,
                 'entidad_type' => \App\Models\User::class,
                 'entidad_id' => $userId,
-                'accion' => 'Cierre de sesión por inactividad',
+                'modulo' => 'usuarios',
+                'accion' => 'logout',
+                'descripcion' => 'Cierre de sesión por inactividad',
             ]);
 
             // Limpiamos para no repetir

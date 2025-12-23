@@ -15,9 +15,12 @@ class CategoriaController extends Controller
     {
         $tenantId = tenant_id();
         $validate = Validator::make($request->all(), [
-            'nombre' => ['required', Rule::unique('categorias')->where(function($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
-            })],
+            'nombre' => [
+                'required',
+                Rule::unique('categorias')->where(function ($q) use ($tenantId) {
+                    $q->where('tenant_id', $tenantId);
+                })
+            ],
         ], [
             'nombre.required' => 'El categoria es requerido',
             'nombre.unique' => 'La Categoria ya existe',
@@ -35,13 +38,13 @@ class CategoriaController extends Controller
                 'nombre' => $request->nombre,
             ]);
 
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => Categoria::class,
-                'entidad_id' => $categoria->id,
-                'accion' => 'Creación de categoría',                
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => Categoria::class,
+            //     'entidad_id' => $categoria->id,
+            //     'accion' => 'Creación de categoría',                
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'categoria' => $categoria

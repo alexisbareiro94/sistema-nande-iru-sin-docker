@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\Auditable;
 
 class Vehiculo extends Model
 {
+    use Auditable;
     protected $table = 'vehiculos';
 
     protected $fillable = [

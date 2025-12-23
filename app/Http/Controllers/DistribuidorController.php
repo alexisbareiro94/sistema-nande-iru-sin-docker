@@ -15,15 +15,15 @@ class DistribuidorController extends Controller
         $q = $request->query('q');
         $query = Distribuidor::query();
 
-        if(filled($q)){
+        if (filled($q)) {
             $query->where('nombre', 'like', "%$q%")
-            ->orWhere('ruc', 'like', "%$q%")
-            ->orWhere('celular', 'like', "%$q%")
-            ->orWhere('direccion', 'like', "%$q%")
-            ->orderBy('id', 'asc');
+                ->orWhere('ruc', 'like', "%$q%")
+                ->orWhere('celular', 'like', "%$q%")
+                ->orWhere('direccion', 'like', "%$q%")
+                ->orderBy('id', 'asc');
         }
         $distribuidores = $query->get();
-        
+
 
         return response()->json([
             'success' => true,
@@ -56,12 +56,7 @@ class DistribuidorController extends Controller
         try {
             $distribuidor = Distribuidor::create($validate->validated());
 
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => Distribuidor::class,
-                'entidad_id' => $distribuidor->id,
-                'accion' => 'Creación de distribuidor',                
-            ]);
+            // La auditoría se crea automáticamente via trait Auditable
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
@@ -74,5 +69,5 @@ class DistribuidorController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
-    }    
+    }
 }

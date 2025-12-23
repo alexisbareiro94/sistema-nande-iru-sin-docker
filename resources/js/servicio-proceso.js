@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btnNuevoServicio.addEventListener('click', function () {
             modalSeleccion.classList.remove('hidden');
             modalSeleccion.classList.add('flex');
-            inputBuscarPatente?.focus();
+            // inputBuscarPatente?.focus();
         });
     }
 

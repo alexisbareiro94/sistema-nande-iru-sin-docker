@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class MetodoPago extends Model
 {
-    // use BelongsToTenant;
+    use Auditable;
 
-   protected static function booted(): void
+    protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {
             if (auth()->check()) {

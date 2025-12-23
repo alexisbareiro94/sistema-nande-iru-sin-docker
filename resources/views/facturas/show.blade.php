@@ -292,12 +292,52 @@
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                                     placeholder="Ej: Factura original">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Foto</label>
-                                <input type="file" name="foto" id="input-foto-factura" accept="image/*" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                            <div class="flex justify-between items-center gap-2">
+                                <div>
+                                    <label class="block w-full text-sm font-medium text-gray-700 mb-2">Seleccionar
+                                        Foto</label>
+                                    <input type="file" name="foto" id="input-foto-factura" accept="image/*"
+                                        required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                                </div>
+                                <div class="pt-6">
+                                    <button type="button" id="btn-abrir-camara-factura"
+                                        class="w-full px-4 py-3 mt-1 bg-gray-800 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
+                        {{-- Preview de la imagen --}}
+                        <div id="preview-container-factura" class="hidden mt-4">
+                            <div class="flex items-start gap-4 p-3 bg-white rounded-xl border border-gray-200">
+                                <div class="relative">
+                                    <img id="preview-imagen-factura" src="" alt="Preview"
+                                        class="w-32 h-32 object-cover rounded-lg shadow-sm">
+                                    <button type="button" id="btn-quitar-preview-factura"
+                                        class="absolute z-999 -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-700">Vista previa</p>
+                                    <p id="preview-nombre-factura" class="text-xs text-gray-500 mt-1"></p>
+                                    <p id="preview-tamano-factura" class="text-xs text-gray-400"></p>
+                                </div>
+                            </div>
+                        </div>
+
                         <button type="submit"
                             class="mt-4 w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -355,112 +395,33 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('js')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Anular factura
-            const btnAnular = document.getElementById('btn-anular-factura');
-            if (btnAnular) {
-                btnAnular.addEventListener('click', function() {
-                    if (!confirm(
-                        '¿Estás seguro de anular esta factura? Esta acción no se puede deshacer.')) {
-                        return;
-                    }
+    <!-- Modal Cámara -->
+    <div id="modal-camara-factura" class="fixed inset-0 z-50 hidden items-center justify-center bg-black">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-gray-800 p-4 flex justify-between items-center text-white shrink-0">
+                <h3 class="font-bold text-lg">Tomar Foto</h3>
+                <button type="button" id="btn-cerrar-camara-factura"
+                    class="text-gray-300 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
 
-                    const facturaId = this.dataset.id;
+            <div class="relative bg-black flex-1 flex items-center justify-center overflow-hidden">
+                <video id="video-camara-factura" autoplay playsinline
+                    class="max-w-full max-h-full object-contain"></video>
+                <canvas id="canvas-camara-factura" class="hidden"></canvas>
+            </div>
 
-                    fetch(`/facturas/${facturaId}/anular`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Factura anulada correctamente');
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Error al anular la factura');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error al anular la factura');
-                        });
-                });
-            }
-
-            // Subir foto
-            const formSubirFoto = document.getElementById('form-subir-foto-factura');
-            if (formSubirFoto) {
-                formSubirFoto.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const facturaId = this.dataset.id;
-                    const formData = new FormData(this);
-
-                    fetch(`/facturas/${facturaId}/foto`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content
-                            },
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Foto subida correctamente');
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Error al subir la foto');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error al subir la foto');
-                        });
-                });
-            }
-
-            // Eliminar foto
-            document.querySelectorAll('.btn-eliminar-foto-factura').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-
-                    if (!confirm('¿Estás seguro de eliminar esta foto?')) {
-                        return;
-                    }
-
-                    const fotoId = this.dataset.fotoId;
-
-                    fetch(`/api/factura/foto/${fotoId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                this.closest('.foto-item').remove();
-                            } else {
-                                alert(data.message || 'Error al eliminar la foto');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error al eliminar la foto');
-                        });
-                });
-            });
-        });
-    </script>
+            <div class="p-4 bg-gray-50 flex justify-center shrink-0">
+                <button type="button" id="btn-capturar-foto-factura"
+                    class="w-16 h-16 rounded-full bg-white border-4 border-gray-300 flex items-center justify-center shadow-lg hover:bg-gray-100 active:scale-95 transition-all">
+                    <div class="w-12 h-12 rounded-full bg-red-600"></div>
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection

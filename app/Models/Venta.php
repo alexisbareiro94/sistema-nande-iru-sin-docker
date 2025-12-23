@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\Auditable;
 
 class Venta extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, Auditable;
 
     protected $table = 'ventas';
 
@@ -34,7 +35,6 @@ class Venta extends Model
         'monto_recibido',
     ];
 
-    // En tu modelo Auditoria
     protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {

@@ -22,7 +22,7 @@ class GestionUsersController extends Controller
     {
         try {
             $tenantId = tenant_id();
-            $users = User::whereNotIn('role', ['cliente', 'admin'])
+            $users = User::whereNotIn('role', ['cliente', 'admin', 'mecanico'])
                 ->where('tenant_id', $tenantId)
                 // ->where('activo', true)
                 ->with(['pagoSalarios', 'ultima_venta'])
@@ -99,21 +99,21 @@ class GestionUsersController extends Controller
                 'activo' => 'required',
             ]);
             // dd($validated);
-            $validated['activo'] = $validated['activo'] == 'true'  ? true : false;
+            $validated['activo'] = $validated['activo'] == 'true' ? true : false;
             $validated['tenant_id'] = tenant_id();
             $validated['temp_used'] = true;
-            $user = User::create($validated);
-            
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $user->id,
-                'accion' => 'Creacion de personal',
-                'datos' => [
-                    'usuario' => $user->name,
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            User::create($validated);
+
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $user->id,
+            //     'accion' => 'Creacion de personal',
+            //     'datos' => [
+            //         'usuario' => $user->name,
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return back()->with('success', 'Usuario creado');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -147,17 +147,17 @@ class GestionUsersController extends Controller
             $data = $request->validated();
             $data['activo'] = $data['activo'] == 'false' ? false : true;
             $data['is_blocked'] = $data['activo'] == 'false' ? false : true;
-            $user = User::where('tenant_id', tenant_id())->find($id)->update($data);
-            Auditoria::create([
-                'created_by' => $request->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $id,
-                'accion' => 'Actualizacion de datos de personal',
-                'datos' => [
-                    'usuario' => $user->name,
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // $user = User::where('tenant_id', tenant_id())->find($id)->update($data);
+            // Auditoria::create([
+            //     'created_by' => $request->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $id,
+            //     'accion' => 'Actualizacion de datos de personal',
+            //     'datos' => [
+            //         'usuario' => $user->name,
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario actualizado',
@@ -172,17 +172,17 @@ class GestionUsersController extends Controller
     public function delete(string $id)
     {
         try {
-            $user = User::destroy($id);
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $id,
-                'accion' => 'Eliminacion de personal',
-                'datos' => [
-                    'usuario' => $user->name,
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            User::destroy($id);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $id,
+            //     'accion' => 'Eliminacion de personal',
+            //     'datos' => [
+            //         'usuario' => $user->name,
+            //     ]
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'message' => 'Usuario eliminado',
             ]);
@@ -202,23 +202,23 @@ class GestionUsersController extends Controller
         if ($validated->fails()) {
             return back()->with('error', 'Selecciona un cliente');
         }
-        $user = User::select('id', 'name')
-            ->where('tenant_id', tenant_id())
-            ->findOrFail($request->id);
+        // $user = User::select('id', 'name')
+        //     ->where('tenant_id', tenant_id())
+        //     ->findOrFail($request->id);
         try {
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $request->id,
-                'accion' => 'Correo de recuperación de contraseña enviado',
-                'datos' => [
-                    'Usuario' => $user->name,
-                ]
-            ]);
-            MailRestablecerPassJob::dispatch($request->id);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $request->id,
+            //     'accion' => 'Correo de recuperación de contraseña enviado',
+            //     'datos' => [
+            //         'Usuario' => $user->name,
+            //     ]
+            // ]);
+            // MailRestablecerPassJob::dispatch($request->id);
             return redirect()->back()->with('success', 'Correo de recuperación de contraseña enviada');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage(),);
+            return redirect()->back()->with('error', $e->getMessage(), );
         }
     }
 
@@ -255,15 +255,15 @@ class GestionUsersController extends Controller
             User::findOrFail($id)
                 ->update($data);
 
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => $request->id,
-                'accion' => 'Contraseña cambiada',
-                'datos' => [
-                    'Usuario' => $user->name,
-                ]
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => $request->id,
+            //     'accion' => 'Contraseña cambiada',
+            //     'datos' => [
+            //         'Usuario' => $user->name,
+            //     ]
+            // ]);
 
             return redirect()->back()->with('success', 'Usuario Actualizado');
         } catch (\Exception $e) {
@@ -276,12 +276,12 @@ class GestionUsersController extends Controller
     {
         try {
             $fecha = now()->format('d-m-y');
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => User::class,
-                'entidad_id' => auth()->user()->id,
-                'accion' => 'Reporte de usuarios'
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => User::class,
+            //     'entidad_id' => auth()->user()->id,
+            //     'accion' => 'Reporte de usuarios'
+            // ]);
 
             //TODO: implementar el evento de auditoria
             return Excel::download(new PersonalExport, "usuarios-$fecha.xlsx");
@@ -291,19 +291,19 @@ class GestionUsersController extends Controller
     }
 
     public function export_salarios(Request $request)
-    {        
-        try{
+    {
+        try {
             Validator::make($request->all(), [
                 'desde' => 'required|data',
                 'hasta' => 'required|date'
             ]);
-            
+
             $desde = Carbon::parse($request->desde)->startOfDay();
-            $hasta = Carbon::parse($request->hasta)->endOfDay();               
-            $pagos = PagoSalario::whereBetween('created_at', [$desde, $hasta])->with('user')->get();            
-            
+            $hasta = Carbon::parse($request->hasta)->endOfDay();
+            $pagos = PagoSalario::whereBetween('created_at', [$desde, $hasta])->with('user')->get();
+
             return Excel::download(new SalariosExport($pagos), "salarios-$desde-$hasta.xlsx");
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
