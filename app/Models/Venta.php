@@ -110,4 +110,9 @@ class Venta extends Model
     {
         return $this->hasOne(ServicioProceso::class, 'venta_id');
     }
+
+    public function factura()
+    {
+        return $this->hasOne(Factura::class, 'venta_id');
+    }
 }

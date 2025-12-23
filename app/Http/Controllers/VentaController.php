@@ -7,7 +7,7 @@ use App\Events\UltimaActividadEvent;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso};
+use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso, Factura};
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Exports\VentasExport;
@@ -266,11 +266,6 @@ class VentaController extends Controller
         $formaPago = collect(json_decode($data['forma_pago']));
         $vehiculoId = $data['vehiculo_id'] ?? null;
 
-        // return response()->json([
-        //     'success' => true,
-        //     'vehiculo_id' => $vehiculoId,
-        // ]);
-
         $ruc = $data['ruc'];
         $userId = User::where('ruc_ci', $ruc)
             ->where('tenant_id', tenant_id())
@@ -298,6 +293,22 @@ class VentaController extends Controller
                 'total' => $totalCarrito['total'],
                 'estado' => 'completado',
             ]);
+            $cliente = User::find($userId);
+            $factura = Factura::orderBy('numero', 'desc')->first();
+            if ($cliente->ruc_ci != '1111111-1') {
+                Factura::create([
+                    'venta_id' => $venta->id,
+                    'timbrado' => 18450157,
+                    'sucursal' => 001,
+                    'punto_emision' => 001,
+                    'numero' => $factura->numero + 1,
+                    'emision' => now()->format('Y-m-d'),
+                    'estado' => 'emitida',
+                    'tipo' => 'factura',
+                    'condicion_venta' => 'contado',
+                ]);
+            }
+
 
             if ($vehiculoId != null) {
                 ServicioProceso::where('vehiculo_id', $vehiculoId)

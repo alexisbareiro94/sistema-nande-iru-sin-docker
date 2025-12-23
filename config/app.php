@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'timbrado' => env('TIMBRADO'),
+    'sucursal' => env('SUCURSAL'),
+    'punto_emision' => env('PUNTO_EMISION'),
 ];

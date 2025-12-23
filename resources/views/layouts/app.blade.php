@@ -121,8 +121,8 @@
                 const iconOpen = document.getElementById('toggle-icon-open');
                 const iconClose = document.getElementById('toggle-icon-close');
 
-                // Estado inicial desde localStorage
-                let isAsideVisible = localStorage.getItem('aside-visible') !== 'false';
+                // En móvil siempre empieza oculto, en desktop depende de localStorage
+                let isAsideVisible = false;
 
                 // Función para mostrar el aside
                 function showAside() {
@@ -169,11 +169,19 @@
                     localStorage.setItem('aside-visible', 'false');
                 }
 
-                // Aplicar estado inicial según localStorage
-                if (isAsideVisible && window.innerWidth >= 768) {
-                    showAside();
-                } else if (!isAsideVisible) {
-                    hideAside();
+                // Aplicar estado inicial según el ancho de pantalla
+                if (window.innerWidth < 768) {
+                    // En móvil, siempre empezar oculto
+                    isAsideVisible = false;
+                    iconOpen.classList.remove('hidden');
+                    iconClose.classList.add('hidden');
+                } else {
+                    // En desktop, usar localStorage
+                    if (localStorage.getItem('aside-visible') !== 'false') {
+                        showAside();
+                    } else {
+                        hideAside();
+                    }
                 }
 
                 // Event listener para el botón toggle

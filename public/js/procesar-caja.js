@@ -292,7 +292,6 @@ async function confirmarVenta(formaPago, montoRecibido) {
             body: ventaData,
         });
         const data = await res.json();
-
         if (!res.ok) {
             throw data;
         }

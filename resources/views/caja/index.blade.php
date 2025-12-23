@@ -74,7 +74,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <button id="ir-a-ventas" {{ !session('caja') ? 'disabled' : '' }}
-                    class="h-32 flex flex-col items-center justify-center p-6 bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 transition-colors duration-200 group rounded-xl shadow-sm">
+                    class="cursor-pointer h-32 flex flex-col items-center justify-center p-6 bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 transition-colors duration-200 group rounded-xl shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-8 h-8 mb-2 group-hover:scale-110 transition-transform">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -108,7 +108,7 @@
                     <div class="flex flex-col sm:flex-row gap-4">
                         <button {{ !session('caja') ? 'id=btn-abrir-caja' : 'id=btn-cerrar-caja' }}
                             @class([
-                                'flex-1 py-4 px-6 font-bold text-white transition-colors duration-200 text-center rounded-xl shadow-sm',
+                                'cursor-pointer flex-1 py-4 px-6 font-bold text-white transition-colors duration-200 text-center rounded-xl shadow-sm',
                                 'bg-emerald-600 hover:bg-emerald-700' => empty(session('caja')),
                                 'bg-rose-600 hover:bg-rose-700' => session('caja'),
                             ])>
