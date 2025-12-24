@@ -123,7 +123,7 @@
         @else
             <div class="divide-y divide-gray-100">
                 @foreach ($auditorias as $auditoria)
-                    <div class="p-4 hover:bg-gray-50 transition-colors" x-data="{ open: false }">
+                    <div class="p-4 hover:bg-gray-50 transition-colors border-b border-gray-400">
                         <div class="flex items-start gap-4">
                             {{-- Icono de acción --}}
                             <div class="flex-shrink-0">
@@ -241,15 +241,17 @@
 
                                 {{-- Botón para ver detalles --}}
                                 @if ($auditoria->datos_anteriores || $auditoria->datos_nuevos)
-                                    <button @click="open = !open"
-                                        class="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
-                                            :class="{ 'rotate-90': open }" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 5l7 7-7 7" />
-                                        </svg>
-                                        Ver detalles del cambio
+                                    <button data-id="{{ $auditoria->id }}"
+                                        class="cursor-pointer mostrar-detalles mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                        <i id="icon-{{ $auditoria->id }}" class="transition-transform rotate-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-svg h-4 w-4"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </i>
+                                        <p id="text-{{ $auditoria->id }}" class="text-sm font-semibold">Ver detalles del
+                                            cambio</p>
                                     </button>
                                 @endif
                             </div>
@@ -262,7 +264,7 @@
 
                         {{-- Panel de detalles expandible --}}
                         @if ($auditoria->datos_anteriores || $auditoria->datos_nuevos)
-                            <div x-show="open" x-collapse class="mt-4 ml-14">
+                            <div id="detalles-{{ $auditoria->id }}" class="mt-4 ml-14 hidden">
                                 <div class="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     @if ($auditoria->datos_anteriores)
                                         <div>

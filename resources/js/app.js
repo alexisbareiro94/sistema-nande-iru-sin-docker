@@ -11,6 +11,7 @@ import './componentes/restablecer-pass';
 import './exportar-stock'
 import './servicio-proceso'
 import './facturas'
+import './auditoria'
 import { showToast } from './toast';
 
 let myChart = null;

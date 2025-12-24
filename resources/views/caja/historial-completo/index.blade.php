@@ -196,13 +196,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-    @endif
-    <!-- Tabla de Ventas -->
-    <div class="bg-white rounded-lg shadow items-center">
-        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
-            <div class="relative">
-                <span class="absolute z-20 left-2 top-2 pr-2">
+            <div class="relative px-6 pb-4">
+                <span class="absolute z-20 left-8 top-2 pr-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -210,9 +205,59 @@
                     </svg>
 
                 </span>
-                <input id="dv-input-s" class="min-w-xs border border-gray-400 pl-11 py-2 rounded-md"
+                <input id="dv-input-s" class="min-w-sm border border-gray-400 pl-11 py-2 rounded-md"
                     placeholder="Ingrese codigo de venta o cliente" type="text" name="">
             </div>
+            <div>
+                <div class="px-6 pb-6 pt-2 border-t border-gray-100 hidden" id="dv-filtros">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="dv-filtros-texto"
+                            class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filtros activos:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <span id="dv-filtros-busqueda"
+                                class="hidden items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Busqueda: a
+                            </span>
+                            <span id="dv-filtros-fecha"
+                                class="hidden items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Fecha: 01/10/2023 - 31/10/2023
+                            </span>
+                            <span id="dv-filtros-metodo"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Método: Efectivo
+                            </span>
+                            <span id="dv-filtros-estado"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Estado: Completado
+                            </span>
+                            <span id="dv-filtros-tipo"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Tipo: Venta
+                            </span>
+                            <span id="dv-filtros-cliente"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Cliente: Juan Pérez
+                            </span>
+                            <span id="dv-filtros-mecanico"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Mecanico: Taller 360
+                            </span>
+                        </div>
+                        <div id="dv-filtros-resultados" class="ml-auto hidden">
+                            <span class="text-sm text-gray-500">
+                                Mostrando <span id="dv-filtros-cantidad" class="font-bold text-gray-800">24</span>
+                                resultados
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    <!-- Tabla de Ventas -->
+    <div class="bg-white rounded-lg shadow items-center">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
+
             <div id="ingresos-filtro"
                 class="hidden flex gap-2 bg-green-200 px-2 py-1 rounded-lg items-center text-sm  text-green-800">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

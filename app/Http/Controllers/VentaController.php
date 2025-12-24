@@ -196,10 +196,27 @@ class VentaController extends Controller
             $ingresosFiltros = $ventas->filter(fn($item) => $item->tipo === 'ingreso')->sum('monto');
 
             Cache::put('ventas', $ventas, 20);
+            $clienteFilter = $ventas->filter(fn($item) => $item?->venta?->cliente->id == $cliente)->first();
+            $clienteFilter = $clienteFilter?->venta?->cliente->razon_social;
 
             return response()->json([
                 'success' => true,
                 'ventas' => $ventas,
+                'filtros' => [
+                    'query' => $search,
+                    'desde' => $desdeC,
+                    'hasta' => $hastaC,
+                    'estado' => $estado,
+                    'formaPago' => $formaPago,
+                    'tipo' => $tipo,
+                    'search' => $search,
+                    'orderBy' => $orderBy,
+                    'dir' => $dir,
+                    'cliente' => $clienteFilter,
+                    'caja' => $caja,
+                    'mecanico' => $mecanico,
+                    'resultados' => $ventas->count(),
+                ],
                 'ingresos_filtro' => $ingresosFiltros,
                 'egresos_filtro' => $egresosFiltros,
             ]);

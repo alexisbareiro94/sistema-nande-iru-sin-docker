@@ -26,9 +26,9 @@
         {{-- Botón Toggle Aside (solo visible para admin) --}}
         @if (auth()->user()->role == 'admin')
             <button id="toggle-aside-btn"
-                class="md:hidden fixed bottom-4 left-4 z-50 bg-white/20 backdrop-blur-sm shadow-lg rounded-full p-2 hover:bg-gray-100 transition-all duration-300 hover:scale-110 border border-gray-200">
+                class="md:hidden fixed bottom-4 left-4 z-50 bg-black/10 backdrop-blur-sm shadow-lg rounded-full p-4 hover:bg-gray-100 transition-all duration-300">
                 <svg id="toggle-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                    stroke-width="1.5" stroke="currentColor" class="size-8">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
@@ -44,14 +44,8 @@
             class="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 hidden transition-opacity duration-300"></div>
 
         <div id="aside-container" @class([
-            'bg-gris pl-4 animate-fade-in transition-all duration-300',
-            'z-40 md:z-auto',
+            'bg-gris pl-4 animate-fade-in transition-all duration-300 z-40 md:z-auto col-span-1 fixed inset-y-0 left-0 w-full md:relative md:w-auto md:inset-auto md:translate-x-0 -translate-x-full',
             'hidden' => auth()->user()->role != 'admin',
-            'col-span-1',
-            'fixed inset-y-0 left-0 w-full',
-            'md:relative md:w-auto md:inset-auto',
-            'md:translate-x-0',
-            '-translate-x-full',
         ])>
             <aside class="col-span-1 p-4 transform transition-transform duration-300 h-full overflow-y-auto">
                 @include('home.aside')

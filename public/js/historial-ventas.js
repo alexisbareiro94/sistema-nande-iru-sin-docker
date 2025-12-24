@@ -318,7 +318,6 @@ async function buscar(orderBy = '', direction = '') {
     const mecanico = document.getElementById('dv-mecanico').value;
     const q = document.getElementById('dv-input-s').value;
     let paginacion = false;
-    // console.log(cliente);
 
     if (q === '' && desde == "" && hasta == "" && estado == "" && formaPago == "" && tipo == "" && cliente == "" && mecanico == "") {
         if (!ingresoFiltro.classList.contains('hidden') || !egresosFiltro.classList.contains('hidden')) {
@@ -342,7 +341,7 @@ async function buscar(orderBy = '', direction = '') {
 
 }
 let timerDv;
-document.getElementById('dv-input-s').addEventListener('input', () => {
+document.getElementById('dv-input-s').addEventListener('input', e => {
     clearTimeout(timerDv);
     timerDv = setTimeout(async () => {
         buscar();
@@ -350,6 +349,8 @@ document.getElementById('dv-input-s').addEventListener('input', () => {
 })
 
 function recargarTablaHistorialVentas(data, paginacion) {
+    // console.log();
+    mostrarFiltros(data.filtros);
     const bodyTabla = document.getElementById('dv-body-tabla');
     const ingresoFiltro = document.getElementById('ingresos-filtro');
     const egresosFiltro = document.getElementById('egresos-filtro');
@@ -573,6 +574,66 @@ function recargarTablaHistorialVentas(data, paginacion) {
     abrirModalDetalles();
     anularVenta();
     eliminarMov();
+}
+
+
+function mostrarFiltros(filtros) {
+    const dvFiltros = document.getElementById('dv-filtros');
+    const dvFiltrosTexto = document.getElementById('dv-filtros-texto');
+    const dvFiltrosBusqueda = document.getElementById('dv-filtros-busqueda');
+    const dvFiltrosFecha = document.getElementById('dv-filtros-fecha');
+    const dvFiltrosMetodo = document.getElementById('dv-filtros-metodo');
+    const dvFiltrosEstado = document.getElementById('dv-filtros-estado');
+    const dvFiltrosTipo = document.getElementById('dv-filtros-tipo');
+    const dvFiltrosCliente = document.getElementById('dv-filtros-cliente');
+    const dvFiltrosMecanico = document.getElementById('dv-filtros-mecanico');
+    const dvFiltrosResultados = document.getElementById('dv-filtros-resultados');
+    const dvFiltrosCantidad = document.getElementById('dv-filtros-cantidad');
+
+    dvFiltros.classList.remove('hidden');
+    if (!filtros) {
+        dvFiltrosTexto.classList.add('hidden');
+        dvFiltrosBusqueda.classList.add('hidden');
+        dvFiltrosFecha.classList.add('hidden');
+        dvFiltrosMetodo.classList.add('hidden');
+        dvFiltrosEstado.classList.add('hidden');
+        dvFiltrosTipo.classList.add('hidden');
+        dvFiltrosCliente.classList.add('hidden');
+        dvFiltrosMecanico.classList.add('hidden');
+        dvFiltrosResultados.classList.add('hidden');
+        dvFiltrosCantidad.classList.add('hidden');
+        return;
+    }
+    if (filtros.query != null) {
+        dvFiltrosTexto.classList.remove('hidden');
+        dvFiltrosBusqueda.classList.remove('hidden');
+        dvFiltrosBusqueda.textContent = `Busqueda: ${filtros.query}`;
+    }
+    if (filtros.desde != null || filtros.hasta != null) {
+        dvFiltrosFecha.classList.remove('hidden');
+        dvFiltrosFecha.textContent = `Fecha: ${filtros.desde || 'Hoy'} - ${filtros.hasta || ''}`;
+    }
+    if (filtros.formaPago != null) {
+        dvFiltrosMetodo.classList.remove('hidden');
+        dvFiltrosMetodo.textContent = `Forma de pago: ${filtros.formaPago}`;
+    }
+    if (filtros.estado != null) {
+        dvFiltrosEstado.classList.remove('hidden');
+        dvFiltrosEstado.textContent = `Estado: ${filtros.estado}`;
+    }
+    if (filtros.tipo != null) {
+        dvFiltrosTipo.classList.remove('hidden');
+        dvFiltrosTipo.textContent = `Tipo de venta: ${filtros.tipo}`;
+    }
+    if (filtros.cliente != null) {
+        dvFiltrosCliente.classList.remove('hidden');
+        dvFiltrosCliente.textContent = `Cliente: ${filtros.cliente}`;
+    }
+    if (filtros.mecanico != null) {
+        dvFiltrosMecanico.classList.remove('hidden');
+    }
+    dvFiltrosResultados.classList.remove('hidden');
+    dvFiltrosCantidad.textContent = `${filtros.resultados}`;
 }
 
 const trigger = document.getElementById('dropdown');
