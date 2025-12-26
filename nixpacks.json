@@ -8,7 +8,7 @@
         "npm-9_x",
         "git",
         "unzip",
-        "mariadb",
+        "mysql80",
         "php84Extensions.intl",
         "php84Extensions.gd",
         "php84Extensions.pdo",
