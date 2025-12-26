@@ -3,6 +3,9 @@
     "setup": {
       "nixPkgs": [
         "php84",
+        "composer",
+        "git",
+        "unzip",
         "php84Extensions.intl",
         "php84Extensions.gd",
         "php84Extensions.pdo",
@@ -15,6 +18,11 @@
         "php84Extensions.tokenizer",
         "php84Extensions.xml",
         "php84Extensions.curl"
+      ]
+    },
+    "install": {
+      "cmds": [
+        "composer install --optimize-autoloader --no-interaction --no-progress"
       ]
     }
   }
