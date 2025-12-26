@@ -3,7 +3,7 @@
     "setup": {
       "nixPkgs": [
         "php84",
-        "composer",
+        "php84Packages.composer",
         "git",
         "unzip",
         "php84Extensions.intl",
