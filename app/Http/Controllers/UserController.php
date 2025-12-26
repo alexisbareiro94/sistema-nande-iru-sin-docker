@@ -51,16 +51,6 @@ class UserController extends Controller
         try {
             $cliente = User::create($data);
 
-            // Auditoria::create([
-            //     'created_by' => $request->user()->id,
-            //     'entidad_type' => User::class,
-            //     'entidad_id' => $cliente->id,
-            //     'accion' => 'Registro de cliente',
-            //     'datos' => [
-            //         'cliente' => $cliente->razon_social,
-            //     ]
-            // ]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Cliente Agregado con éxito',
@@ -105,8 +95,10 @@ class UserController extends Controller
             $data = $request->validated();
             $user = User::where('tenant_id', tenant_id())->findOrFail($id);
             $user->update([
+                'name' => $data['name'] ?? $user->name,
                 'razon_social' => $data['razon_social'] ?? $user->razon_social,
                 'ruc_ci' => $data['ruc_ci'] ?? $user->ruc_ci,
+                'telefono' => $data['telefono'] ?? $user->telefono,
             ]);
 
             // Auditoria::create([

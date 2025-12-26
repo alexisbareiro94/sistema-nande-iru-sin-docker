@@ -40,6 +40,14 @@
                     </div>
 
                     <div>
+                        <label for="dist-banco" class="block mb-2 text-sm font-medium text-gray-900">Datos del
+                            banco</label>
+                        <textarea name="dist-banco" id="dist-banco"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            required></textarea>
+                    </div>
+
+                    <div>
                         <label for="dist-celular" class="block mb-2 text-sm font-medium text-gray-900">Celular</label>
                         <input type="number" name="dist-celular" id="dist-celular"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -54,10 +62,10 @@
                             required />
                     </div>
                     <button id="btn-add-dist" type="button"
-                    class="cursor-pointer w-full text-white bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                    Agregar
-                </button>
-                </form>                
+                        class="cursor-pointer w-full text-white bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Agregar
+                    </button>
+                </form>
                 <button id="ver-dists" type="button"
                     class="cursor-pointer mt-1 w-full text-black bg-white border border-white animation-all duration-150 hover:border-gray-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     Todos los Distribuidores

@@ -16,6 +16,7 @@ class Distribuidor extends Model
         'ruc',
         'celular',
         'direccion',
+        'datos_banco',
     ];
 
     // En tu modelo Auditoria

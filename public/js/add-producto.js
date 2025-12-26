@@ -49,7 +49,7 @@ tipoProductoRadios.forEach(radio => {
     });
 });
 if (boton) {
-    boton.addEventListener("click", (e) => {        
+    boton.addEventListener("click", (e) => {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const formData = new FormData();
         formData.append('nombre', nombre.value);
@@ -438,6 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const distRuc = document.getElementById('dist-ruc');
         const distCelular = document.getElementById('dist-celular');
         const distDireccion = document.getElementById('dist-direccion');
+        const distBanco = document.getElementById('dist-banco');
         fetch('/agregar-distribuidor', {
             method: 'POST',
             headers: {
@@ -449,12 +450,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ruc: distRuc.value,
                 celular: distCelular.value,
                 direccion: distDireccion.value,
+                datos_banco: distBanco.value,
             })
         })
-            .then(res => {
+            .then(async res => {
                 if (!res.ok) {
                     return res.json().then(err => { throw err; });
                 }
+                console.log(await res.json());
+                return;
                 return res.json();
             })
             .then(data => {
@@ -464,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 distRuc.value = '';
                 distCelular.value = '';
                 distDireccion.value = '';
+                distBanco.value = '';
             })
             .catch(err => {
                 if (err.errors) {

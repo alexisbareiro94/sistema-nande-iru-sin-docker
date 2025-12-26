@@ -14,7 +14,7 @@ function edit() {
             modal.classList.remove('hidden')
             try {
                 const res = await axios.get(`${url}/cliente/${id}`)
-                const data = res.data.data;                
+                const data = res.data.data;
                 userId.value = id;
                 ruc.value = `${data.ruc_ci}`
                 razon.value = `${data.razon_social}`
@@ -70,7 +70,7 @@ async function renderUser() {
     tableBody.innerHTML = '';
     try {
         const res = await axios.get(`${url}/users`);
-        const users = res.data.users        
+        const users = res.data.users
         let count = 0;
         for (const user of users) {
             if (count == 5) break;
@@ -301,41 +301,41 @@ if ($('#cont-add-dist')) {
     });
 }
 
-if(window.location.pathname == '/gestion_clientes_distribuidores'){
+if (window.location.pathname == '/gestion_clientes_distribuidores') {
     $el('#ver-dists', 'click', () => {
         const modal = $('#modal-distribuidores');
         modal.classList.remove('hidden');
     });
-    
+
     $el('#cerrar-distribuidores', 'click', () => {
-    console.log('message')
-    $('#modal-distribuidores').classList.add('hidden');
-});
-
-$el('#modal-distribuidores', 'click', e => {
-    if (e.target == $('#modal-distribuidores')) {
+        console.log('message')
         $('#modal-distribuidores').classList.add('hidden');
-    }
-});
+    });
 
-let timer;
-$el('#input-distribuidores', 'input', () => {
-    clearTimeout(timer);
-    timer = setTimeout( async () => {
-        try {
-            const res = await axios('/api');
+    $el('#modal-distribuidores', 'click', e => {
+        if (e.target == $('#modal-distribuidores')) {
+            $('#modal-distribuidores').classList.add('hidden');
+        }
+    });
 
-            const bodyTablaDistribuidores = document.getElementById('body-tabla-distribuidores-dos');
+    let timer;
+    $el('#input-distribuidores', 'input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(async () => {
+            try {
+                const res = await axios('/api');
 
-            // Llenar el select de distribuidores                               
-            data.distribuidores.forEach(distribuidor => {
-                const option = document.createElement('option');
-                option.value = distribuidor.id;
-                option.textContent = distribuidor.nombre;
+                const bodyTablaDistribuidores = document.getElementById('body-tabla-distribuidores-dos');
 
-                // Agregar fila a la tabla de distribuidores
-                const row = document.createElement('tr');
-                row.innerHTML = `
+                // Llenar el select de distribuidores                               
+                data.distribuidores.forEach(distribuidor => {
+                    const option = document.createElement('option');
+                    option.value = distribuidor.id;
+                    option.textContent = distribuidor.nombre;
+
+                    // Agregar fila a la tabla de distribuidores
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             ${distribuidor.nombre}
                         </td>
@@ -359,12 +359,333 @@ $el('#input-distribuidores', 'input', () => {
                             </button>
                         </td>
                     `;
-                bodyTablaDistribuidores.appendChild(row);
-            })
-        } catch (err) {
+                    bodyTablaDistribuidores.appendChild(row);
+                })
+            } catch (err) {
 
+            }
+
+        }, 300)
+    })
+}
+
+// ==========================================
+// FUNCIONALIDAD DE MECÁNICOS
+// ==========================================
+
+editMecanico();
+function editMecanico() {
+    const btns = $$('.edit-mecanico-gcd');
+    btns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const modal = $i('modal-edit-mecanico');
+            const nombre = $i('mecanico-nombre-gcd');
+            const ruc = $i('mecanico-ruc-ci-gcd');
+            const telefono = $i('mecanico-telefono-gcd');
+            const mecanicoId = $i('mecanico-id');
+
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            try {
+                const res = await axios.get(`${url}/cliente/${id}`);
+                const data = res.data.data;
+                mecanicoId.value = id;
+                nombre.value = data.name || data.razon_social || '';
+                ruc.value = data.ruc_ci || '';
+                telefono.value = data.telefono || '';
+            } catch (err) {
+                console.error('Error al cargar mecánico:', err);
+            }
+        });
+    });
+}
+
+// Cerrar modal de editar mecánico al hacer clic fuera
+if ($i('modal-edit-mecanico')) {
+    $eli('modal-edit-mecanico', 'click', e => {
+        if (e.target == $i('modal-edit-mecanico')) {
+            $i('modal-edit-mecanico').classList.add('hidden');
+        }
+    });
+}
+
+// Cerrar modal de editar mecánico con botón X
+if ($i('cerrar-modal-edit-mecanico')) {
+    $eli('cerrar-modal-edit-mecanico', 'click', () => {
+        $i('modal-edit-mecanico').classList.add('hidden');
+    });
+}
+
+// Cancelar edición de mecánico
+if ($i('btn-cancelar-edit-mecanico')) {
+    $eli('btn-cancelar-edit-mecanico', 'click', () => {
+        $i('modal-edit-mecanico').classList.add('hidden');
+    });
+}
+
+// Form de editar mecánico
+if ($i('form-edit-mecanico-gcd')) {
+    $eli('form-edit-mecanico-gcd', 'submit', async e => {
+        e.preventDefault();
+        const nombre = $i('mecanico-nombre-gcd').value;
+        const ruc = $i('mecanico-ruc-ci-gcd').value;
+        const telefono = $i('mecanico-telefono-gcd').value;
+        const id = $i('mecanico-id').value;
+
+        const data = new FormData();
+        data.append('razon_social', nombre);
+        data.append('name', nombre);
+        data.append('ruc_ci', ruc);
+        data.append('telefono', telefono);
+
+        try {
+            await axios.post(`${url}/user/${id}`, data);
+            $i('modal-edit-mecanico').classList.add('hidden');
+            $i('form-edit-mecanico-gcd').reset();
+            showToast('Mecánico Actualizado');
+            renderMecanicos();
+            renderAllMecanicos();
+        } catch (err) {
+            console.error(err);
+            showToast('Error al actualizar mecánico', 'error');
+        }
+    });
+}
+
+// Renderizar mecánicos en la tabla principal
+async function renderMecanicos() {
+    const tableBody = $i('mecanicos-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+    try {
+        const res = await axios.get(`${url}/users?role=mecanico`);
+        const users = res.data.users;
+        let count = 0;
+
+        for (const user of users) {
+            if (count == 5) break;
+            const tr = document.createElement('tr');
+            tr.className = 'tr-mecanicos bg-white border-b border-gray-200';
+            tr.dataset.id = user.id;
+            tr.innerHTML = `
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    ${user.name || user.razon_social || 'N/A'}
+                </th>
+                <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
+                <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
+                <td class="px-6 py-4">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                        ${user.vehiculos_referidos_count || 0}
+                    </span>
+                </td>
+                <td class="px-6 py-4">${formatFecha(user.created_at)}</td>
+                <td class="px-6 py-4">
+                    <div class="flex gap-5">
+                        <button class="edit-mecanico-gcd hover:text-blue-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                            </svg>
+                        </button>
+                        <button class="borrar-mecanico-gcd hover:text-red-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>`;
+            tableBody.appendChild(tr);
+            count++;
         }
 
-    }, 300)
-})
+        if (users.length === 0) {
+            tableBody.innerHTML = `
+                <tr class="bg-white border-b border-gray-200">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        No hay mecánicos registrados
+                    </td>
+                </tr>`;
+        }
+
+        editMecanico();
+        deleteMecanico();
+    } catch (err) {
+        console.error('Error al cargar mecánicos:', err);
+    }
+}
+
+// Renderizar todos los mecánicos en el modal
+export async function renderAllMecanicos(data = null) {
+    const todosTableBody = $i('todos-mecanicos-table-body');
+    if (!todosTableBody) return;
+
+    todosTableBody.innerHTML = '';
+    try {
+        let users;
+        if (data) {
+            users = data;
+        } else {
+            const res = await axios.get(`${url}/users?role=mecanico`);
+            users = res.data.users;
+        }
+
+        for (const user of users) {
+            const tr = document.createElement('tr');
+            tr.className = 'tr-mecanicos bg-white border-b border-gray-200';
+            tr.dataset.id = user.id;
+            tr.innerHTML = `
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    ${user.name || user.razon_social || 'N/A'}
+                </th>
+                <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
+                <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
+                <td class="px-6 py-4">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                        ${user.vehiculos_referidos_count || 0}
+                    </span>
+                </td>
+                <td class="px-6 py-4">${formatFecha(user.created_at)}</td>
+                <td class="px-6 py-4">
+                    <div class="flex gap-5">
+                        <button class="edit-mecanico-gcd hover:text-blue-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                            </svg>
+                        </button>
+                        <button class="borrar-mecanico-gcd hover:text-red-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>`;
+            todosTableBody.appendChild(tr);
+        }
+
+        if (users.length === 0) {
+            todosTableBody.innerHTML = `
+                <tr class="bg-white border-b border-gray-200">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        No hay mecánicos registrados
+                    </td>
+                </tr>`;
+        }
+
+        editMecanico();
+        deleteMecanico();
+    } catch (err) {
+        console.error('Error al cargar mecánicos:', err);
+    }
+}
+
+// Ver todos los mecánicos
+if ($i('btn-ver-todos-mecanicos')) {
+    $eli('btn-ver-todos-mecanicos', 'click', () => {
+        const modal = $i('modal-todos-mecanicos');
+        if (modal) {
+            modal.classList.remove('hidden');
+            renderAllMecanicos();
+        }
+    });
+}
+
+// Cerrar modal de todos los mecánicos
+if ($i('cerrar-modal-todos-mecanicos')) {
+    $eli('cerrar-modal-todos-mecanicos', 'click', () => {
+        $i('modal-todos-mecanicos').classList.add('hidden');
+    });
+}
+
+if ($i('modal-todos-mecanicos')) {
+    $eli('modal-todos-mecanicos', 'click', e => {
+        if (e.target == $i('modal-todos-mecanicos')) {
+            $i('modal-todos-mecanicos').classList.add('hidden');
+        }
+    });
+}
+
+// Buscador de mecánicos
+let timerMecanicos;
+if ($i('todos-mecanicos-input')) {
+    $eli('todos-mecanicos-input', 'input', e => {
+        e.preventDefault();
+        const q = e.target.value.trim();
+        clearTimeout(timerMecanicos);
+        timerMecanicos = setTimeout(async () => {
+            try {
+                const res = await axios.get(`${url}/users?role=mecanico&q=${q}`);
+                renderAllMecanicos(res.data.users);
+            } catch (err) {
+                console.error(err);
+            }
+        }, 300);
+    });
+}
+
+// Eliminar mecánico
+deleteMecanico();
+function deleteMecanico() {
+    const btns = $$('.borrar-mecanico-gcd');
+    btns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            try {
+                const res = await axios.get(`${url}/cliente/${id}`);
+                const user = res.data.data;
+
+                const modal = $i('modal-eliminar-mecanico-gcd');
+                const title = $i('h3-eliminar-mecanico');
+
+                if (title) {
+                    title.innerText = `¿Estás seguro de eliminar al Mecánico: ${user.name || user.razon_social}?`;
+                }
+
+                if ($i('btn-eliminar-mecanico')) {
+                    $i('btn-eliminar-mecanico').dataset.id = user.id;
+                }
+
+                if (modal) {
+                    modal.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Error al cargar mecánico:', err);
+            }
+        });
+    });
+}
+
+// Modal eliminar mecánico - cerrar
+if ($i('modal-eliminar-mecanico-gcd')) {
+    $eli('modal-eliminar-mecanico-gcd', 'click', e => {
+        if (e.target == $i('modal-eliminar-mecanico-gcd')) {
+            $i('modal-eliminar-mecanico-gcd').classList.add('hidden');
+        }
+    });
+}
+
+const btnsCerrarModalMecanico = $$('#modal-eliminar-mecanico-gcd .cerrar-modal-mecanico');
+btnsCerrarModalMecanico.forEach(btn => {
+    btn.addEventListener('click', () => {
+        $i('modal-eliminar-mecanico-gcd').classList.add('hidden');
+    });
+});
+
+// Confirmar eliminación de mecánico
+if ($i('btn-eliminar-mecanico')) {
+    $eli('btn-eliminar-mecanico', 'click', async e => {
+        e.preventDefault();
+        const id = e.target.dataset.id;
+        try {
+            await axios.post(`${url}/cliente/${id}`);
+            $i('modal-eliminar-mecanico-gcd').classList.add('hidden');
+            renderMecanicos();
+            renderAllMecanicos();
+            showToast('Mecánico Eliminado');
+        } catch (err) {
+            console.error(err);
+            showToast('Error al eliminar mecánico', 'error');
+        }
+    });
 }

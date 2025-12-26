@@ -284,8 +284,10 @@
     @include('caja.includes.modal-add-clientes')
     @include('gestios-usuarios.includes.modal-eliminar-cliente')
     @include('productos.includes.add-distribuidor')
+    @include('gestios-usuarios.includes.modal-edit-mecanico')
     <x-clientes />
     <x-distribuidores />
+    <x-mecanicos />
 
     <!-- Modal Nuevo Mecánico -->
     <div id="modal-nuevo-mecanico-gcd"

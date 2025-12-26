@@ -38,6 +38,7 @@ class DistribuidorController extends Controller
             'ruc' => 'nullable|string|unique:distribuidores,ruc',
             'celular' => 'nullable|numeric',
             'direccion' => 'nullable|string',
+            'datos_banco' => 'required|string',
         ], [
             'nombre.required' => 'El nombre del distribuidor es obligatorio',
             'ruc.unique' => 'El RUC ya se encuentra registrado',
@@ -56,8 +57,7 @@ class DistribuidorController extends Controller
         try {
             $distribuidor = Distribuidor::create($validate->validated());
 
-            // La auditoría se crea automáticamente via trait Auditable
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => 'Distribuidor creado correctamente',

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,6 +15,7 @@ return new class extends Migration
             $table->foreignId('tenant_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('nombre')->unique();
             $table->string('ruc')->nullable()->unique();
+            $table->string('datos_banco')->nullable();
             $table->integer('celular')->nullable();
             $table->string('direccion')->nullable();
             $table->timestamps();
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->foreignId('distribuidor_id')->constrained('distribuidores');
             $table->string('nombre');
             $table->string('telefono')->nullable();
-            $table->integer('email')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }
@@ -37,6 +37,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('distribuidors');
+        Schema::dropIfExists('distribuidores');
+        Schema::dropIfExists('vendedores_dist');
     }
 };
