@@ -12,7 +12,7 @@ return new class extends Migration {
     public function up(): void
     {
         // Modificar el enum de estado para incluir 'agendado'
-        DB::statement("ALTER TABLE ventas MODIFY COLUMN estado ENUM('pendiente', 'completado', 'cancelado', 'agendado') DEFAULT 'completado'");
+        // DB::statement("ALTER TABLE ventas MODIFY COLUMN estado ENUM('pendiente', 'completado', 'cancelado', 'agendado') DEFAULT 'completado'");
     }
 
     /**
@@ -20,6 +20,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE ventas MODIFY COLUMN estado ENUM('pendiente', 'completado', 'cancelado') DEFAULT 'completado'");
+        // DB::statement("ALTER TABLE ventas MODIFY COLUMN estado ENUM('pendiente', 'completado', 'cancelado') DEFAULT 'completado'");
     }
 };
