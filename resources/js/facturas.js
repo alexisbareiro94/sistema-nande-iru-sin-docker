@@ -1,5 +1,7 @@
 // import axios from 'axios';
 
+import { showToast } from "./toast";
+
 document.addEventListener('DOMContentLoaded', function () {
     // Función para obtener el badge según el tipo de foto
     function getTipoBadge(tipo) {
@@ -311,34 +313,53 @@ document.addEventListener('DOMContentLoaded', function () {
     // Subir foto
     const formSubirFoto = document.getElementById('form-subir-foto-factura');
     if (formSubirFoto) {
-        formSubirFoto.addEventListener('submit', function (e) {
+        formSubirFoto.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const facturaId = this.dataset.id;
             const formData = new FormData(this);
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            const btnOriginalContent = btnSubmit.innerHTML;
 
-            fetch(`/facturas/${facturaId}/foto`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                        .content
-                },
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    return;
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Error al subir la foto');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al subir la foto');
+            // Mostrar estado de carga
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Guardando...
+            `;
+
+            try {
+                const response = await fetch(`/facturas/${facturaId}/foto`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
                 });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Limpiar formulario y preview
+                    this.reset();
+                    previewContainer?.classList.add('hidden');
+                    previewImagen.src = '';
+                    // Re-renderizar las fotos desde Drive
+                    renderImage();
+                } else {
+                    alert(data.message || 'Error al subir la foto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al subir la foto');
+            } finally {
+                // Restaurar botón
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = btnOriginalContent;
+            }
         });
     }
 });
