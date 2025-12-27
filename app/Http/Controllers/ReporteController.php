@@ -10,7 +10,9 @@ use App\Events\NotificacionEvent;
 
 class ReporteController extends Controller
 {
-    public function __construct(protected ReporteService $reporteService) {}
+    public function __construct(protected ReporteService $reporteService)
+    {
+    }
 
     public function index()
     {
@@ -26,7 +28,7 @@ class ReporteController extends Controller
         try {
             $inicio = now()->startOfDay()->subDay($periodo);
             $hoy = now()->endOfDay();
-            $pagos =  Venta::whereBetween('created_at', [$inicio, $hoy])
+            $pagos = Venta::whereBetween('created_at', [$inicio, $hoy])
                 ->get()
                 ->groupBy('forma_pago')
                 ->map(fn($pago) => $pago->count());
@@ -174,6 +176,38 @@ class ReporteController extends Controller
             return response()->json([
                 'labels' => $data['labels'],
                 'datos' => $data['datos'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Endpoint para calcular utilidad con fechas personalizadas
+     */
+    public function tendenciaPersonalizada(Request $request)
+    {
+        try {
+            $fechaInicio = $request->query('fecha_inicio');
+            $fechaFin = $request->query('fecha_fin');
+
+            if (!$fechaInicio || !$fechaFin) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Debe proporcionar fecha_inicio y fecha_fin',
+                ], 400);
+            }
+
+            $data = $this->reporteService->utilidadPersonalizada($fechaInicio, $fechaFin);
+            $data['actual']['fecha_apertura'] = Carbon::parse($data['actual']['fecha_apertura'])->format('d-m');
+            $data['actual']['fecha_cierre'] = Carbon::parse($data['actual']['fecha_cierre'])->format('d-m');
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             return response()->json([

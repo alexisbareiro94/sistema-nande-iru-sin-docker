@@ -29,12 +29,12 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // DB::table("categorias")->insert([
-        //     "tenant_id" => 1,            
+        //     "tenant_id" => 1,
         //     "nombre" => "sin categoria",
         // ]);
 
         // DB::table("distribuidores")->insert([
-        //     "tenant_id" => 1,               
+        //     "tenant_id" => 1,
         //     "nombre" => "sin distribuidor",
         // ]);
 

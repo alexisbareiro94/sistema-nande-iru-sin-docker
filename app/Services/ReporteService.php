@@ -16,7 +16,7 @@ class ReporteService
     // datos para los tres primeros items de reportes (ventas hoy, clientes nuevos, prod mas vendido y mas vendidos )
     public function data_index(): array
     {
-        if(Producto::all()->count() < 1){
+        if (Producto::all()->count() < 1) {
             return [];
         }
         $productos = Producto::orderByDesc('ventas')->get()->take(4);
@@ -130,7 +130,7 @@ class ReporteService
             ->where('tipo', '!=', 'egreso')
             ->whereBetween('created_at', [$aperturaActual, $cierreActual])
             ->get()
-            ->sum('monto');            
+            ->sum('monto');
         $datos['actual']['ganancia'] = $otrosIngresosActual;
 
         $otrosIngresosPasado = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
@@ -160,9 +160,9 @@ class ReporteService
         foreach ($ventasPasada as $venta) {
             $datos['pasado']['descuento'] += (($venta->producto->precio_compra ?? 0) * $venta->cantidad);
         }
-        
-        $datos['actual']['ganancia'] =  ($datos['actual']['total_venta'] + $datos['actual']['ganancia']) - $datos['actual']['descuento'];
-        $datos['pasado']['ganancia'] =  ($datos['pasado']['total_venta'] + $datos['pasado']['ganancia']) - $datos['pasado']['descuento'];
+
+        $datos['actual']['ganancia'] = ($datos['actual']['total_venta'] + $datos['actual']['ganancia']) - $datos['actual']['descuento'];
+        $datos['pasado']['ganancia'] = ($datos['pasado']['total_venta'] + $datos['pasado']['ganancia']) - $datos['pasado']['descuento'];
 
         $actual = $datos['actual']['ganancia'];
         $pasado = $datos['pasado']['ganancia'];
@@ -206,6 +206,68 @@ class ReporteService
         return $datos;
     }
 
+    /**
+     * Calcula la utilidad para un rango de fechas personalizado
+     */
+    public function utilidadPersonalizada(string $fechaInicio, string $fechaFin): array
+    {
+        $aperturaActual = Carbon::parse($fechaInicio)->startOfDay();
+        $cierreActual = Carbon::parse($fechaFin)->endOfDay();
+
+        $datos = [
+            'actual' => [
+                'total_venta' => 0,
+                'ganancia' => 0,
+                'descuento' => 0,
+                'egreso' => 0,
+                'ganancia_egreso' => 0,
+                'fecha_apertura' => $aperturaActual,
+                'fecha_cierre' => $cierreActual,
+            ],
+            'periodo' => 'personalizado',
+            'tag' => '',
+        ];
+
+        //ingresos de ventas
+        $ventasActual = DetalleVenta::whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->with('producto')
+            ->get();
+
+        //otros ingresos
+        $otrosIngresosActual = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
+            ->where('concepto', '!=', 'Venta de productos')
+            ->where('tipo', '!=', 'egreso')
+            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->get()
+            ->sum('monto');
+        $datos['actual']['ganancia'] = $otrosIngresosActual;
+
+        //egresos
+        $egresosActual = MovimientoCaja::where('tipo', 'egreso')
+            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->get()
+            ->sum('monto');
+
+        $datos['actual']['total_venta'] = $ventasActual->sum('total');
+        foreach ($ventasActual as $venta) {
+            $datos['actual']['descuento'] += (($venta->producto->precio_compra ?? 0) * $venta->cantidad);
+        }
+
+        $datos['actual']['ganancia'] = ($datos['actual']['total_venta'] + $datos['actual']['ganancia']) - $datos['actual']['descuento'];
+
+        $datos['actual']['egreso'] = $egresosActual;
+        $datos['actual']['ganancia_egreso'] = $datos['actual']['ganancia'] - $datos['actual']['egreso'];
+
+        // Para fechas personalizadas no hay comparativa, pero agregamos valores por defecto
+        $datos['porcentaje'] = 0;
+        $datos['diferencia'] = 0;
+        $datos['porcentaje_egreso'] = 0;
+        $datos['diferencia_egreso'] = 0;
+        $datos['tagE'] = '';
+
+        return $datos;
+    }
+
     public function gananacias_data($periodo): array
     {
         $hoy = now()->endOfDay();
@@ -220,7 +282,7 @@ class ReporteService
             ->groupBy(function ($query) {
                 return Carbon::parse($query->created_at)->format('Y-m-d');
             });
-        
+
         $egresos = MovimientoCaja::whereBetween('created_at', [$desde, $hoy])
             ->where('tipo', 'egreso')
             ->orderBy('created_at')
@@ -228,9 +290,9 @@ class ReporteService
             ->groupBy(function ($query) {
                 return Carbon::parse($query->created_at)->format('Y-m-d');
             })
-            ->map(fn($egreso) => $egreso->sum('monto'));     
-            
-        
+            ->map(fn($egreso) => $egreso->sum('monto'));
+
+
         $otrosIngresos = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
             ->where('concepto', '!=', 'Venta de productos')
             ->where('tipo', '!=', 'egreso')
@@ -256,19 +318,19 @@ class ReporteService
                 $datos[$index]['descuento'] += ($detalle->producto->precio_compra * $detalle->cantidad) ?? 0;
             }
             $datos[$index]['ganancia'] = ($datos[$index]['total_fecha'] - $datos[$index]['descuento']) ?? 0;
-            if (! empty($egresos[$fecha])) {
+            if (!empty($egresos[$fecha])) {
                 $datos[$index]['egresos'] = ($egresos[$fecha]) ?? 0;
                 $datos[$index]['ganacia_egresos'] = ($datos[$index]['ganancia'] - $datos[$index]['egresos']) ?? 0;
             }
             $index++;
-        }        
+        }
         $labels = $ventas->keys()->map(function ($fecha) {
             return date('d-m', strtotime($fecha));
         });
 
-        foreach($otrosIngresos as $index => $monto){
-            foreach($datos as $i => $dato){            
-                if($dato['fecha'] == $index){
+        foreach ($otrosIngresos as $index => $monto) {
+            foreach ($datos as $i => $dato) {
+                if ($dato['fecha'] == $index) {
                     $datos[$i]['ganancia'] += $monto;
                     $datos[$i]['ganacia_egresos'] += $monto;
                 }

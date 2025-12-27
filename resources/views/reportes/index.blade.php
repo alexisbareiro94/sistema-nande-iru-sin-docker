@@ -9,7 +9,8 @@
             <p class="text-gray-600 text-sm">Administra tu inventario de productos y servicios</p>
         </div>
 
-        <div class="flex items-center gap-2  text-lg bg-gray-100 border border-gray-200 shadow-md text-gray-800 px-4 py-2 font-semibold rounded-lg">
+        <div
+            class="flex items-center gap-2  text-lg bg-gray-100 border border-gray-200 shadow-md text-gray-800 px-4 py-2 font-semibold rounded-lg">
             {{ \Carbon\Carbon::parse(now())->format('d / m / Y') }}
         </div>
     </div>
@@ -24,7 +25,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-6 mb-6">
                     <!-- Evolución de ventas -->
                     @include('reportes.includes.evolucion-ventas')
-                    
+
                     <div class="bg-white rounded-lg shadow p-6 flex-col">
                         <!-- grafico de formas de pago -->
                         @include('reportes.includes.tipo-forma-de-pago')
@@ -51,13 +52,13 @@
                 <!-- egresos -->
                 <div class="grid grid-cols-1 md:grid-cols-3 md:gap-6">
                     <!-- evolucion de egresos-->
-                   @include('reportes.includes.graficos-egresos')
+                    @include('reportes.includes.graficos-egresos')
                 </div>
 
                 <!-- Productos más vendidos y Alertas -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     <!-- Top productos -->
-                   @include('reportes.includes.top-productos')
+                    @include('reportes.includes.top-productos')
 
                     <!-- Alertas -->
                     {{-- TODO: descomentar cuando hay un dominio:D --}}
