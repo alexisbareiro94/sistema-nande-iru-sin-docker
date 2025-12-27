@@ -145,6 +145,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/api/ventas/{periodo}', [ReporteController::class, 'ventas_chart']);
         Route::get('/api/tipo_venta/{periodo}', [ReporteController::class, 'tipo_venta']);
         Route::get('/api/utilidad/{periodo}/{option?}', [ReporteController::class, 'tendencia']);
+        Route::get('/api/utilidad-personalizada', [ReporteController::class, 'tendenciaPersonalizada']);
         Route::get('/api/tendencias/{periodo}', [ReporteController::class, 'gananacias']);
         Route::get('/api/egresos/{periodo}', [ReporteController::class, 'egresos']);
         Route::get('/api/egresos/concepto/{periodo}', [ReporteController::class, 'egresos_concepto']);
