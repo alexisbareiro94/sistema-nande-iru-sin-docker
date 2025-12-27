@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperación de Contraseña</title>    
+    <title>Recuperación de Contraseña</title>
 </head>
 
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
@@ -34,7 +34,7 @@
                                 <tr>
                                     <td align="center"
                                         style="background-color: #28a745; padding: 12px 30px; border-radius: 5px;">
-                                        <a href="http://127.0.0.1:8000/restablecer_pass?token={{ urlencode($token) }}"
+                                        <a href="https://sistema-nande-iru.laravel.cloud/restablecer_pass?token={{ urlencode($token) }}"
                                             target="_blank"
                                             style="color: white; text-decoration: none; font-weight: bold; font-size: 16px;">
                                             Restablecer Contraseña</a>
