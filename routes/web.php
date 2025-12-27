@@ -24,6 +24,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CajaMiddleware;
 use App\Http\Middleware\CheckUserIsBloqued;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/login', [AuthController::class, 'login_view'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
@@ -110,6 +111,11 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/facturas/{id}/anular', [FacturaController::class, 'anular'])->name('facturas.anular');
         Route::post('/facturas/{id}/foto', [FacturaController::class, 'subirFoto'])->name('facturas.foto');
         Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
+        Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
+
+
+        Route::get('/gdrive-image/{path}', [FacturaController::class, 'showImage']);
+
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {
