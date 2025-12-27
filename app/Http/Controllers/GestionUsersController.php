@@ -88,6 +88,7 @@ class GestionUsersController extends Controller
     //function para que un admin cree un usuario
     public function store(Request $request)
     {
+        // dd($request->all());
         try {
             $validated = $request->validate([
                 'role' => 'required',
@@ -215,7 +216,7 @@ class GestionUsersController extends Controller
             //         'Usuario' => $user->name,
             //     ]
             // ]);
-            // MailRestablecerPassJob::dispatch($request->id);
+            MailRestablecerPassJob::dispatch($request->id);
             return redirect()->back()->with('success', 'Correo de recuperación de contraseña enviada');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage(), );

@@ -261,8 +261,8 @@
                                 class="w-full p-2 border rounded" />
                             <select name="role" class="w-full p-2 border rounded">
                                 <option disabled selected>Rol</option>
-                                <option>Personal</option>
-                                <option>Admin</option>
+                                <option value="personal">Personal</option>
+                                <option value="admin">Admin</option>
                             </select>
                             <select name="activo" class="w-full p-2 border rounded">
                                 <option disabled selected>Estado</option>
