@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Factura;
 use App\Models\FacturaFoto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Yaza\LaravelGoogleDriveStorage\Gdrive;
+use Storage;
 
 class FacturaController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $facturas = Factura::with(['venta.cliente', 'venta.detalleVentas'])
             ->orderBy('created_at', 'desc')
@@ -20,23 +25,29 @@ class FacturaController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(string $id): View|RedirectResponse
     {
-        $factura = Factura::with([
-            'venta.cliente',
-            'venta.detalleVentas.producto',
-            'venta.vehiculo',
-            'venta.vendedor',
-            'venta.pagos',
-            'fotos'
-        ])->findOrFail($id);
+        try {
 
-        return view('facturas.show', [
-            'factura' => $factura
-        ]);
+            $factura = Factura::with([
+                'venta.cliente',
+                'venta.detalleVentas.producto',
+                'venta.vehiculo',
+                'venta.vendedor',
+                'venta.pagos',
+                // 'fotos'
+            ])->findOrFail($id);
+
+            return view('facturas.show', [
+                'factura' => $factura,
+
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('facturas.index')->with('error', 'Factura no encontrada');
+        }
     }
 
-    public function anular($id)
+    public function anular(string $id): JsonResponse
     {
         $factura = Factura::findOrFail($id);
 
@@ -55,7 +66,7 @@ class FacturaController extends Controller
         ]);
     }
 
-    public function subirFoto(Request $request, $id)
+    public function subirFoto(Request $request, string $id): JsonResponse
     {
         $request->validate([
             'foto' => 'required|image|max:5120', // 5MB max
@@ -63,47 +74,111 @@ class FacturaController extends Controller
             'descripcion' => 'nullable|string|max:255',
         ]);
 
-        $factura = Factura::findOrFail($id);
+        try {
+            $factura = Factura::findOrFail($id);
 
-        $file = $request->file('foto');
-        $filename = 'factura_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->move(public_path('facturas'), $filename);
+            $file = $request->file('foto');
+            $filename = time() . '.' . 'jpg';
+            Gdrive::put($filename, $file);
 
-        $foto = FacturaFoto::create([
-            'factura_id' => $factura->id,
-            'ruta_foto' => $filename,
-            'descripcion' => $request->descripcion,
-            'tipo' => $request->tipo,
-        ]);
+            $foto = FacturaFoto::create([
+                'factura_id' => $factura->id,
+                'ruta_foto' => $filename,
+                'descripcion' => $request->descripcion,
+                'tipo' => $request->tipo,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Foto subida correctamente',
-            'foto' => [
-                'id' => $foto->id,
-                'ruta' => asset('facturas/' . $filename),
-                'descripcion' => $foto->descripcion,
-                'tipo_badge' => $foto->tipo_badge,
-            ]
-        ]);
-    }
-
-    public function eliminarFoto($id)
-    {
-        $foto = FacturaFoto::findOrFail($id);
-
-        // Eliminar archivo físico
-        $filePath = public_path('facturas/' . $foto->ruta_foto);
-        if (file_exists($filePath)) {
-            unlink($filePath);
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto subida correctamente',
+                'foto' => [
+                    'id' => $foto->id,
+                    'ruta' => asset('facturas/' . $filename),
+                    'descripcion' => $foto->descripcion,
+                    'tipo_badge' => $foto->tipo_badge,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $foto->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Foto eliminada correctamente'
-        ]);
     }
-}
 
+    public function getImages(string $id): JsonResponse
+    {
+        try {
+            $factura = Factura::findOrFail($id);
+
+            $res = Gdrive::all('/');
+
+            // Crear un mapa de ruta_foto => foto para acceder a los datos
+            $fotosMap = $factura->fotos->keyBy('ruta_foto');
+
+            $images = $res
+                ->filter(fn($item) => isset($fotosMap[$item->path()]))
+                ->map(function ($item) use ($fotosMap) {
+                    $foto = $fotosMap[$item->path()];
+                    return [
+                        'id' => $foto->id,
+                        'path' => $item->path(),
+                        'url' => url('/gdrive-image/' . $item->path()),
+                        'tipo' => $foto->tipo,
+                        'descripcion' => $foto->descripcion,
+                    ];
+                })
+                ->values();
+            return response()->json($images);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function showImage(string $path): Response
+    {
+        try {
+            $disk = Storage::disk('google');
+
+            if (!$disk->exists($path)) {
+                abort(404);
+            }
+
+            return response(
+                $disk->get($path),
+                200,
+                ['Content-Type' => $disk->mimeType($path)]
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function eliminarFoto(string $id): JsonResponse
+    {
+        try {
+            $foto = FacturaFoto::findOrFail($id);
+            // Eliminar archivo físico
+            Gdrive::delete($foto->ruta_foto);
+            $foto->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto eliminada correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+}
