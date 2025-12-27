@@ -105,6 +105,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/api/servicio-proceso/crear-vehiculo', [ServicioProcesoController::class, 'crearVehiculo']);
         Route::post('/api/servicio-proceso/crear-cliente', [ServicioProcesoController::class, 'crearCliente']);
         Route::post('/api/servicio-proceso/crear-mecanico', [ServicioProcesoController::class, 'crearMecanico']);
+        Route::get('/api/servicio-proceso/{id}/imagenes', [ServicioProcesoController::class, 'getImages']);
         // Facturas
         Route::get('/factura', [FacturaController::class, 'index'])->name('facturas.index');
         Route::get('/facturas/{id}', [FacturaController::class, 'show'])->name('facturas.show');

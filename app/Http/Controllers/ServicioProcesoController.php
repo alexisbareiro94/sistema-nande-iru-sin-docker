@@ -8,7 +8,9 @@ use App\Models\ServicioProcesoFoto;
 use App\Models\Vehiculo;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Yaza\LaravelGoogleDriveStorage\Gdrive;
 
 class ServicioProcesoController extends Controller
 {
@@ -168,7 +170,7 @@ class ServicioProcesoController extends Controller
     /**
      * Subir foto al servicio
      */
-    public function subirFoto(Request $request, string $id)
+    public function subirFoto(Request $request, string $id): JsonResponse
     {
         $request->validate([
             'foto' => 'required|image|max:5120', // Max 5MB
@@ -179,13 +181,14 @@ class ServicioProcesoController extends Controller
         try {
             $servicio = ServicioProceso::findOrFail($id);
 
-            // Guardar la foto
-            $path = now()->format('YmdHis') . '.' . $request->file('foto')->getClientOriginalExtension();
-            $request->file('foto')->move(public_path('servicios'), $path);
+            // Guardar la foto en Google Drive
+            $file = $request->file('foto');
+            $filename = 'servicio_' . time() . '.jpg';
+            Gdrive::put($filename, $file);
 
             $foto = ServicioProcesoFoto::create([
                 'servicio_proceso_id' => $servicio->id,
-                'ruta_foto' => $path,
+                'ruta_foto' => $filename,
                 'descripcion' => $request->descripcion,
                 'tipo' => $request->tipo,
             ]);
@@ -193,8 +196,12 @@ class ServicioProcesoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Foto subida correctamente',
-                'foto' => $foto,
-                'url' => $path,
+                'foto' => [
+                    'id' => $foto->id,
+                    'ruta' => url('/gdrive-image/' . $filename),
+                    'descripcion' => $foto->descripcion,
+                    'tipo' => $foto->tipo,
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -207,15 +214,13 @@ class ServicioProcesoController extends Controller
     /**
      * Eliminar foto
      */
-    public function eliminarFoto(string $id)
+    public function eliminarFoto(string $id): JsonResponse
     {
         try {
             $foto = ServicioProcesoFoto::findOrFail($id);
 
-            // Eliminar archivo
-            if (file_exists(public_path('servicios/' . $foto->ruta_foto))) {
-                unlink(public_path('servicios/' . $foto->ruta_foto));
-            }
+            // Eliminar archivo de Google Drive
+            Gdrive::delete($foto->ruta_foto);
 
             $foto->delete();
 
@@ -227,6 +232,42 @@ class ServicioProcesoController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener imágenes del servicio desde Google Drive
+     */
+    public function getImages(string $id): JsonResponse
+    {
+        try {
+            $servicio = ServicioProceso::findOrFail($id);
+
+            $res = Gdrive::all('/');
+
+            // Crear un mapa de ruta_foto => foto para acceder a los datos
+            $fotosMap = $servicio->fotos->keyBy('ruta_foto');
+
+            $images = $res
+                ->filter(fn($item) => isset($fotosMap[$item->path()]))
+                ->map(function ($item) use ($fotosMap) {
+                    $foto = $fotosMap[$item->path()];
+                    return [
+                        'id' => $foto->id,
+                        'path' => $item->path(),
+                        'url' => url('/gdrive-image/' . $item->path()),
+                        'tipo' => $foto->tipo,
+                        'descripcion' => $foto->descripcion,
+                    ];
+                })
+                ->values();
+            return response()->json($images);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
             ], 500);
         }
     }

@@ -2,7 +2,177 @@ import { showToast } from "./toast.js";
 import { csrfToken } from "./csrf-token.js";
 import axios from 'axios';
 
+// Función para obtener badge de tipo de foto
+function getTipoBadgeServicio(tipo) {
+    const badges = {
+        'ingreso': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Ingreso</span>',
+        'proceso': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Proceso</span>',
+        'entrega': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Entrega</span>'
+    };
+    return badges[tipo] || '<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Otro</span>';
+}
+
+// Función para mostrar skeleton loaders
+function showSkeletonsServicio(container, count = 3) {
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'skeleton-item relative rounded-xl overflow-hidden shadow-md animate-pulse';
+        skeleton.innerHTML = `
+            <div class="w-full h-48 bg-gray-200"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-300 to-transparent">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="h-5 w-20 bg-gray-300 rounded-full"></div>
+                        <div class="h-4 w-32 bg-gray-300 rounded"></div>
+                    </div>
+                    <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                </div>
+            </div>
+        `;
+        container.appendChild(skeleton);
+    }
+}
+
+// Función para adjuntar listeners de eliminar foto
+function attachDeleteListenersServicio() {
+    document.querySelectorAll('.btn-eliminar-foto-servicio').forEach(btn => {
+        btn.addEventListener('click', async function (e) {
+            e.stopPropagation();
+
+            if (!confirm('¿Estás seguro de eliminar esta foto?')) {
+                return;
+            }
+
+            const fotoId = this.dataset.fotoId;
+
+            try {
+                const response = await fetch(`/api/servicio-proceso/foto/${fotoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Re-renderizar las fotos
+                    renderFotosServicio();
+                    showToast('Foto eliminada correctamente', 'success');
+                } else {
+                    showToast(data.error || 'Error al eliminar la foto', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error al eliminar la foto', 'error');
+            }
+        });
+    });
+}
+
+// Función para renderizar las fotos desde Google Drive
+async function renderFotosServicio() {
+    const galeriaFotos = document.getElementById('galeria-fotos-servicio');
+    if (!galeriaFotos) return;
+
+    const servicioId = window.location.pathname.split('/').pop();
+
+    // Mostrar skeletons mientras carga
+    showSkeletonsServicio(galeriaFotos, 3);
+
+    try {
+        const res = await fetch(`/api/servicio-proceso/${servicioId}/imagenes`);
+        const data = await res.json();
+
+        galeriaFotos.innerHTML = '';
+
+        if (data.length === 0) {
+            // Estado vacío
+            galeriaFotos.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-gray-500">No hay fotos aún</p>
+                    <p class="text-gray-400 text-sm">Sube fotos del ingreso del vehículo para documentar su estado</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Renderizar cada foto
+        data.forEach(foto => {
+            const fotoDiv = document.createElement('div');
+            fotoDiv.id = 'ver-foto';
+            fotoDiv.dataset.fotoId = foto.id;
+            fotoDiv.dataset.ruta = foto.url;
+            fotoDiv.className = 'foto-item cursor-pointer relative group rounded-xl overflow-hidden shadow-md';
+
+            fotoDiv.innerHTML = `
+                <img src="${foto.url}" alt="${foto.descripcion || ''}"
+                    class="w-full h-48 object-cover">
+                <div class="foto-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                ${getTipoBadgeServicio(foto.tipo)}
+                                ${foto.descripcion ? `<p class="text-white text-sm mt-1">${foto.descripcion}</p>` : ''}
+                            </div>
+                            <button class="btn-eliminar-foto-servicio text-red-400 hover:text-red-300 transition-colors"
+                                data-foto-id="${foto.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            galeriaFotos.appendChild(fotoDiv);
+        });
+
+        // Re-adjuntar event listeners para eliminar y ver foto
+        attachDeleteListenersServicio();
+        attachViewPhotoListeners();
+
+    } catch (error) {
+        console.error('Error al cargar fotos:', error);
+        galeriaFotos.innerHTML = `
+            <div class="col-span-full text-center py-12">
+                <p class="text-red-500">Error al cargar las fotos</p>
+            </div>
+        `;
+    }
+}
+
+// Función para adjuntar listeners de ver foto (abre en nueva pestaña)
+function attachViewPhotoListeners() {
+    const btns = document.querySelectorAll('#ver-foto');
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            // No abrir si se hizo click en el botón de eliminar
+            if (e.target.closest('.btn-eliminar-foto-servicio')) return;
+
+            const ruta = this.dataset.ruta;
+            if (ruta) {
+                window.open(ruta, '_blank');
+            }
+        });
+    });
+}
+
+// Llamar al renderizar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function () {
+    // Renderizar fotos desde Google Drive
+    renderFotosServicio();
+
     // Modal de selección
     const modalSeleccion = document.getElementById('modal-seleccion-servicio');
     const btnNuevoServicio = document.getElementById('btn-nuevo-servicio');
@@ -372,6 +542,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const servicioId = this.dataset.id;
             const formData = new FormData(this);
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            const btnOriginalContent = btnSubmit.innerHTML;
+
+            // Mostrar estado de carga
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Guardando...
+            `;
 
             try {
                 const response = await fetch(`/api/servicio-proceso/${servicioId}/foto`, {
@@ -385,13 +567,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.success) {
-                    location.reload();
+                    showToast('Foto subida correctamente', 'success');
+                    // Limpiar formulario y preview
+                    this.reset();
+                    previewContainer?.classList.add('hidden');
+                    previewImagen.src = '';
+                    // Re-renderizar las fotos desde Drive
+                    renderFotosServicio();
                 } else {
                     showToast(result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error subiendo foto:', error);
                 showToast('Error al subir la foto', 'error');
+            } finally {
+                // Restaurar botón
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = btnOriginalContent;
             }
         });
     }
