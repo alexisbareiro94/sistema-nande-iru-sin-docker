@@ -9,6 +9,9 @@ use App\Models\MovimientoCaja;
 use App\Models\Producto;
 use App\Models\User;
 use App\Models\Venta;
+use App\Models\Factura;
+use App\Models\Pago;
+use App\Models\ServicioProceso;
 use Carbon\Carbon;
 
 class ReporteService
@@ -340,6 +343,145 @@ class ReporteService
         return [
             'labels' => $labels,
             'datos' => $datos,
+        ];
+    }
+
+    public function data_detalle_reporte(object $request)
+    {
+        $fechaInicioStr = $request->query('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
+        $fechaFinStr = $request->query('fecha_fin', now()->format('Y-m-d'));
+
+        $fechaInicio = Carbon::parse($fechaInicioStr)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFinStr)->endOfDay();
+
+        // Ventas
+        $ventas = Venta::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->with(['cliente', 'vehiculo', 'detalleVentas.producto'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calcular resumen
+        $totalVentas = $ventas->sum('total');
+        $cantidadVentas = $ventas->count();
+
+        // Detalles para productos y costo
+        $detalles = DetalleVenta::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->with('producto.categoria')
+            ->get();
+
+        $costoTotal = 0;
+        foreach ($detalles as $detalle) {
+            $costoTotal += ($detalle->producto->precio_compra ?? 0) * $detalle->cantidad;
+        }
+
+        // Productos vendidos agrupados
+        $productosAgrupados = $detalles->groupBy('producto_id');
+        $productosVendidos = [];
+        foreach ($productosAgrupados as $productoId => $items) {
+            $producto = $items->first()->producto;
+            if (!$producto)
+                continue;
+            $cantidadTotal = $items->sum('cantidad');
+            $totalVendido = $items->sum('total');
+            $costo = ($producto->precio_compra ?? 0) * $cantidadTotal;
+            $productosVendidos[] = [
+                'nombre' => $producto->nombre,
+                'categoria' => $producto->tipo ?? '-',
+                'cantidad' => $cantidadTotal,
+                'total' => $totalVendido,
+                'utilidad' => $totalVendido - $costo,
+            ];
+        }
+        usort($productosVendidos, fn($a, $b) => $b['cantidad'] <=> $a['cantidad']);
+
+        // Egresos
+        $egresosDetalle = MovimientoCaja::where('tipo', 'egreso')
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->with('caja.user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $egresos = $egresosDetalle->sum('monto');
+
+        // Otros ingresos
+        $otrosIngresos = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
+            ->where('concepto', '!=', 'Venta de productos')
+            ->where('tipo', '!=', 'egreso')
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->sum('monto');
+
+        // Utilidad
+        $utilidadBruta = $totalVentas + $otrosIngresos - $costoTotal;
+        $utilidadNeta = $utilidadBruta - $egresos;
+
+        // Formas de pago
+        $ventaIds = $ventas->pluck('id');
+        $pagos = Pago::whereIn('venta_id', $ventaIds)->get();
+        $pagosPorMetodo = $pagos->groupBy('metodo');
+        $totalEfectivo = $pagosPorMetodo->get('efectivo', collect())->sum('monto');
+        $totalTransferencia = $pagosPorMetodo->get('transferencia', collect())->sum('monto');
+
+        // Servicios/Vehículos
+        $servicios = ServicioProceso::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->with(['vehiculo.cliente', 'mecanico'])
+            ->get();
+
+        $vehiculosAgrupados = $servicios->groupBy('vehiculo_id');
+        $vehiculos = [];
+        foreach ($vehiculosAgrupados as $vehiculoId => $items) {
+            $vehiculo = $items->first()->vehiculo;
+            if (!$vehiculo)
+                continue;
+            $vehiculos[] = [
+                'patente' => $vehiculo->patente ?? '-',
+                'marca' => $vehiculo->marca ?? '-',
+                'modelo' => $vehiculo->modelo ?? '-',
+                'cliente' => $vehiculo->cliente->razon_social ?? $vehiculo->cliente->name ?? '-',
+                'servicios' => $items->count(),
+            ];
+        }
+
+        // Mecánicos
+        $mecanicosAgrupados = $servicios->groupBy('mecanico_id');
+        $mecanicos = [];
+        foreach ($mecanicosAgrupados as $mecanicoId => $items) {
+            $mecanico = $items->first()->mecanico;
+            if (!$mecanico)
+                continue;
+            $mecanicos[] = [
+                'nombre' => $mecanico->name ?? '-',
+                'total' => $items->count(),
+                'pendientes' => $items->where('estado', 'pendiente')->count(),
+                'en_proceso' => $items->where('estado', 'en_proceso')->count(),
+                'completados' => $items->where('estado', 'completado')->count(),
+                'cobrados' => $items->where('estado', 'cobrado')->count(),
+            ];
+        }
+        usort($mecanicos, fn($a, $b) => $b['total'] <=> $a['total']);
+
+        // Facturas
+        $facturas = Factura::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->with('venta.cliente')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return [
+            'fechaInicio' => $fechaInicio->format('d/m/Y'),
+            'fechaFin' => $fechaFin->format('d/m/Y'),
+            'resumen' => [
+                'totalVentas' => $totalVentas,
+                'cantidadVentas' => $cantidadVentas,
+                'egresos' => $egresos,
+                'utilidadNeta' => $utilidadNeta,
+                'facturas' => $facturas->count(),
+                'totalEfectivo' => $totalEfectivo,
+                'totalTransferencia' => $totalTransferencia,
+            ],
+            'ventas' => $ventas,
+            'productosVendidos' => $productosVendidos,
+            'egresosDetalle' => $egresosDetalle,
+            'vehiculos' => $vehiculos,
+            'mecanicos' => $mecanicos,
+            'facturas' => $facturas,
         ];
     }
 }

@@ -138,12 +138,12 @@
         </div>
     </div>
 
-    @if (Auth::user()->role == 'admin')
+    {{-- @if (Auth::user()->role == 'admin')
         <div class="bg-white border border-slate-200 p-6 mt-8">
             <h3 class="text-lg font-bold text-slate-800 mb-4">Métricas</h3>
             @include('caja.graficos.graficos')
         </div>
-    @endif
+    @endif --}}
 
     @include('caja.includes.modal-venta')
     @include('caja.includes.modal-abrir-caja')

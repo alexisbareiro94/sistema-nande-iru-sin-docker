@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{MovimientoCaja, Venta};
+use App\Models\{MovimientoCaja, Venta, DetalleVenta, ServicioProceso, Factura, Pago};
 use App\Services\ReporteService;
+use App\Exports\ReporteGlobalExport;
 use Carbon\Carbon;
 use App\Events\NotificacionEvent;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteController extends Controller
 {
@@ -269,5 +271,33 @@ class ReporteController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Exportar reporte global a Excel
+     */
+    public function exportarGlobal(Request $request)
+    {
+        $fechaInicio = $request->query('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
+        $fechaFin = $request->query('fecha_fin', now()->format('Y-m-d'));
+
+        $nombreArchivo = 'reporte_global_' . $fechaInicio . '_a_' . $fechaFin . '.xlsx';
+
+        return Excel::download(
+            new ReporteGlobalExport($fechaInicio, $fechaFin),
+            $nombreArchivo
+        );
+    }
+
+    /**
+     * Vista detallada del reporte
+     */
+    public function detalleReporte(Request $request)
+    {
+        $data = $this->reporteService->data_detalle_reporte($request);
+        // dd($data);
+        return view('reportes.detalle', [
+            'data' => $data
+        ]);
     }
 }

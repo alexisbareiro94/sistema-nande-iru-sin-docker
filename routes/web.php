@@ -149,6 +149,8 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/api/tendencias/{periodo}', [ReporteController::class, 'gananacias']);
         Route::get('/api/egresos/{periodo}', [ReporteController::class, 'egresos']);
         Route::get('/api/egresos/concepto/{periodo}', [ReporteController::class, 'egresos_concepto']);
+        Route::get('/reportes/exportar', [ReporteController::class, 'exportarGlobal'])->name('reporte.exportar');
+        Route::get('/reportes/detalle', [ReporteController::class, 'detalleReporte'])->name('reporte.detalle');
 
         // Dashboard de estadísticas
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
