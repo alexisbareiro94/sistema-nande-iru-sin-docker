@@ -1,9 +1,11 @@
 @extends('layouts.app')
 @section('titulo', 'Detalle de Reporte')
-@section('ruta-actual', 'Reportes > Detalle')
+@section('ruta-actual', 'Detalle de Reporte')
+@section('ruta-anterior', 'Reportes')
+@section('url', '/reportes')
 
 @section('contenido')
-    <div class="p-6">
+    <div class="p-2 md:p-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>

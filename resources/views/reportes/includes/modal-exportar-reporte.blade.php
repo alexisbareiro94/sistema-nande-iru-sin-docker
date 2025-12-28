@@ -70,27 +70,27 @@
         <!-- Footer -->
         <div class="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
             <button onclick="cerrarModalExportar()"
-                class="cursor-pointer px-5 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-xl font-semibold hover:bg-gray-100 transition-all active:scale-95">
+                class="cursor-pointer px-5 py-2.5 text-white bg-gray-700 border hover:bg-gray-100 hover:text-white border-gray-300 rounded-xl font-semibold transition-all active:scale-95">
                 Cancelar
             </button>
             <button onclick="verDetallesReporte()"
-                class="cursor-pointer px-5 py-2.5 text-white bg-blue-600 rounded-xl font-semibold hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-2">
+                class="cursor-pointer px-5 py-2.5 text-blue-600 bg-white border border-gray-300 rounded-xl font-semibold hover:bg-blue-700 hover:text-white transition-all active:scale-95 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" class="size-5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
-                Ver Detalles
+                Detalles
             </button>
             <button onclick="descargarReporteGlobal()"
-                class="cursor-pointer px-5 py-2.5 text-white bg-emerald-600 rounded-xl font-semibold hover:bg-emerald-700 transition-all active:scale-95 flex items-center gap-2">
+                class="cursor-pointer px-5 py-2.5 text-emerald-600 bg-white border border-gray-300 rounded-xl font-semibold hover:bg-emerald-700 hover:text-white transition-all active:scale-95 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" class="size-5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
-                Descargar Excel
+                Excel
             </button>
         </div>
     </div>
