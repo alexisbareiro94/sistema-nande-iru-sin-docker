@@ -68,7 +68,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
+        <div class="px-6 py-4 bg-gray-50 flex gap-3 justify-center">
             <button onclick="cerrarModalExportar()"
                 class="cursor-pointer px-5 py-2.5 text-white bg-gray-700 border hover:bg-gray-100 hover:text-white border-gray-300 rounded-xl font-semibold transition-all active:scale-95">
                 Cancelar

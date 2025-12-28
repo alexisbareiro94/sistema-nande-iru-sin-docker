@@ -60,9 +60,15 @@
 <script>
     document.getElementById('btnCerrar').addEventListener('click', (e) => {
         e.target.closest('#modal-venta-completada').classList.add('hidden');
+        if (window.location.pathname.includes('/servicio-proceso')) {
+            window.location.reload();
+        }
     })
 
     document.getElementById('btnSalir').addEventListener('click', (e) => {
         e.target.closest('#modal-venta-completada').classList.add('hidden');
+        if (window.location.pathname.includes('/servicio-proceso')) {
+            window.location.reload();
+        }
     })
 </script>
