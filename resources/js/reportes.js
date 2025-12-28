@@ -1,6 +1,88 @@
 import Chart from 'chart.js/auto';
 import { showToast } from './toast';
 
+// ==================== EXPORT MODAL ====================
+function abrirModalExportar() {
+    const modal = document.getElementById('modal-exportar-reporte');
+    if (modal) {
+        // Calcular fechas por defecto (lunes de esta semana a hoy)
+        const hoy = new Date();
+        const diaSemana = hoy.getDay();
+        const diasDesdeL = diaSemana === 0 ? 6 : diaSemana - 1;
+        const lunes = new Date(hoy);
+        lunes.setDate(hoy.getDate() - diasDesdeL);
+
+        document.getElementById('export-fecha-inicio').value = formatearFecha(lunes);
+        document.getElementById('export-fecha-fin').value = formatearFecha(hoy);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function cerrarModalExportar() {
+    const modal = document.getElementById('modal-exportar-reporte');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function formatearFecha(fecha) {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function descargarReporteGlobal() {
+    const fechaInicio = document.getElementById('export-fecha-inicio').value;
+    const fechaFin = document.getElementById('export-fecha-fin').value;
+
+    if (!fechaInicio || !fechaFin) {
+        showToast('Debe seleccionar ambas fechas', 'error');
+        return;
+    }
+
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+        showToast('La fecha de inicio debe ser menor o igual a la fecha fin', 'error');
+        return;
+    }
+
+    // Redirigir a la URL de descarga
+    const url = `/reportes/exportar?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    window.location.href = url;
+
+    cerrarModalExportar();
+    showToast('Generando reporte...', 'success');
+}
+
+function verDetallesReporte() {
+    const fechaInicio = document.getElementById('export-fecha-inicio').value;
+    const fechaFin = document.getElementById('export-fecha-fin').value;
+
+    if (!fechaInicio || !fechaFin) {
+        showToast('Debe seleccionar ambas fechas', 'error');
+        return;
+    }
+
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+        showToast('La fecha de inicio debe ser menor o igual a la fecha fin', 'error');
+        return;
+    }
+
+    // Navegar a la página de detalles
+    const url = `/reportes/detalle?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    window.location.href = url;
+}
+
+// Exponer funciones globalmente
+window.abrirModalExportar = abrirModalExportar;
+window.cerrarModalExportar = cerrarModalExportar;
+window.descargarReporteGlobal = descargarReporteGlobal;
+window.verDetallesReporte = verDetallesReporte;
+// ==================================================
+
 
 function limpiarSessions() {
     sessionStorage.removeItem('regreso');

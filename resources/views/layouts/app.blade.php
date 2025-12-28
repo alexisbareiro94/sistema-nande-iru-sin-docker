@@ -18,7 +18,6 @@
     <div id="notificaciones" class="fixed top-4 right-4 space-y-2 z-[9999]"></div>
     @include('alertas.alerts')
     <main class="flex-grow grid grid-cols-1 md:grid-cols-5 gap-1 relative">
-
         {{-- Botón Toggle Aside (solo visible para admin) --}}
         @if (auth()->user()->role == 'admin')
             <button id="toggle-aside-btn"

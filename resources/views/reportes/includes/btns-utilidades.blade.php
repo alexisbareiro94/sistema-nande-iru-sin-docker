@@ -1,4 +1,4 @@
-<div class="flex flex-wrap items-center gap-6">
+<div class="flex flex-wrap items-center gap-6 md:max-w-[1600px] max-w-[300px]">
     <!-- Grupo de botones de rango de tiempo -->
     <div>
         <label class="text-sm font-medium text-gray-600 mb-1 block">Periodo</label>
@@ -25,7 +25,7 @@
     <!-- Grupo de fechas personalizadas -->
     <div id="fechas-personalizadas" class="hidden">
         <label class="text-sm font-medium text-gray-600 mb-1 block">Rango de Fechas</label>
-        <div class="flex items-center space-x-2">
+        <div class="block space-y-2 items-center space-x-2">
             <input type="date" id="fecha-inicio"
                 class="text-xs px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <span class="text-gray-500 text-xs">hasta</span>
