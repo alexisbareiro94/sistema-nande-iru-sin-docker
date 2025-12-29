@@ -181,4 +181,94 @@ class FacturaController extends Controller
         }
     }
 
+    /**
+     * Establecer número de factura inicial en session
+     */
+    public function setNumeroInicial(Request $request): JsonResponse
+    {
+        $request->validate([
+            'numero' => 'required|integer|min:1',
+        ]);
+
+        session(['numero_factura_inicial' => $request->numero]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Número de factura configurado correctamente',
+            'numero' => $request->numero
+        ]);
+    }
+
+    /**
+     * Obtener número de factura configurado en session
+     */
+    public function getNumeroInicial(): JsonResponse
+    {
+        $numero = session('numero_factura_inicial');
+
+        return response()->json([
+            'success' => true,
+            'numero' => $numero,
+            'existe' => $numero !== null
+        ]);
+    }
+
+    /**
+     * Eliminar configuración de número de factura de session
+     */
+    public function clearNumeroInicial(): JsonResponse
+    {
+        session()->forget('numero_factura_inicial');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuración eliminada'
+        ]);
+    }
+
+    /**
+     * Establecer timbrado en session
+     */
+    public function setTimbrado(Request $request): JsonResponse
+    {
+        $request->validate([
+            'timbrado' => 'required|integer|min:1',
+        ]);
+
+        session(['timbrado_factura' => $request->timbrado]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Timbrado configurado correctamente',
+            'timbrado' => $request->timbrado
+        ]);
+    }
+
+    /**
+     * Obtener timbrado configurado en session
+     */
+    public function getTimbrado(): JsonResponse
+    {
+        $timbrado = session('timbrado_factura');
+
+        return response()->json([
+            'success' => true,
+            'timbrado' => $timbrado,
+            'existe' => $timbrado !== null
+        ]);
+    }
+
+    /**
+     * Eliminar configuración de timbrado de session
+     */
+    public function clearTimbrado(): JsonResponse
+    {
+        session()->forget('timbrado_factura');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuración de timbrado eliminada'
+        ]);
+    }
+
 }

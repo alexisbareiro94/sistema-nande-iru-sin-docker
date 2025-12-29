@@ -63,7 +63,7 @@ trait Auditable
         }
 
         Auditoria::create([
-            // 'tenant_id' => $model->tenant_id ?? (auth()->user()->tenant_id ?? 1),
+            'tenant_id' => $model->tenant_id ?? (auth()->user()->tenant_id ?? 1),
             'created_by' => auth()->id() ?? 1,
             'entidad_type' => $entidadType,
             'entidad_id' => $model->id,

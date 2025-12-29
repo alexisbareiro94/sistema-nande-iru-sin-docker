@@ -114,6 +114,16 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
         Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
 
+        // Configuración número de factura
+        Route::post('/facturas/config/numero', [FacturaController::class, 'setNumeroInicial'])->name('facturas.config.set');
+        Route::get('/facturas/config/numero', [FacturaController::class, 'getNumeroInicial'])->name('facturas.config.get');
+        Route::delete('/facturas/config/numero', [FacturaController::class, 'clearNumeroInicial'])->name('facturas.config.clear');
+
+        // Configuración timbrado
+        Route::post('/facturas/config/timbrado', [FacturaController::class, 'setTimbrado'])->name('facturas.config.timbrado.set');
+        Route::get('/facturas/config/timbrado', [FacturaController::class, 'getTimbrado'])->name('facturas.config.timbrado.get');
+        Route::delete('/facturas/config/timbrado', [FacturaController::class, 'clearTimbrado'])->name('facturas.config.timbrado.clear');
+
 
         Route::get('/gdrive-image/{path}', [FacturaController::class, 'showImage']);
 

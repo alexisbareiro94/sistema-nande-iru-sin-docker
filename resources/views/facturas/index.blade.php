@@ -12,7 +12,131 @@
                 <p class="text-gray-500 text-sm">Gestión de facturas emitidas</p>
             </div>
         </div>
+        <div class="flex items-center gap-3">
+            {{-- Indicador de timbrado activo --}}
+            <div id="indicador-timbrado"
+                class="hidden items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="text-sm text-purple-700">
+                    Timbrado: <strong id="timbrado-configurado">---</strong>
+                </span>
+                <button id="btn-limpiar-timbrado" class="ml-2 text-purple-600 hover:text-purple-800"
+                    title="Eliminar configuración">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            {{-- Indicador de configuración activa --}}
+            <div id="indicador-config"
+                class="hidden items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-sm text-amber-700">
+                    Próximo Nº: <strong id="numero-configurado">---</strong>
+                </span>
+                <button id="btn-limpiar-config" class="ml-2 text-amber-600 hover:text-amber-800"
+                    title="Eliminar configuración">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            {{-- Botón configurar timbrado --}}
+            <button id="btn-abrir-timbrado"
+                class="flex items-center gap-2 px-4 py-2 bg-gray-100 cursor-pointer text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="hidden md:inline">Timbrado</span>
+            </button>
+            {{-- Botón configurar número --}}
+            <button id="btn-abrir-config"
+                class="flex items-center gap-2 px-4 py-2 bg-gray-700 cursor-pointer text-white rounded-lg hover:bg-gray-800 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="hidden md:inline">Nº Factura</span>
+            </button>
+        </div>
     </header>
+
+    {{-- Modal configurar timbrado --}}
+    <div id="modal-config-timbrado" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Configurar Timbrado</h3>
+                <p class="text-sm text-gray-500 mt-1">El timbrado se usará para las próximas facturas</p>
+            </div>
+            <div class="p-6">
+                <label for="input-timbrado" class="block text-sm font-medium text-gray-700 mb-2">
+                    Número de Timbrado
+                </label>
+                <input type="number" id="input-timbrado" min="1"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
+                    placeholder="Ej: 18450157">
+                <p class="text-xs text-gray-400 mt-2">
+                    El timbrado se mantendrá hasta que lo elimines manualmente.
+                </p>
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end gap-3">
+                <button id="btn-cerrar-timbrado"
+                    class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancelar
+                </button>
+                <button id="btn-guardar-timbrado"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal configurar número --}}
+    <div id="modal-config-numero" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Configurar Número de Factura</h3>
+                <p class="text-sm text-gray-500 mt-1">El próximo número de factura será el configurado aquí</p>
+            </div>
+            <div class="p-6">
+                <label for="input-numero-factura" class="block text-sm font-medium text-gray-700 mb-2">
+                    Número de Factura Inicial
+                </label>
+                <input type="number" id="input-numero-factura" min="1"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-lg"
+                    placeholder="Ej: 100">
+                <p class="text-xs text-gray-400 mt-2">
+                    Este número se usará para la próxima factura y luego se eliminará automáticamente.
+                </p>
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end gap-3">
+                <button id="btn-cerrar-config"
+                    class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancelar
+                </button>
+                <button id="btn-guardar-config"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
 
     {{-- Estadísticas rápidas --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -108,4 +232,5 @@
             </div>
         @endif
     </div>
+
 @endsection

@@ -318,12 +318,26 @@ class VentaController extends Controller
             $cliente = User::find($userId);
             $factura = Factura::orderBy('numero', 'desc')->first();
             if ($cliente->ruc_ci != '1111111-1') {
+                // Verificar si existe número configurado en session
+                $numeroFacturaInicial = session('numero_factura_inicial');
+                if ($numeroFacturaInicial !== null) {
+                    $nuevoNumero = $numeroFacturaInicial;
+                    // Eliminar la session después de usarla
+                    session()->forget('numero_factura_inicial');
+                } else {
+                    $nuevoNumero = $factura?->numero !== null ? $factura->numero + 1 : 87;
+                }
+
+                // Verificar si existe timbrado configurado en session
+                $timbradoSession = session('timbrado_factura');
+                $timbrado = $timbradoSession !== null ? $timbradoSession : 18450157;
+
                 Factura::create([
                     'venta_id' => $venta->id,
-                    'timbrado' => 18450157,
+                    'timbrado' => $timbrado,
                     'sucursal' => 001,
                     'punto_emision' => 001,
-                    'numero' => $factura?->numero !== null ? $factura->numero + 1 : 87,
+                    'numero' => $nuevoNumero,
                     'emision' => now()->format('Y-m-d'),
                     'estado' => 'emitida',
                     'tipo' => 'factura',

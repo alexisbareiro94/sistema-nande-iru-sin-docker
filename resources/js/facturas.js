@@ -3,6 +3,249 @@
 import { showToast } from "./toast";
 
 document.addEventListener('DOMContentLoaded', function () {
+    const btnAbrirConfig = document.getElementById('btn-abrir-config');
+    const btnCerrarConfig = document.getElementById('btn-cerrar-config');
+    const btnGuardarConfig = document.getElementById('btn-guardar-config');
+    const btnLimpiarConfig = document.getElementById('btn-limpiar-config');
+    const modalConfig = document.getElementById('modal-config-numero');
+    const inputNumero = document.getElementById('input-numero-factura');
+    const indicadorConfig = document.getElementById('indicador-config');
+    const numeroConfigurado = document.getElementById('numero-configurado');
+
+    // Verificar si existe configuración al cargar
+    checkConfiguracion();
+
+    // Abrir modal
+    btnAbrirConfig.addEventListener('click', function () {
+        modalConfig.classList.remove('hidden');
+        modalConfig.classList.add('flex');
+        inputNumero.focus();
+    });
+
+    // Cerrar modal
+    btnCerrarConfig.addEventListener('click', cerrarModal);
+    modalConfig.addEventListener('click', function (e) {
+        if (e.target === modalConfig) cerrarModal();
+    });
+
+    function cerrarModal() {
+        modalConfig.classList.add('hidden');
+        modalConfig.classList.remove('flex');
+        inputNumero.value = '';
+    }
+
+    // Guardar configuración
+    btnGuardarConfig.addEventListener('click', async function () {
+        const numero = inputNumero.value;
+        if (!numero || numero < 1) {
+            alert('Por favor ingrese un número válido');
+            return;
+        }
+
+        try {
+            const response = await fetch('/facturas/config/numero', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                        .content
+                },
+                body: JSON.stringify({
+                    numero: parseInt(numero)
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                mostrarIndicador(data.numero);
+                cerrarModal();
+            } else {
+                alert('Error al guardar la configuración');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al guardar la configuración');
+        }
+    });
+
+    // Limpiar configuración
+    btnLimpiarConfig.addEventListener('click', async function () {
+        if (!confirm('¿Estás seguro de eliminar la configuración del número de factura?'))
+            return;
+
+        try {
+            const response = await fetch('/facturas/config/numero', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                        .content
+                }
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                ocultarIndicador();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    // Verificar configuración existente
+    async function checkConfiguracion() {
+        try {
+            const response = await fetch('/facturas/config/numero');
+            const data = await response.json();
+            if (data.existe) {
+                mostrarIndicador(data.numero);
+            }
+        } catch (error) {
+            console.error('Error al verificar configuración:', error);
+        }
+    }
+
+    function mostrarIndicador(numero) {
+        indicadorConfig.classList.remove('hidden');
+        indicadorConfig.classList.add('flex');
+        numeroConfigurado.textContent = numero;
+    }
+
+    function ocultarIndicador() {
+        indicadorConfig.classList.add('hidden');
+        indicadorConfig.classList.remove('flex');
+        numeroConfigurado.textContent = '---';
+    }
+
+    // ==========================================
+    // CONFIGURACIÓN DE TIMBRADO
+    // ==========================================
+    const btnAbrirTimbrado = document.getElementById('btn-abrir-timbrado');
+    const btnCerrarTimbrado = document.getElementById('btn-cerrar-timbrado');
+    const btnGuardarTimbrado = document.getElementById('btn-guardar-timbrado');
+    const btnLimpiarTimbrado = document.getElementById('btn-limpiar-timbrado');
+    const modalTimbrado = document.getElementById('modal-config-timbrado');
+    const inputTimbrado = document.getElementById('input-timbrado');
+    const indicadorTimbrado = document.getElementById('indicador-timbrado');
+    const timbradoConfigurado = document.getElementById('timbrado-configurado');
+
+    // Verificar si existe timbrado al cargar
+    checkTimbrado();
+
+    // Abrir modal timbrado
+    if (btnAbrirTimbrado) {
+        btnAbrirTimbrado.addEventListener('click', function () {
+            modalTimbrado.classList.remove('hidden');
+            modalTimbrado.classList.add('flex');
+            inputTimbrado.focus();
+        });
+    }
+
+    // Cerrar modal timbrado
+    if (btnCerrarTimbrado) {
+        btnCerrarTimbrado.addEventListener('click', cerrarModalTimbrado);
+    }
+    if (modalTimbrado) {
+        modalTimbrado.addEventListener('click', function (e) {
+            if (e.target === modalTimbrado) cerrarModalTimbrado();
+        });
+    }
+
+    function cerrarModalTimbrado() {
+        modalTimbrado.classList.add('hidden');
+        modalTimbrado.classList.remove('flex');
+        inputTimbrado.value = '';
+    }
+
+    // Guardar timbrado
+    if (btnGuardarTimbrado) {
+        btnGuardarTimbrado.addEventListener('click', async function () {
+            const timbrado = inputTimbrado.value;
+            if (!timbrado || timbrado < 1) {
+                alert('Por favor ingrese un timbrado válido');
+                return;
+            }
+
+            try {
+                const response = await fetch('/facturas/config/timbrado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        timbrado: parseInt(timbrado)
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    mostrarIndicadorTimbrado(data.timbrado);
+                    cerrarModalTimbrado();
+                } else {
+                    alert('Error al guardar el timbrado');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar el timbrado');
+            }
+        });
+    }
+
+    // Limpiar timbrado
+    if (btnLimpiarTimbrado) {
+        btnLimpiarTimbrado.addEventListener('click', async function () {
+            if (!confirm('¿Estás seguro de eliminar la configuración del timbrado?'))
+                return;
+
+            try {
+                const response = await fetch('/facturas/config/timbrado', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    ocultarIndicadorTimbrado();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    // Verificar timbrado existente
+    async function checkTimbrado() {
+        try {
+            const response = await fetch('/facturas/config/timbrado');
+            const data = await response.json();
+            if (data.existe) {
+                mostrarIndicadorTimbrado(data.timbrado);
+            }
+        } catch (error) {
+            console.error('Error al verificar timbrado:', error);
+        }
+    }
+
+    function mostrarIndicadorTimbrado(timbrado) {
+        if (indicadorTimbrado) {
+            indicadorTimbrado.classList.remove('hidden');
+            indicadorTimbrado.classList.add('flex');
+            timbradoConfigurado.textContent = timbrado;
+        }
+    }
+
+    function ocultarIndicadorTimbrado() {
+        if (indicadorTimbrado) {
+            indicadorTimbrado.classList.add('hidden');
+            indicadorTimbrado.classList.remove('flex');
+            timbradoConfigurado.textContent = '---';
+        }
+    }
+
+
+
     // Función para obtener el badge según el tipo de foto
     function getTipoBadge(tipo) {
         const badges = {
