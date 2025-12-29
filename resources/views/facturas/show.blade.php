@@ -16,7 +16,7 @@
             <div>
                 <h2 class="text-lg md:text-2xl font-bold text-gray-800 font-mono">{{ $factura->numero_formateado }}</h2>
                 <p class="text-gray-500 text-sm">Emitida:
-                    {{ $factura->emision ? $factura->emision->format('d/m/Y H:i') : $factura->created_at->format('d/m/Y H:i') }}
+                    {{ $factura->emision ? $factura->emision->format('d/m/Y') : $factura->created_at->format('d/m/Y') }}
                 </p>
             </div>
         </div>
@@ -351,7 +351,7 @@
                 </div>
 
                 {{-- Galería de fotos - Renderizada por JS --}}
-                <div id="galeria-fotos-factura" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div id="galeria-fotos-factura" class="grid grid-cosls-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {{-- Las fotos serán cargadas dinámicamente por JavaScript --}}
                 </div>
             </div>

@@ -106,26 +106,28 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/api/servicio-proceso/crear-cliente', [ServicioProcesoController::class, 'crearCliente']);
         Route::post('/api/servicio-proceso/crear-mecanico', [ServicioProcesoController::class, 'crearMecanico']);
         Route::get('/api/servicio-proceso/{id}/imagenes', [ServicioProcesoController::class, 'getImages']);
-        // Facturas
+        // Facturas - Rutas específicas primero (antes de rutas con parámetros dinámicos)
         Route::get('/factura', [FacturaController::class, 'index'])->name('facturas.index');
-        Route::get('/facturas/{id}', [FacturaController::class, 'show'])->name('facturas.show');
-        Route::post('/facturas/{id}/anular', [FacturaController::class, 'anular'])->name('facturas.anular');
-        Route::post('/facturas/{id}/foto', [FacturaController::class, 'subirFoto'])->name('facturas.foto');
-        Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
-        Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
 
-        // Configuración número de factura
+        // Configuración número de factura (ANTES de /facturas/{id})
         Route::post('/facturas/config/numero', [FacturaController::class, 'setNumeroInicial'])->name('facturas.config.set');
         Route::get('/facturas/config/numero', [FacturaController::class, 'getNumeroInicial'])->name('facturas.config.get');
         Route::delete('/facturas/config/numero', [FacturaController::class, 'clearNumeroInicial'])->name('facturas.config.clear');
 
-        // Configuración timbrado
+        // Configuración timbrado (ANTES de /facturas/{id})
         Route::post('/facturas/config/timbrado', [FacturaController::class, 'setTimbrado'])->name('facturas.config.timbrado.set');
         Route::get('/facturas/config/timbrado', [FacturaController::class, 'getTimbrado'])->name('facturas.config.timbrado.get');
         Route::delete('/facturas/config/timbrado', [FacturaController::class, 'clearTimbrado'])->name('facturas.config.timbrado.clear');
 
-
+        // API de facturas (ANTES de rutas con parámetros dinámicos)
+        Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
+        Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
         Route::get('/gdrive-image/{path}', [FacturaController::class, 'showImage']);
+
+        // Rutas con parámetros dinámicos (AL FINAL)
+        Route::get('/facturas/{id}', [FacturaController::class, 'show'])->name('facturas.show');
+        Route::post('/facturas/{id}/anular', [FacturaController::class, 'anular'])->name('facturas.anular');
+        Route::post('/facturas/{id}/foto', [FacturaController::class, 'subirFoto'])->name('facturas.foto');
 
     });
 

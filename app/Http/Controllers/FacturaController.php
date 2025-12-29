@@ -93,7 +93,6 @@ class FacturaController extends Controller
                 'message' => 'Foto subida correctamente',
                 'foto' => [
                     'id' => $foto->id,
-                    'ruta' => asset('facturas/' . $filename),
                     'descripcion' => $foto->descripcion,
                     'tipo_badge' => $foto->tipo_badge,
                 ]

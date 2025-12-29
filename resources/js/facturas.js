@@ -12,21 +12,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const indicadorConfig = document.getElementById('indicador-config');
     const numeroConfigurado = document.getElementById('numero-configurado');
 
-    // Verificar si existe configuración al cargar
-    checkConfiguracion();
+    // Verificar si existe configuración al cargar (solo en página index)
+    if (btnAbrirConfig) {
+        checkConfiguracion();
 
-    // Abrir modal
-    btnAbrirConfig.addEventListener('click', function () {
-        modalConfig.classList.remove('hidden');
-        modalConfig.classList.add('flex');
-        inputNumero.focus();
-    });
+        // Abrir modal
+        btnAbrirConfig.addEventListener('click', function () {
+            modalConfig.classList.remove('hidden');
+            modalConfig.classList.add('flex');
+            inputNumero.focus();
+        });
 
-    // Cerrar modal
-    btnCerrarConfig.addEventListener('click', cerrarModal);
-    modalConfig.addEventListener('click', function (e) {
-        if (e.target === modalConfig) cerrarModal();
-    });
+        // Cerrar modal
+        btnCerrarConfig?.addEventListener('click', cerrarModal);
+        modalConfig?.addEventListener('click', function (e) {
+            if (e.target === modalConfig) cerrarModal();
+        });
+    }
 
     function cerrarModal() {
         modalConfig.classList.add('hidden');
@@ -35,61 +37,65 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Guardar configuración
-    btnGuardarConfig.addEventListener('click', async function () {
-        const numero = inputNumero.value;
-        if (!numero || numero < 1) {
-            alert('Por favor ingrese un número válido');
-            return;
-        }
+    if (btnGuardarConfig) {
+        btnGuardarConfig.addEventListener('click', async function () {
+            const numero = inputNumero.value;
+            if (!numero || numero < 1) {
+                alert('Por favor ingrese un número válido');
+                return;
+            }
 
-        try {
-            const response = await fetch('/facturas/config/numero', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                        .content
-                },
-                body: JSON.stringify({
-                    numero: parseInt(numero)
-                })
-            });
+            try {
+                const response = await fetch('/facturas/config/numero', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content
+                    },
+                    body: JSON.stringify({
+                        numero: parseInt(numero)
+                    })
+                });
 
-            const data = await response.json();
-            if (data.success) {
-                mostrarIndicador(data.numero);
-                cerrarModal();
-            } else {
+                const data = await response.json();
+                if (data.success) {
+                    mostrarIndicador(data.numero);
+                    cerrarModal();
+                } else {
+                    alert('Error al guardar la configuración');
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 alert('Error al guardar la configuración');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al guardar la configuración');
-        }
-    });
+        });
+    }
 
     // Limpiar configuración
-    btnLimpiarConfig.addEventListener('click', async function () {
-        if (!confirm('¿Estás seguro de eliminar la configuración del número de factura?'))
-            return;
+    if (btnLimpiarConfig) {
+        btnLimpiarConfig.addEventListener('click', async function () {
+            if (!confirm('¿Estás seguro de eliminar la configuración del número de factura?'))
+                return;
 
-        try {
-            const response = await fetch('/facturas/config/numero', {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                        .content
+            try {
+                const response = await fetch('/facturas/config/numero', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    ocultarIndicador();
                 }
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                ocultarIndicador();
+            } catch (error) {
+                console.error('Error:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
+        });
+    }
 
     // Verificar configuración existente
     async function checkConfiguracion() {
