@@ -145,6 +145,8 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
         return;
     }
     const data = await confirmarVenta(formaPago, montoRecibido);
+    console.log(data);
+    return;
     document.getElementById('modal-carga').classList.remove('hidden');
     setTimeout(() => {
         document.getElementById('modal-carga').classList.add('hidden');
@@ -299,6 +301,7 @@ async function confirmarVenta(formaPago, montoRecibido) {
         showToast('Venta realizada con éxito');
         return data;
     } catch (err) {
+        console.log(err);
         showToast(`${err.error}`, 'error');
     }
 

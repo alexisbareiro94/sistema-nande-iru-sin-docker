@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
 
 class StoreVentaRequest extends FormRequest
 {
@@ -51,9 +53,10 @@ class StoreVentaRequest extends FormRequest
 
     public function failedValidation(Validator $validator)
     {
-        return response()->json([
+        Log::error('Error de validación en StoreVentaRequest: ' . json_encode($validator->errors()));
+        throw new HttpResponseException(response()->json([
             'success' => false,
-            'error' => $validator->errors()->first(),
-        ]);
+            'error' => $validator->errors(),
+        ]));
     }
 }

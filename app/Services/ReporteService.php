@@ -13,9 +13,34 @@ use App\Models\Factura;
 use App\Models\Pago;
 use App\Models\ServicioProceso;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class ReporteService
 {
+    public function ventas_actual(Carbon $aperturaActual, Carbon $cierreActual): Collection
+    {
+        return DetalleVenta::whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->with('producto')
+            ->get();
+    }
+
+    public function egresos_actual(Carbon $aperturaActual, Carbon $cierreActual): Collection
+    {
+        return MovimientoCaja::whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->where('tipo', 'egreso')
+            ->get();
+    }
+
+    public function otros_ingresos_actual(Carbon $aperturaActual, Carbon $cierreActual): int
+    {
+        return MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
+            ->where('concepto', '!=', 'Venta de productos')
+            ->where('tipo', '!=', 'egreso')
+            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
+            ->get()
+            ->sum('monto');
+    }
+
     // datos para los tres primeros items de reportes (ventas hoy, clientes nuevos, prod mas vendido y mas vendidos )
     public function data_index(): array
     {
@@ -120,20 +145,12 @@ class ReporteService
         ];
 
         //ingresos de ventas
-        $ventasActual = DetalleVenta::whereBetween('created_at', [$aperturaActual, $cierreActual])
-            ->with('producto')
-            ->get();
-        $ventasPasada = DetalleVenta::whereBetween('created_at', [$aperturaPasado, $cierrePasado])
-            ->with('producto')
-            ->get();
+        $ventasActual = $this->ventas_actual($aperturaActual, $cierreActual);
+        $ventasPasada = $this->ventas_actual($aperturaPasado, $cierrePasado);
 
         //otros ingresos
-        $otrosIngresosActual = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
-            ->where('concepto', '!=', 'Venta de productos')
-            ->where('tipo', '!=', 'egreso')
-            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
-            ->get()
-            ->sum('monto');
+        $otrosIngresosActual = $this->otros_ingresos_actual($aperturaActual, $cierreActual);
+
         $datos['actual']['ganancia'] = $otrosIngresosActual;
 
         $otrosIngresosPasado = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
@@ -232,24 +249,14 @@ class ReporteService
         ];
 
         //ingresos de ventas
-        $ventasActual = DetalleVenta::whereBetween('created_at', [$aperturaActual, $cierreActual])
-            ->with('producto')
-            ->get();
+        $ventasActual = $this->ventas_actual($aperturaActual, $cierreActual);
 
         //otros ingresos
-        $otrosIngresosActual = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
-            ->where('concepto', '!=', 'Venta de productos')
-            ->where('tipo', '!=', 'egreso')
-            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
-            ->get()
-            ->sum('monto');
+        $otrosIngresosActual = $this->otros_ingresos_actual($aperturaActual, $cierreActual);
         $datos['actual']['ganancia'] = $otrosIngresosActual;
 
         //egresos
-        $egresosActual = MovimientoCaja::where('tipo', 'egreso')
-            ->whereBetween('created_at', [$aperturaActual, $cierreActual])
-            ->get()
-            ->sum('monto');
+        $egresosActual = $this->egresos_actual($aperturaActual, $cierreActual);
 
         $datos['actual']['total_venta'] = $ventasActual->sum('total');
         foreach ($ventasActual as $venta) {
