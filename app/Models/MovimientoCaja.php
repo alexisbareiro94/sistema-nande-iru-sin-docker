@@ -60,4 +60,12 @@ class MovimientoCaja extends Model
     {
         return $this->hasOne(PagoSalario::class, 'movimiento_id');
     }
+
+    public function casts()
+    {
+        return [
+            'tipo' => \App\Enums\TipoMovimiento::class,
+            'concepto' => \App\Enums\ConceptoMovimiento::class,
+        ];
+    }
 }

@@ -61,7 +61,7 @@ class CajaController extends Controller
             session("caja", []);
             $caja = Caja::create($data);
 
-            $movimiento = MovimientoCaja::create([
+            MovimientoCaja::create([
                 "caja_id" => $caja->id,
                 "tipo" => "ingreso",
                 "concepto" => "Apertura de caja",

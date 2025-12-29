@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Events\AuditoriaCreadaEvent;
+use App\Enums\{ConceptoMovimiento, TipoMovimiento};
 use App\Models\{Auditoria, User, PagoSalario, MovimientoCaja};
 
 class MovimientoService
@@ -35,7 +36,7 @@ class MovimientoService
                 $restante = $user->salario - $data['monto'];
             }
 
-            $pagoSalario = PagoSalario::create([
+            PagoSalario::create([
                 'user_id' => $data['personal_id'],
                 'movimiento_id' => $movimiento->id,
                 'adelanto' => $adelanto,
@@ -44,23 +45,33 @@ class MovimientoService
                 'created_by' => $userId,
             ]);
 
-            Auditoria::registrar(
-                'crear',
-                $pagoSalario,
-                "Pago de salario a {$user->name} por Gs. " . number_format($pagoSalario->monto, 0, ',', '.'),
-                null,
-                [
-                    'user_id' => $pagoSalario->user_id,
-                    'user_name' => $user->name,
-                    'monto' => $pagoSalario->monto,
-                    'adelanto' => $adelanto,
-                    'restante' => $restante,
-                ]
-            );
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::registrar(
+            //     'crear',
+            //     $pagoSalario,
+            //     "Pago de salario a {$user->name} por Gs. " . number_format($pagoSalario->monto, 0, ',', '.'),
+            //     null,
+            //     [
+            //         'user_id' => $pagoSalario->user_id,
+            //         'user_name' => $user->name,
+            //         'monto' => $pagoSalario->monto,
+            //         'adelanto' => $adelanto,
+            //         'restante' => $restante,
+            //     ]
+            // );
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return true;
         } else {
             return false;
         }
+    }
+
+    public function registrar(int $cajaId, int $montoInicial, ConceptoMovimiento $concepto, TipoMovimiento $tipo)
+    {
+        MovimientoCaja::create([
+            "caja_id" => $cajaId,
+            "tipo" => $tipo,
+            "concepto" => $concepto,
+            "monto" => $montoInicial,
+        ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 // use App\Events\AuditoriaCreadaEvent;
 // use App\Events\UltimaActividadEvent;
+use App\Actions\CreateVenta;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
@@ -157,7 +158,7 @@ class VentaController extends Controller
                     });
                 }
             }
-            //TODO: agregar el fulltext
+
             if (filled($search)) {
                 $query->whereHas('venta', function ($q) use ($search) {
                     $q->whereLike('codigo', "%$search%")
@@ -271,185 +272,14 @@ class VentaController extends Controller
         }
     }
 
-    public function store(StoreVentaRequest $request)
+    public function store(StoreVentaRequest $request, CreateVenta $createVenta)
     {
         $data = $request->validated();  //aca se valida que llegue el carrito y demas datos        
-        $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario        
-        if ($errores->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'errores' => $errores->first(),
-                'es en el service'
-            ], 400);
-        }
+        $venta = $createVenta->execute($data);
 
-        $carrito = collect(json_decode($data['carrito']));
-        $totalCarrito = collect(json_decode($data['total']));
-        $formaPago = collect(json_decode($data['forma_pago']));
-        $vehiculoId = $data['vehiculo_id'] ?? null;
-
-        $ruc = $data['ruc'];
-        $userId = User::where('ruc_ci', $ruc)
-            ->where('tenant_id', tenant_id())
-            ->pluck('id')
-            ->first();
-        $cajaId = Caja::where('estado', 'abierto')->pluck('id')->first();
-        $metodoPago = $formaPago->keys();
-        session(['key' => $metodoPago[0]]);
-        $tieneDescuento = $carrito->contains(fn($item) => $item->descuento === true);
 
         DB::beginTransaction();
-        try {
-            $venta = Venta::create([
-                'caja_id' => $cajaId,
-                'codigo' => generate_code(),
-                'vendedor_id' => auth()->user()->id,
-                'cliente_id' => $userId,
-                'vehiculo_id' => $vehiculoId ?? null,
-                'cantidad_productos' => $totalCarrito['cantidadTotal'],
-                'forma_pago' => $metodoPago[0],
-                'con_descuento' => $tieneDescuento,
-                'monto_descuento' => $totalCarrito['subtotal'] - $totalCarrito['total'],
-                'monto_recibido' => $data['monto_recibido'],
-                'subtotal' => $totalCarrito['subtotal'],
-                'total' => $totalCarrito['total'],
-                'estado' => 'completado',
-            ]);
-            $cliente = User::find($userId);
-            $factura = Factura::orderBy('numero', 'desc')->first();
-            if ($cliente->ruc_ci != '1111111-1') {
-                // Verificar si existe número configurado en session
-                $numeroFacturaInicial = session('numero_factura_inicial');
-                if ($numeroFacturaInicial !== null) {
-                    $nuevoNumero = $numeroFacturaInicial;
-                    // Eliminar la session después de usarla
-                    session()->forget('numero_factura_inicial');
-                } else {
-                    $nuevoNumero = $factura?->numero !== null ? $factura->numero + 1 : 87;
-                }
 
-                // Verificar si existe timbrado configurado en session
-                $timbradoSession = session('timbrado_factura');
-                $timbrado = $timbradoSession !== null ? $timbradoSession : 18450157;
-
-                Factura::create([
-                    'venta_id' => $venta->id,
-                    'timbrado' => $timbrado,
-                    'sucursal' => 001,
-                    'punto_emision' => 001,
-                    'numero' => $nuevoNumero,
-                    'emision' => now()->format('Y-m-d'),
-                    'estado' => 'emitida',
-                    'tipo' => 'factura',
-                    'condicion_venta' => 'contado',
-                ]);
-            }
-
-
-            if ($vehiculoId != null) {
-                ServicioProceso::where('vehiculo_id', $vehiculoId)
-                    ->update([
-                        'estado' => 'cobrado',
-                        'venta_id' => $venta->id,
-                        'updated_by' => auth()->user()->id,
-                        'fecha_fin' => now(),
-                    ]);
-            }
-
-            // Auditoria::create([
-            //     'created_by' => auth()->user()->id,
-            //     'entidad_type' => Venta::class,
-            //     'entidad_id' => $venta->id,
-            //     'accion' => 'Registro de venta',
-            //     'datos' => [
-            //         'total' => $venta->total,
-            //     ]
-            // ]);
-
-            // AuditoriaCreadaEvent::dispatch(tenant_id());
-
-            MovimientoCaja::create([
-                'caja_id' => $cajaId,
-                'tipo' => 'ingreso',
-                'venta_id' => $venta->id,
-                'concepto' => 'Venta de productos',
-                'monto' => $venta->total,
-            ]);
-
-            $productos = [];
-            foreach ($carrito as $id => $producto) {
-                DetalleVenta::create([
-                    'venta_id' => $venta->id,
-                    'producto_id' => $id,
-                    'caja_id' => $cajaId,
-                    'cantidad' => $producto->cantidad,
-                    'precio_unitario' => $producto->precio,
-                    'producto_con_descuento' => $producto->descuento,
-                    'precio_descuento' => $producto->precio_descuento,
-                    'subtotal' => $producto->cantidad * $producto->precio,
-                    'total' => $producto->descuento === true ? $producto->cantidad * $producto->precio_descuento : $producto->cantidad * $producto->precio,
-                ]);
-
-                $productdb = Producto::find($id);
-                $productos[] = $productdb;
-                if ($productdb->tipo === 'producto') {
-                    if ($producto->cantidad <= $productdb->stock) {
-                        $productdb->decrement('stock', $producto->cantidad);
-                    } else {
-                        DB::rollBack();
-                        return response()->json([
-                            'success' => false,
-                            'error' => 'No hay stock suficiente: ' . $producto->nombre,
-                            'stock' => $productdb->stock,
-                            'carrito_cantidad' => $producto->cantidad,
-                        ], 400);
-                    }
-                }
-                $productdb->increment('ventas', $producto->cantidad);
-            }
-
-            foreach ($formaPago as $forma => $monto) {
-                if ($forma == 'mixto') {
-                    foreach ($monto as $metodo => $pago) {
-                        Pago::create([
-                            'venta_id' => $venta->id,
-                            'caja_id' => $cajaId,
-                            'metodo' => $metodo,
-                            'monto' => $pago,
-                            'estado' => 'completado',
-                        ]);
-                    }
-                } else {
-                    Pago::create([
-                        'venta_id' => $venta->id,
-                        'caja_id' => $cajaId,
-                        'metodo' => $forma,
-                        'monto' => $monto,
-                        'estado' => 'completado',
-                    ]);
-                }
-            }
-
-            $caja = session('caja');
-            $caja['saldo'] += $venta->total;
-            session()->put(['caja' => $caja]);
-            DB::commit();
-            // VentaRealizada::dispatch($venta, tenant_id());
-            // UltimaActividadEvent::dispatch(auth()->user()->id, $venta->total, tenant_id());
-            crear_caja();
-            return response()->json([
-                'success' => true,
-                'message' => 'Venta realizada con exito',
-                'venta' => $venta->load('cliente:id,razon_social,ruc_ci'),
-                'productos' => $productos,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 400);
-        }
     }
 
     public function update(UpdateVentaRequest $request, string $id)
@@ -482,17 +312,6 @@ class VentaController extends Controller
                     ]);
                 }
             }
-            // Auditoria::create([
-            //     'created_by' => auth()->user()->id,
-            //     'entidad_type' => Venta::class,
-            //     'entidad_id' => $venta->id,
-            //     'accion' => "Anulación de venta: #$venta->codigo",
-            //     'datos' => [
-            //         'total' => $venta->total,
-            //     ]
-            // ]);
-
-            // AuditoriaCreadaEvent::dispatch(tenant_id());
 
             MovimientoCaja::create([
                 'caja_id' => $cajaId,
