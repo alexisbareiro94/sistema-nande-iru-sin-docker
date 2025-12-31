@@ -381,6 +381,7 @@ function editMecanico() {
             const id = btn.dataset.id;
             const modal = $i('modal-edit-mecanico');
             const nombre = $i('mecanico-nombre-gcd');
+            const razonSocial = $i('mecanico-razon-social-gcd');
             const ruc = $i('mecanico-ruc-ci-gcd');
             const telefono = $i('mecanico-telefono-gcd');
             const mecanicoId = $i('mecanico-id');
@@ -392,7 +393,8 @@ function editMecanico() {
                 const res = await axios.get(`${url}/cliente/${id}`);
                 const data = res.data.data;
                 mecanicoId.value = id;
-                nombre.value = data.name || data.razon_social || '';
+                nombre.value = data.name || '';
+                razonSocial.value = data.razon_social || '';
                 ruc.value = data.ruc_ci || '';
                 telefono.value = data.telefono || '';
             } catch (err) {
@@ -430,13 +432,14 @@ if ($i('form-edit-mecanico-gcd')) {
     $eli('form-edit-mecanico-gcd', 'submit', async e => {
         e.preventDefault();
         const nombre = $i('mecanico-nombre-gcd').value;
+        const razonSocial = $i('mecanico-razon-social-gcd').value;
         const ruc = $i('mecanico-ruc-ci-gcd').value;
         const telefono = $i('mecanico-telefono-gcd').value;
         const id = $i('mecanico-id').value;
 
         const data = new FormData();
-        data.append('razon_social', nombre);
         data.append('name', nombre);
+        data.append('razon_social', razonSocial || '');
         data.append('ruc_ci', ruc);
         data.append('telefono', telefono);
 
@@ -472,8 +475,9 @@ async function renderMecanicos() {
             tr.dataset.id = user.id;
             tr.innerHTML = `
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    ${user.name || user.razon_social || 'N/A'}
+                    ${user.name || 'N/A'}
                 </th>
+                <td class="px-6 py-4">${user.razon_social || 'N/A'}</td>
                 <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
                 <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
                 <td class="px-6 py-4">
@@ -503,7 +507,7 @@ async function renderMecanicos() {
         if (users.length === 0) {
             tableBody.innerHTML = `
                 <tr class="bg-white border-b border-gray-200">
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                         No hay mecánicos registrados
                     </td>
                 </tr>`;
@@ -537,8 +541,9 @@ export async function renderAllMecanicos(data = null) {
             tr.dataset.id = user.id;
             tr.innerHTML = `
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    ${user.name || user.razon_social || 'N/A'}
+                    ${user.name || 'N/A'}
                 </th>
+                <td class="px-6 py-4">${user.razon_social || 'N/A'}</td>
                 <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
                 <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
                 <td class="px-6 py-4">
@@ -567,7 +572,7 @@ export async function renderAllMecanicos(data = null) {
         if (users.length === 0) {
             todosTableBody.innerHTML = `
                 <tr class="bg-white border-b border-gray-200">
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                         No hay mecánicos registrados
                     </td>
                 </tr>`;

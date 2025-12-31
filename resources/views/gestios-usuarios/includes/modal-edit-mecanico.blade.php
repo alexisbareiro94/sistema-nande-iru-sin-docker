@@ -22,6 +22,13 @@
                         placeholder="Nombre del mecánico" required />
                 </div>
                 <div class="mb-5">
+                    <label for="mecanico-razon-social-gcd" class="block mb-2 text-sm font-medium text-gray-900">Razón
+                        Social</label>
+                    <input type="text" id="mecanico-razon-social-gcd"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="Razón social del mecánico" />
+                </div>
+                <div class="mb-5">
                     <label for="mecanico-ruc-ci-gcd" class="block mb-2 text-sm font-medium text-gray-900">RUC /
                         CI</label>
                     <input type="text" id="mecanico-ruc-ci-gcd"
