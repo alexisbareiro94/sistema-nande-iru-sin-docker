@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class VentaService
 {
-    public function validar_carrito($data): Collection
+    public function validar_carrito($data)
     {
         $carrito = collect(json_decode($data['carrito']));
         $ruc = $data['ruc'];
@@ -29,43 +29,46 @@ class VentaService
             $errores['user'] = ['El usuario no existe'];
         }
 
-        return collect($errores);
-
+        if (collect($errores)->count() > 0) {
+            throw new \Exception(json_encode($errores));
+        }
     }
 
     public function data_venta(array $data): array
     {
-        $carrito = collect(json_decode($data['carrito']));
-        $totalCarrito = collect(json_decode($data['total']));
-        $formaPago = collect(json_decode($data['forma_pago']));
-        $vehiculoId = $data['vehiculo_id'] ?? null;
-        $montoRecibido = $data['monto_recibido'];
+        try {
+            $carrito = collect(json_decode($data['carrito']));
+            $totalCarrito = collect(json_decode($data['total']));
+            $formaPago = collect(json_decode($data['forma_pago']));
+            $vehiculoId = $data['vehiculo_id'] ?? null;
+            $montoRecibido = $data['monto_recibido'];
 
-        $ruc = $data['ruc'];
-        $userId = User::where('ruc_ci', $ruc)
-            ->where('tenant_id', tenant_id())
-            ->pluck('id')
-            ->first();
-        $cajaId = Caja::where('estado', 'abierto')->pluck('id')->first();
-        $metodoPago = $formaPago->keys();
-        session(['key' => $metodoPago[0]]);
-        $tieneDescuento = $carrito->contains(fn($item) => $item->descuento === true);
-
-        return [
-            'carrito' => $carrito,
-            'totalCarrito' => $totalCarrito,
-            'formaPago' => $formaPago,
-            'vehiculoId' => $vehiculoId,
-            'userId' => $userId,
-            'cajaId' => $cajaId,
-            'metodoPago' => $metodoPago,
-            'tieneDescuento' => $tieneDescuento,
-            'montoRecibido' => $montoRecibido,
-        ];
-
+            $ruc = $data['ruc'];
+            $userId = User::where('ruc_ci', $ruc)
+                ->where('tenant_id', tenant_id())
+                ->pluck('id')
+                ->first();
+            $cajaId = Caja::where('estado', 'abierto')->pluck('id')->first();
+            $metodoPago = $formaPago->keys();
+            session(['key' => $metodoPago[0]]);
+            $tieneDescuento = $carrito->contains(fn($item) => $item->descuento === true);
+            return [
+                'carrito' => $carrito,
+                'totalCarrito' => $totalCarrito,
+                'formaPago' => $formaPago,
+                'vehiculoId' => $vehiculoId,
+                'userId' => $userId,
+                'cajaId' => $cajaId,
+                'metodoPago' => $metodoPago,
+                'tieneDescuento' => $tieneDescuento,
+                'montoRecibido' => $montoRecibido,
+            ];
+        } catch (\Exception $e) {
+            Log::error('69: App\Services\VentaService | Error al obtener los datos de la venta: ' . $e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
     }
-
-    public function crear_factura(object $venta): bool
+    public function crear_factura(object $venta): void
     {
         try {
             $cliente = User::find($venta->cliente_id);
@@ -93,11 +96,10 @@ class VentaService
                     'condicion_venta' => 'contado',
                 ]);
             }
-            Log::info('Factura creada: ' . $factura);
-            return true;
+            // Log::info('Factura creada: ' . $factura);
         } catch (\Exception $e) {
             Log::error('Error al crear la factura: ' . $e->getMessage());
-            return false;
+            throw new \Exception($e->getMessage());
         }
     }
 }

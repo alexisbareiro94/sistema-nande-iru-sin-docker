@@ -120,7 +120,7 @@ class ServicioProcesoController extends Controller
             'vehiculo_id' => 'nullable|exists:vehiculos,id',
             'mecanico_id' => 'nullable|exists:users,id',
             'cliente_id' => 'nullable|exists:users,id',
-            'estado' => 'nullable|in:pendiente,en_proceso,completado,cancelado',
+            'estado' => 'nullable|in:pendiente,en_proceso,completado,cancelado,cobrado',
             'descripcion' => 'nullable|string|max:1000',
             'observaciones' => 'nullable|string|max:2000',
         ]);

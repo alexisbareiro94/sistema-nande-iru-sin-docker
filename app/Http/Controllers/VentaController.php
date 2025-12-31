@@ -4,20 +4,20 @@ namespace App\Http\Controllers;
 
 // use App\Events\AuditoriaCreadaEvent;
 // use App\Events\UltimaActividadEvent;
+use Carbon\Carbon;
 use App\Actions\CreateVenta;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso, Factura};
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Exports\VentasExport;
-use App\Http\Requests\UpdateVentaRequest;
-// use App\Jobs\GenerarPdfJob;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\UpdateVentaRequest;
+use App\Models\{MovimientoCaja, User, Venta, DetalleVenta, Producto};
+// use App\Jobs\GenerarPdfJob;
 // use App\Jobs\VentaRealizada;
-use function Symfony\Component\Clock\now;
 
 class VentaController extends Controller
 {
@@ -272,14 +272,16 @@ class VentaController extends Controller
         }
     }
 
-    public function store(StoreVentaRequest $request, CreateVenta $createVenta)
+    public function store(StoreVentaRequest $request, CreateVenta $createVenta): JsonResponse
     {
-        $data = $request->validated();  //aca se valida que llegue el carrito y demas datos        
-        $venta = $createVenta->execute($data);
-
-
-        DB::beginTransaction();
-
+        $data = $request->validated();
+        $res = $createVenta->execute($data);
+        return response()->json([
+            'success' => true,
+            'message' => 'Venta creada correctamente',
+            'venta' => $res['venta'],
+            'productos' => $res['productos'],
+        ], 200);
     }
 
     public function update(UpdateVentaRequest $request, string $id)

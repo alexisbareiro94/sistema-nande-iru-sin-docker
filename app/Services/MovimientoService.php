@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Events\AuditoriaCreadaEvent;
 use App\Enums\{ConceptoMovimiento, TipoMovimiento};
 use App\Models\{Auditoria, User, PagoSalario, MovimientoCaja};
+use Illuminate\Support\Facades\Log;
 
 class MovimientoService
 {
@@ -65,13 +66,19 @@ class MovimientoService
         }
     }
 
-    public function registrar(int $cajaId, int $montoInicial, ConceptoMovimiento $concepto, TipoMovimiento $tipo)
+    public function registrar(int $cajaId, int $monto, string $concepto, string $tipo)
     {
-        MovimientoCaja::create([
-            "caja_id" => $cajaId,
-            "tipo" => $tipo,
-            "concepto" => $concepto,
-            "monto" => $montoInicial,
-        ]);
+        try {
+            MovimientoCaja::create([
+                "caja_id" => $cajaId,
+                "tipo" => $tipo,
+                "concepto" => $concepto,
+                "monto" => $monto,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al crear el movimiento: ' . $e->getMessage());
+            throw new \Exception('Error al crear el movimiento: ' . $e->getMessage());
+        }
+
     }
 }

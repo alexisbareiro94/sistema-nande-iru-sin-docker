@@ -8,16 +8,17 @@ use App\Models\ServicioProceso;
 
 class ServicioCobrado
 {
-    public function execute($vehiculoId, $ventaId): void
+    public function execute(?int $vehiculoId, int $ventaId): void
     {
-        if ($vehiculoId != null) {
-            ServicioProceso::where('vehiculo_id', $vehiculoId)
-                ->update([
-                    'estado' => 'cobrado',
-                    'venta_id' => $ventaId,
-                    'updated_by' => auth()->user()->id,
-                    'fecha_fin' => now(),
-                ]);
+        if ($vehiculoId === null) {
+            return;
         }
+        ServicioProceso::where('vehiculo_id', $vehiculoId)
+            ->update([
+                'estado' => 'cobrado',
+                'venta_id' => $ventaId,
+                'updated_by' => auth()->user()->id,
+                'fecha_fin' => now(),
+            ]);
     }
 }
