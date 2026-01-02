@@ -295,7 +295,6 @@ class ReporteController extends Controller
     public function detalleReporte(Request $request)
     {
         $data = $this->reporteService->data_detalle_reporte($request);
-        // dd($data);
         return view('reportes.detalle', [
             'data' => $data
         ]);

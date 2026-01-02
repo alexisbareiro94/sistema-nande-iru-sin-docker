@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreVentaRequest;
 use App\Services\VentaService;
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso, Factura};
+use App\Models\{MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, ServicioProceso, Factura};
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Exports\VentasExport;
@@ -16,7 +16,7 @@ use App\Http\Requests\UpdateVentaRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 // use App\Jobs\VentaRealizada;
-use function Symfony\Component\Clock\now;
+use Illuminate\Support\Facades\Log;
 
 class VentaController extends Controller
 {
@@ -273,7 +273,7 @@ class VentaController extends Controller
 
     public function store(StoreVentaRequest $request)
     {
-        $data = $request->validated();  //aca se valida que llegue el carrito y demas datos        
+        $data = $request->validated();  //aca se valida que llegue el carrito y demas datos                
         $errores = $this->ventaService->validate_data($data); //aca valido los datos del carrito y el usuario        
         if ($errores->count() > 0) {
             return response()->json([
@@ -287,7 +287,6 @@ class VentaController extends Controller
         $totalCarrito = collect(json_decode($data['total']));
         $formaPago = collect(json_decode($data['forma_pago']));
         $vehiculoId = $data['vehiculo_id'] ?? null;
-
         $ruc = $data['ruc'];
         $userId = User::where('ruc_ci', $ruc)
             ->where('tenant_id', tenant_id())
@@ -295,9 +294,8 @@ class VentaController extends Controller
             ->first();
         $cajaId = Caja::where('estado', 'abierto')->pluck('id')->first();
         $metodoPago = $formaPago->keys();
-        session(['key' => $metodoPago[0]]);
+        // session(['key' => $metodoPago[0]]);
         $tieneDescuento = $carrito->contains(fn($item) => $item->descuento === true);
-
         DB::beginTransaction();
         try {
             $venta = Venta::create([
@@ -310,7 +308,7 @@ class VentaController extends Controller
                 'forma_pago' => $metodoPago[0],
                 'con_descuento' => $tieneDescuento,
                 'monto_descuento' => $totalCarrito['subtotal'] - $totalCarrito['total'],
-                'monto_recibido' => $data['monto_recibido'],
+                'monto_recibido' => (int) $data['monto_recibido'],
                 'subtotal' => $totalCarrito['subtotal'],
                 'total' => $totalCarrito['total'],
                 'estado' => 'completado',
@@ -408,14 +406,14 @@ class VentaController extends Controller
                 $productdb->increment('ventas', $producto->cantidad);
             }
 
-            foreach ($formaPago as $forma => $monto) {
+            foreach ($formaPago as $forma => $datos) {
                 if ($forma == 'mixto') {
-                    foreach ($monto as $metodo => $pago) {
+                    foreach ($datos as $metodo => $monto) {
                         Pago::create([
                             'venta_id' => $venta->id,
                             'caja_id' => $cajaId,
                             'metodo' => $metodo,
-                            'monto' => $pago,
+                            'monto' => $monto,
                             'estado' => 'completado',
                         ]);
                     }
@@ -424,7 +422,7 @@ class VentaController extends Controller
                         'venta_id' => $venta->id,
                         'caja_id' => $cajaId,
                         'metodo' => $forma,
-                        'monto' => $monto,
+                        'monto' => $datos->total,
                         'estado' => 'completado',
                     ]);
                 }
@@ -445,6 +443,7 @@ class VentaController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('446:App\Http\Controllers\VentaController: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),

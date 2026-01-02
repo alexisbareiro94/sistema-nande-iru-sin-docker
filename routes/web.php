@@ -208,3 +208,22 @@ Route::get('/session/{nombre}', function (string $nombre) {
 Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
+
+Route::get('/debug', function () {
+    $formaPago = [
+        'efectivo' => [
+            'recibido' => 5500000,
+            'total' => 528000,
+        ]
+    ];
+
+    foreach ($formaPago as $metodo => $dato) {
+        if ($metodo == 'mixto') {
+            foreach ($dato as $key => $value) {
+                dd($key, $value);
+            }
+        } else {
+            dd($metodo, $dato['total']);
+        }
+    }
+});
