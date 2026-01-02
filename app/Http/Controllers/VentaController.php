@@ -49,7 +49,7 @@ class VentaController extends Controller
                 ->with('venta.productos')
                 ->paginate(10);
         }
-        // dd($users);
+
         return view('caja.historial-completo.index', [
             'users' => $users,
             'clientes' => $clientes,

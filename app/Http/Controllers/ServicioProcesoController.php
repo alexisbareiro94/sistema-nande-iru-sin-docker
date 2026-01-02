@@ -9,7 +9,7 @@ use App\Models\Vehiculo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\View\View;
 use Yaza\LaravelGoogleDriveStorage\Gdrive;
 
 class ServicioProcesoController extends Controller
@@ -36,25 +36,22 @@ class ServicioProcesoController extends Controller
     /**
      * Mostrar detalle de un servicio
      */
-    public function show(string $id)
+    public function show(string $id): View
     {
-        $tenantId = tenant_id();
-
-        $servicio = ServicioProceso::with(['vehiculo.cliente', 'mecanico', 'cliente', 'fotos'])
+        $servicio = ServicioProceso::with(['vehiculo.cliente', 'mecanico', 'cliente', 'fotos', 'venta.productos'])
             ->findOrFail($id);
 
         $clientes = User::where('role', 'cliente')
-            ->where('tenant_id', $tenantId)
+            ->where('tenant_id', tenant_id())
             ->get();
 
-        $vehiculos = Vehiculo::where('tenant_id', $tenantId)
+        $vehiculos = Vehiculo::where('tenant_id', tenant_id())
             ->with('servicioProceso')
             ->get();
 
-
         $mecanicos = User::where('role', 'mecanico')
             ->where('activo', true)
-            ->where('tenant_id', $tenantId)
+            ->where('tenant_id', tenant_id())
             ->get();
 
         return view('servicio-proceso.show', [
