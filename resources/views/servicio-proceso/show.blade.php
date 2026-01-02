@@ -304,6 +304,76 @@
                     </button>
                 </div>
             @endif
+
+            @if ($servicio->estado == 'cobrado' && $servicio->venta && $servicio->venta->productos->count() > 0)
+                <div class="bg-white rounded-xl shadow-sm p-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Servicios Realizados
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-600">Servicio</th>
+                                    <th class="text-center py-3 px-2 text-sm font-semibold text-gray-600">Cant.</th>
+                                    <th class="text-right py-3 px-2 text-sm font-semibold text-gray-600">Precio</th>
+                                    <th class="text-right py-3 px-2 text-sm font-semibold text-gray-600">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($servicio->venta->detalleVentas as $detalleVenta)
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                        <td class="py-3 px-2">
+                                            <span
+                                                class="font-medium text-gray-800">{{ $detalleVenta->producto->nombre }}</span>
+                                        </td>
+                                        <td class="py-3 px-2 text-center text-gray-600">
+                                            {{ $detalleVenta->cantidad ?? 1 }}
+                                        </td>
+                                        <td class="py-3 px-2 text-right text-gray-600">
+                                            ₲
+                                            {{ number_format($detalleVenta->producto->precio_venta, 0, ',', '.') }}
+                                        </td>
+                                        <td class="py-3 px-2 text-right font-semibold text-gray-800">
+                                            ₲
+                                            {{ number_format($detalleVenta->producto->precio_venta * ($detalleVenta->cantidad ?? 1), 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                @if ($servicio->venta->descuento > 0)
+                                    <tr class="border-t border-gray-200">
+                                        <td colspan="3" class="py-2 px-2 text-right text-gray-500">Descuento:</td>
+                                        <td class="py-2 px-2 text-right text-red-500 font-medium">
+                                            - ₲ {{ number_format($servicio->venta->descuento, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endif
+                                <tr class="border-t-2 border-gray-300">
+                                    <td colspan="3" class="py-3 px-2 text-right font-bold text-gray-800 text-lg">TOTAL:
+                                    </td>
+                                    <td class="py-3 px-2 text-right font-bold text-green-600 text-lg">
+                                        ₲ {{ number_format($servicio->venta->total, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div
+                        class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+                        <span>Método de pago: <strong
+                                class="text-gray-700">{{ ucfirst($servicio->venta->metodo_pago ?? 'N/A') }}</strong></span>
+                        <span>Fecha: <strong
+                                class="text-gray-700">{{ $servicio->venta->created_at->format('d/m/Y H:i') }}</strong></span>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

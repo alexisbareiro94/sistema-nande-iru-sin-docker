@@ -38,23 +38,29 @@ class ServicioProcesoController extends Controller
      */
     public function show(string $id)
     {
-        $tenantId = tenant_id();
-
-        $servicio = ServicioProceso::with(['vehiculo.cliente', 'mecanico', 'cliente', 'fotos'])
+        $servicio = ServicioProceso::with([
+            'vehiculo.cliente',
+            'mecanico',
+            'cliente',
+            'fotos',
+            'venta' => function ($q) {
+                return $q->with('detalleVentas.producto');
+            }
+        ])
             ->findOrFail($id);
 
         $clientes = User::where('role', 'cliente')
-            ->where('tenant_id', $tenantId)
+            ->where('tenant_id', tenant_id())
             ->get();
 
-        $vehiculos = Vehiculo::where('tenant_id', $tenantId)
+        $vehiculos = Vehiculo::where('tenant_id', tenant_id())
             ->with('servicioProceso')
             ->get();
 
 
         $mecanicos = User::where('role', 'mecanico')
             ->where('activo', true)
-            ->where('tenant_id', $tenantId)
+            ->where('tenant_id', tenant_id())
             ->get();
 
         return view('servicio-proceso.show', [
