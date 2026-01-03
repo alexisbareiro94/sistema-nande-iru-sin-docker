@@ -32,6 +32,7 @@ if (document.querySelectorAll(".detalle-caja")) {
     document.querySelectorAll(".detalle-caja").forEach((btn) => {
         btn.addEventListener("click", async () => {
             const data = await getCaja(btn.dataset.cajaid);
+            console.log(data);
             abrirModalCaja();
             mapearDetalleCaja(data);
         });
@@ -45,7 +46,6 @@ async function getCaja(id) {
         if (!res.ok) {
             throw data;
         }
-        console.log(data);
         return data;
     } catch (err) {
         showToast(`${err.error}`, "error");
@@ -53,7 +53,6 @@ async function getCaja(id) {
 }
 
 function mapearDetalleCaja(data) {
-    console.log(data)
     const dcDetalleVenta = document.getElementById("dc-detalle-caja");
     const dcCajeroFechas = document.getElementById("dc-cajero-fechas");
     const dcMontoEsperado = document.getElementById("dc-monto-esperado");
@@ -158,8 +157,8 @@ function mapearDetalleCaja(data) {
         dcTablaBody.appendChild(tr);
     });
 
-    meyorVenta.innerText = `Gs. ${data.datos.mayorVenta.toLocaleString("es-PY")}`;
-    promedio.innerText = `Gs. ${data.datos.promedio.toLocaleString("es-PY")}`;
+    meyorVenta.innerText = `Gs. ${data?.datos?.mayorVenta?.toLocaleString("es-PY")}`;
+    promedio.innerText = `Gs. ${data?.datos?.promedio?.toLocaleString("es-PY")}`;
 
     egresos.innerHTML = '';
     data.datos.egresos.forEach(item => {

@@ -208,3 +208,28 @@ Route::get('/session/{nombre}', function (string $nombre) {
 Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
+
+
+// $efectivo = Pago::where("caja_id", $caja->id)
+//     ->where("metodo", "efectivo")
+//     ->sum("monto");
+
+// $transferencia = Pago::where("caja_id", $caja->id)
+//     ->where("metodo", "transferencia")
+//     ->sum("monto");
+
+use App\Models\Pago;
+Route::get('/debug', function () {
+    $cajaId = 1;
+    $metodos = Pago::where('caja_id', $cajaId)
+        ->get()
+        ->groupBy('metodo')
+        ->map(function ($item) {
+            return $item->sum('monto');
+        });
+
+
+    // return $metodos;
+
+    // dd($metodos->get('efectivo'));
+});

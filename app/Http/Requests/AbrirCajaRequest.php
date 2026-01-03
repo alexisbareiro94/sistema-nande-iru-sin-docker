@@ -23,12 +23,12 @@ class AbrirCajaRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [            
-            'monto_inicial' => 'required|numeric|min:0',            
+        return [
+            'monto_inicial' => 'required|numeric|min:0',
         ];
     }
 
-    public function messages() : array
+    public function messages(): array
     {
         return [
             'monto_inicial.required' => 'Debes Agregar un monto de apertura',
