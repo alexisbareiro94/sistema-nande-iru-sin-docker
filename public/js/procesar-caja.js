@@ -122,13 +122,20 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
             return;
         }
     }
+    const totalCart = JSON.parse(sessionStorage.getItem('totalCarrito')) || {};
     if (efectivo.checked) {
         formaPago = {
-            'efectivo': montoRecibido.value.trim(),
+            'efectivo': {
+                'recibido': montoRecibido.value.trim(),
+                'total': totalCart.total,
+            }
         }
     } else if (transf.checked) {
         formaPago = {
-            'transferencia': montoRecibido.value.trim(),
+            'transferencia': {
+                'recibido': montoRecibido.value.trim(),
+                'total': totalCart.total,
+            }
         }
     } else {
         formaPago = {
@@ -138,7 +145,6 @@ document.getElementById('confirmar-venta').addEventListener('click', async () =>
             }
         }
     }
-    const totalCart = JSON.parse(sessionStorage.getItem('totalCarrito')) || {};
     let monto = parseInt(montoRecibido.value);
     if (totalCart.total > monto) {
         showToast('El monto recibido es menor al total de la venta', 'error');

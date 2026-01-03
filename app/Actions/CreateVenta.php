@@ -32,18 +32,18 @@ class CreateVenta
         DB::beginTransaction();
         try {
             $venta = Venta::create([
-                'caja_id' => $validated['cajaId'],
+                'caja_id' => (int) $validated['cajaId'],
                 'codigo' => generate_code(),
-                'vendedor_id' => auth()->user()->id,
-                'cliente_id' => $validated['userId'],
+                'vendedor_id' => (int) auth()->user()->id,
+                'cliente_id' => (int) $validated['userId'],
                 'vehiculo_id' => $validated['vehiculoId'] ?? null,
-                'cantidad_productos' => $validated['totalCarrito']['cantidadTotal'],
+                'cantidad_productos' => (int) $validated['totalCarrito']['cantidadTotal'],
                 'forma_pago' => $validated['metodoPago'][0],
                 'con_descuento' => $validated['tieneDescuento'],
-                'monto_descuento' => $validated['totalCarrito']['subtotal'] - $validated['totalCarrito']['total'],
-                'monto_recibido' => $validated['montoRecibido'],
-                'subtotal' => $validated['totalCarrito']['subtotal'],
-                'total' => $validated['totalCarrito']['total'],
+                'monto_descuento' => (int) $validated['totalCarrito']['subtotal'] - (int) $validated['totalCarrito']['total'],
+                'monto_recibido' => (int) $validated['montoRecibido'],
+                'subtotal' => (int) $validated['totalCarrito']['subtotal'],
+                'total' => (int) $validated['totalCarrito']['total'],
                 'estado' => 'completado',
             ]);
             $this->ventaService->crear_factura($venta);

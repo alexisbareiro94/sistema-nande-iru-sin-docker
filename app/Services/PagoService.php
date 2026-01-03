@@ -12,14 +12,14 @@ class PagoService
     public function registrar(Collection $formaPago, object $venta, int $cajaId): void
     {
         try {
-            foreach ($formaPago as $forma => $monto) {
+            foreach ($formaPago as $forma => $datos) {
                 if ($forma == 'mixto') {
-                    foreach ($monto as $metodo => $pago) {
+                    foreach ($datos as $metodo => $monto) {
                         Pago::create([
                             'venta_id' => $venta->id,
                             'caja_id' => $cajaId,
                             'metodo' => $metodo,
-                            'monto' => $pago,
+                            'monto' => $monto,
                             'estado' => 'completado',
                         ]);
                     }
@@ -28,11 +28,12 @@ class PagoService
                         'venta_id' => $venta->id,
                         'caja_id' => $cajaId,
                         'metodo' => $forma,
-                        'monto' => $monto,
+                        'monto' => $datos->total,
                         'estado' => 'completado',
                     ]);
                 }
             }
+
             $caja = session('caja');
             $caja['saldo'] += $venta->total;
             session()->put(['caja' => $caja]);
