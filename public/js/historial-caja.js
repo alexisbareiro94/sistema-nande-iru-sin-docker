@@ -132,7 +132,7 @@ function mapearDetalleCaja(data) {
     const efecPorcentaje =
         data.datos.efecPorcentaje ?? data.datos.efecProcentaje ?? 0;
     const transfPorcentaje =
-        data.datos.transfPorcentaje ?? data.datos.transfProcentaje ?? 0;
+        data.datos.transfPorcentaje ?? data.datos.transfPorcentaje ?? 0;
 
     dcEfectivo.innerText = `Gs ${efectivo.toLocaleString("es-PY")} (${efecPorcentaje}%)`;
     dcTransferencia.innerText = `Gs ${transferencia.toLocaleString("es-PY")} (${transfPorcentaje}%)`;

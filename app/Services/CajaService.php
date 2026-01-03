@@ -126,69 +126,92 @@ class CajaService
         }
     }
 
-    public function show_data(string $id): array
+    public function detalle_show_data(string $id)
     {
         try {
             $caja = Caja::with('user')->findOrFail($id);
-            $transacciones = Venta::where("caja_id", $caja->id)->count();
-            $mayorVenta = Venta::where("caja_id", $caja->id)
-                ->orderByDesc("total")
-                ->first()?->total;
 
-            $egresos = MovimientoCaja::where('tipo', 'egreso')
-                ->where('caja_id', $caja->id)
-                ->orderByDesc('monto')
+            $stats = Venta::where('caja_id', $caja->id)
+                ->selectRaw(
+                    'COUNT(DISTINCT cliente_id) as clientes,
+                COUNT(*) as transacciones,
+                MAX(total) as mayor_venta'
+                )->first();
+
+            $clientes = $stats->clientes;
+            $transacciones = $stats->transacciones;
+            $mayorVenta = $stats->mayor_venta;
+
+            $totales = MovimientoCaja::where('caja_id', $caja->id)
+                ->selectRaw("
+                SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END) as total_ingreso,
+                SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END) as total_egreso
+            ")
+                ->first();
+
+            $totalIngreso = $totales->total_ingreso;
+            $totalEgreso = $totales->total_egreso;
+
+
+            $ingresos = MovimientoCaja::where('caja_id', $caja->id)
+                ->where('tipo', 'ingreso')
+                ->orderByDesc('id')
+                ->limit(5)
                 ->get();
 
-            $totalEgreso = $egresos->sum('monto');
+            $egresos = MovimientoCaja::where('caja_id', $caja->id)
+                ->where('tipo', 'egreso')
+                ->orderByDesc('id')
+                ->limit(5)
+                ->get();
 
-            $promedioVenta = $caja?->monto_cierre ? 0 : $caja->monto_cierre / $transacciones;
-            $clientes = Venta::where("caja_id", $caja->id)
+            $promedioVenta = $transacciones > 0 ? $caja->monto_cierre / $transacciones : 0;
+
+            $metodosPago = Pago::where('caja_id', $caja->id)
                 ->get()
-                ->unique("cliente_id")
-                ->count();
+                ->groupBy('metodo')
+                ->map(function ($item) {
+                    return $item->sum('monto');
+                });
 
-            //TODO: usar algun map y un groupBy, para la columna metodo
-            $efectivo = Pago::where("caja_id", $caja->id)
-                ->where("metodo", "efectivo")
-                ->sum("monto");
-            $transferencia = Pago::where("caja_id", $caja->id)
-                ->where("metodo", "transferencia")
-                ->sum("monto");
+            $efectivo = $metodosPago->get('efectivo', 0);
+            $transferencia = $metodosPago->get('transferencia', 0);
 
             $ventas = DetalleVenta::where("caja_id", $caja->id)
                 ->with("producto:id,nombre")
+                ->limit(5)
                 ->get()
                 ->groupBy("producto_id")
                 ->map(function ($items) {
                     return [
                         "cantidad" => $items->sum("cantidad"),
-                        "producto" => $items->first()->producto->nombre,
+                        "producto" => $items->first()->producto->nombre ?? 'Producto eliminado',
                         "total" => $items->sum("total"),
                     ];
                 })
-                ->sortByDesc("total")
-                ->take(3);
+                ->sortByDesc("total");
 
             $total = $efectivo + $transferencia;
-            $efecPorcentaje = $total ? (100 * $efectivo) / $total : 0;
-            $transfProcentaje = $total ? (100 * $transferencia) / $total : 0;
-
+            $efecPorcentaje = $total > 0 ? round((100 * $efectivo) / $total, 0) : 0;
+            $transfPorcentaje = $total > 0 ? round((100 * $transferencia) / $total, 0) : 0;
 
             return [
-                "caja" => $caja,
-                "ventas" => $ventas->values()->toArray(),
-                "transacciones" => $transacciones,
-                "clientes" => $clientes,
-                "efectivo" => $efectivo,
-                "efecPorcentaje" => round($efecPorcentaje, 0),
-                "transferencia" => $transferencia,
-                "transfProcentaje" => round($transfProcentaje, 0),
-                "mayorVenta" => $mayorVenta,
-                "promedio" => round($promedioVenta, 0),
-                'egresos' => $egresos->take(3),
-                'total_egreso' => $totalEgreso
+                'caja' => $caja,
+                'ventas' => $ventas->values(),
+                'transacciones' => $transacciones,
+                'clientes' => $clientes,
+                'efectivo' => $efectivo,
+                'efecPorcentaje' => $efecPorcentaje,
+                'transferencia' => $transferencia,
+                'transfPorcentaje' => $transfPorcentaje,
+                'mayorVenta' => $mayorVenta,
+                'promedio' => round($promedioVenta, 0),
+                'egresos' => $egresos,
+                'totalEgreso' => $totalEgreso,
+                'ingresos' => $ingresos,
+                'totalIngreso' => $totalIngreso,
             ];
+
         } catch (\Exception $e) {
             throw new CajaIndexException($e->getMessage());
         }

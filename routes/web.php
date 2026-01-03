@@ -209,27 +209,27 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
+use App\Models\{Pago, MovimientoCaja, Venta};
 
-// $efectivo = Pago::where("caja_id", $caja->id)
-//     ->where("metodo", "efectivo")
-//     ->sum("monto");
+// $clientes = Venta::where("caja_id", $caja->id)
+//     ->get()
+//     ->unique("cliente_id")
+//     ->count();
 
-// $transferencia = Pago::where("caja_id", $caja->id)
-//     ->where("metodo", "transferencia")
-//     ->sum("monto");
+// $transacciones = Venta::where("caja_id", $caja->id)->count();
 
-use App\Models\Pago;
+// $mayorVentaRecord = Venta::where("caja_id", $caja->id)
+//     ->orderByDesc("total")
+//     ->first();
+
+// $mayorVenta = $mayorVentaRecord ? $mayorVentaRecord->total : 0;
+
 Route::get('/debug', function () {
     $cajaId = 1;
-    $metodos = Pago::where('caja_id', $cajaId)
-        ->get()
-        ->groupBy('metodo')
-        ->map(function ($item) {
-            return $item->sum('monto');
-        });
+    $ventas = Venta::where("caja_id", $cajaId)->get();
+    $clientes = $ventas->unique("cliente_id")->count();
+    $transacciones = $ventas->count();
+    $mayorVentaRecord = $ventas->max("total");
 
-
-    // return $metodos;
-
-    // dd($metodos->get('efectivo'));
+    // dd($clientes, $transacciones, $mayorVenta, $totalVentas);
 });
