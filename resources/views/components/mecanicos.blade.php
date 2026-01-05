@@ -1,5 +1,4 @@
-<div id="modal-todos-mecanicos"
-    class="hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-30 p-4">
+<div id="modal-todos-mecanicos" class="hidden fixed inset-0 bg-black/20 flex items-center justify-center z-30 p-2 md:p-4">
     <div class="bg-white rounded-xl w-auto max-h-[90vh] shadow-2xl p-3 space-y-6">
 
         <!-- Encabezado -->

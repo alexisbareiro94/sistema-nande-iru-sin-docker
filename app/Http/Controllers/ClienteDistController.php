@@ -15,17 +15,17 @@ class ClienteDistController extends Controller
             ->where('role', 'cliente')
             ->where('tenant_id', $tenantId)
             ->orderByDesc('compras_count')
-            ->get()
-            ->take(5);
+            ->limit(5)
+            ->get();
         $distribuidores = Distribuidor::whereNot('id', 1)
-            ->get()
-            ->take(5);
+            ->limit(5)
+            ->get();
         $mecanicos = User::where('role', 'mecanico')
             ->where('tenant_id', $tenantId)
             ->withCount('vehiculosReferidos')
             ->orderByDesc('created_at')
-            ->get()
-            ->take(5);
+            ->limit(5)
+            ->get();
         return view('gestios-usuarios.index', [
             'clientes' => $clientes,
             'distribuidores' => $distribuidores,
@@ -52,7 +52,7 @@ class ClienteDistController extends Controller
     public function desactive(string $id)
     {
         try {
-            $user = User::findOrFail($id)
+            User::findOrFail($id)
                 ->update([
                     'activo' => false,
                 ]);

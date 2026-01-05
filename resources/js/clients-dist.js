@@ -381,6 +381,7 @@ function editMecanico() {
             const id = btn.dataset.id;
             const modal = $i('modal-edit-mecanico');
             const nombre = $i('mecanico-nombre-gcd');
+            const razonSocial = $i('mecanico-razon-social-gcd');
             const ruc = $i('mecanico-ruc-ci-gcd');
             const telefono = $i('mecanico-telefono-gcd');
             const mecanicoId = $i('mecanico-id');
@@ -392,7 +393,8 @@ function editMecanico() {
                 const res = await axios.get(`${url}/cliente/${id}`);
                 const data = res.data.data;
                 mecanicoId.value = id;
-                nombre.value = data.name || data.razon_social || '';
+                nombre.value = data.name || '';
+                if (razonSocial) razonSocial.value = data.razon_social || '';
                 ruc.value = data.ruc_ci || '';
                 telefono.value = data.telefono || '';
             } catch (err) {
@@ -430,12 +432,14 @@ if ($i('form-edit-mecanico-gcd')) {
     $eli('form-edit-mecanico-gcd', 'submit', async e => {
         e.preventDefault();
         const nombre = $i('mecanico-nombre-gcd').value;
+        const razonSocialEl = $i('mecanico-razon-social-gcd');
+        const razonSocial = razonSocialEl ? razonSocialEl.value : nombre;
         const ruc = $i('mecanico-ruc-ci-gcd').value;
         const telefono = $i('mecanico-telefono-gcd').value;
         const id = $i('mecanico-id').value;
 
         const data = new FormData();
-        data.append('razon_social', nombre);
+        data.append('razon_social', razonSocial || nombre);
         data.append('name', nombre);
         data.append('ruc_ci', ruc);
         data.append('telefono', telefono);
@@ -472,8 +476,9 @@ async function renderMecanicos() {
             tr.dataset.id = user.id;
             tr.innerHTML = `
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    ${user.name || user.razon_social || 'N/A'}
+                    ${user.name || 'N/A'}
                 </th>
+                <td class="px-6 py-4">${user.razon_social || 'N/A'}</td>
                 <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
                 <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
                 <td class="px-6 py-4">
@@ -503,7 +508,7 @@ async function renderMecanicos() {
         if (users.length === 0) {
             tableBody.innerHTML = `
                 <tr class="bg-white border-b border-gray-200">
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                         No hay mecánicos registrados
                     </td>
                 </tr>`;
@@ -519,9 +524,13 @@ async function renderMecanicos() {
 // Renderizar todos los mecánicos en el modal
 export async function renderAllMecanicos(data = null) {
     const todosTableBody = $i('todos-mecanicos-table-body');
+    const todosCardsContainer = $i('todos-mecanicos-cards');
+
     if (!todosTableBody) return;
 
     todosTableBody.innerHTML = '';
+    if (todosCardsContainer) todosCardsContainer.innerHTML = '';
+
     try {
         let users;
         if (data) {
@@ -532,45 +541,98 @@ export async function renderAllMecanicos(data = null) {
         }
 
         for (const user of users) {
+            // Renderizar fila de tabla (desktop)
             const tr = document.createElement('tr');
-            tr.className = 'tr-mecanicos bg-white border-b border-gray-200';
+            tr.className = 'tr-mecanicos bg-white border-b border-gray-200 hover:bg-gray-50';
             tr.dataset.id = user.id;
             tr.innerHTML = `
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    ${user.name || user.razon_social || 'N/A'}
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+                    ${user.name || 'N/A'}
                 </th>
-                <td class="px-6 py-4">${user.ruc_ci || 'N/A'}</td>
-                <td class="px-6 py-4">${user.telefono || 'N/A'}</td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-3">${user.razon_social || 'N/A'}</td>
+                <td class="px-4 py-3">${user.ruc_ci || 'N/A'}</td>
+                <td class="px-4 py-3">${user.telefono || 'N/A'}</td>
+                <td class="px-4 py-3">
                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                         ${user.vehiculos_referidos_count || 0}
                     </span>
                 </td>
-                <td class="px-6 py-4">${formatFecha(user.created_at)}</td>
-                <td class="px-6 py-4">
-                    <div class="flex gap-5">
+                <td class="px-4 py-3 text-xs">${formatFecha(user.created_at)}</td>
+                <td class="px-4 py-3">
+                    <div class="flex gap-3">
                         <button class="edit-mecanico-gcd hover:text-blue-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                             </svg>
                         </button>
                         <button class="borrar-mecanico-gcd hover:text-red-500 cursor-pointer transition-all active:scale-90" data-id="${user.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
                         </button>
                     </div>
                 </td>`;
             todosTableBody.appendChild(tr);
+
+            // Renderizar tarjeta (móvil)
+            if (todosCardsContainer) {
+                const card = document.createElement('div');
+                card.className = 'card-mecanico bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+                card.dataset.id = user.id;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${user.name || 'N/A'}</h3>
+                            <p class="text-sm text-gray-500">${user.razon_social || 'N/A'}</p>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            ${user.vehiculos_referidos_count || 0} vehículos
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div>
+                            <span class="text-gray-500">RUC/CI:</span>
+                            <span class="text-gray-900 ml-1">${user.ruc_ci || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Tel:</span>
+                            <span class="text-gray-900 ml-1">${user.telefono || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <span class="text-xs text-gray-400">${formatFecha(user.created_at)}</span>
+                        <div class="flex gap-4">
+                            <button class="edit-mecanico-gcd text-blue-500 hover:text-blue-700 cursor-pointer transition-all active:scale-90 flex items-center gap-1" data-id="${user.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                </svg>
+                                <span class="text-xs">Editar</span>
+                            </button>
+                            <button class="borrar-mecanico-gcd text-red-500 hover:text-red-700 cursor-pointer transition-all active:scale-90 flex items-center gap-1" data-id="${user.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                                <span class="text-xs">Eliminar</span>
+                            </button>
+                        </div>
+                    </div>`;
+                todosCardsContainer.appendChild(card);
+            }
         }
 
         if (users.length === 0) {
             todosTableBody.innerHTML = `
                 <tr class="bg-white border-b border-gray-200">
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="7" class="px-4 py-4 text-center text-gray-500">
                         No hay mecánicos registrados
                     </td>
                 </tr>`;
+            if (todosCardsContainer) {
+                todosCardsContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        No hay mecánicos registrados
+                    </div>`;
+            }
         }
 
         editMecanico();

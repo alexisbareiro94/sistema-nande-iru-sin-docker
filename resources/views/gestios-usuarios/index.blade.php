@@ -208,6 +208,9 @@
                         Nombre
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Razón Social
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         RUC / CI
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -228,8 +231,11 @@
                 @foreach ($mecanicos ?? [] as $mecanico)
                     <tr data-id="{{ $mecanico->id }}" class="tr-mecanicos bg-white border-b border-gray-200">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            {{ $mecanico->name ?? $mecanico->razon_social }}
+                            {{ $mecanico->name ?? 'N/A' }}
                         </th>
+                        <td class="px-6 py-4">
+                            {{ $mecanico->razon_social ?? 'N/A' }}
+                        </td>
                         <td class="px-6 py-4">
                             {{ $mecanico->ruc_ci ?? 'N/A' }}
                         </td>
@@ -271,7 +277,7 @@
                 @endforeach
                 @if (count($mecanicos ?? []) === 0)
                     <tr class="bg-white border-b border-gray-200">
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                             No hay mecánicos registrados
                         </td>
                     </tr>
@@ -310,6 +316,12 @@
                         <input type="text" name="name" id="gcd-mecanico-nombre" required maxlength="100"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
                             placeholder="Nombre del mecánico">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Razón Social</label>
+                        <input type="text" name="razon_social" id="gcd-mecanico-razon-social" maxlength="150"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
+                            placeholder="Razón social del mecánico">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">RUC o CI</label>
@@ -360,9 +372,10 @@
             e.preventDefault();
 
             const nombre = document.getElementById('gcd-mecanico-nombre').value.trim();
+            const razonSocial = document.getElementById('gcd-mecanico-razon-social').value.trim();
             const formData = {
                 name: nombre,
-                razon_social: nombre,
+                razon_social: razonSocial || nombre,
                 ruc_ci: document.getElementById('gcd-mecanico-ruc').value.trim() || null,
                 telefono: document.getElementById('gcd-mecanico-telefono').value || null,
                 role: 'mecanico',
