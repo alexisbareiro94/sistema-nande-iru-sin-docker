@@ -28,7 +28,6 @@ class FacturaController extends Controller
     public function show(string $id): View|RedirectResponse
     {
         try {
-
             $factura = Factura::with([
                 'venta.cliente',
                 'venta.detalleVentas.producto',
@@ -69,7 +68,7 @@ class FacturaController extends Controller
     public function subirFoto(Request $request, string $id): JsonResponse
     {
         $request->validate([
-            'foto' => 'required|image|max:5120', // 5MB max
+            'foto' => 'required|image|max:5120',
             'tipo' => 'required|in:factura,comprobante,otro',
             'descripcion' => 'nullable|string|max:255',
         ]);

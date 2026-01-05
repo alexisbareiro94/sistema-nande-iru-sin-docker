@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
         //     'created_at' => now(),
         // ]);
 
-        // \App\Models\Producto::factory(50)->create();
+        // Producto::factory(50)->create();
 
         // User::factory(11)->create();
 

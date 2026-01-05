@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('codigo')->unique();
             $table->foreignId('tenant_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('caja_id')->constrained('users');
+            $table->foreignId('caja_id')->constrained('users'); //cajas
             $table->foreignId('cliente_id')->constrained('users');
             $table->foreignId('vendedor_id')->constrained('users');
             $table->string('nro_ticket')->nullable()->unique();

@@ -28,9 +28,10 @@
     @include('productos.includes.estadisticas')
 
     <div class="overflow-x-auto bg-white shadow rounded-xl relative">
-        <div id="div-cerrar"  class="z-20 hidden absolute inset-0 bg-white/10"></div>
+        <div id="div-cerrar" class="z-20 hidden absolute inset-0 bg-white/10"></div>
         <!-- Barra de Búsqueda -->
-        <div class="flex justify-center object-center items-center mb-6 mt-6 gap-2 flex flex-col md:grid md:grid-cols-8 px-4">
+        <div
+            class="flex justify-center object-center items-center mb-6 mt-6 gap-2 flex flex-col md:grid md:grid-cols-8 px-4">
             <p class="md:col-span-2 text-left font-semibold text-xl">
                 Lista de productos
             </p>
@@ -69,7 +70,7 @@
             </div>
             @include('productos.includes.exportar')
         </div>
-        
+
         <!-- Tabla de Productos -->
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-white border-t border-gray-200">

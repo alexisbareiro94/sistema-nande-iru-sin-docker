@@ -24,7 +24,6 @@ class GestionUsersController extends Controller
             $tenantId = tenant_id();
             $users = User::whereNotIn('role', ['cliente', 'admin', 'mecanico'])
                 ->where('tenant_id', $tenantId)
-                // ->where('activo', true)
                 ->with(['pagoSalarios', 'ultima_venta'])
                 ->get();
 
@@ -40,8 +39,8 @@ class GestionUsersController extends Controller
 
             $auditorias = Auditoria::with('user')
                 ->orderByDesc('created_at')
-                ->get()
-                ->take(3);
+                ->limit(3)
+                ->get();
 
             // dd($users);
             return view('usuarios.index', [
@@ -60,8 +59,8 @@ class GestionUsersController extends Controller
         try {
             $auditorias = Auditoria::with('user')
                 ->orderByDesc('created_at')
-                ->get()
-                ->take(3);
+                ->limit(3)
+                ->get();
 
             return response()->json([
                 'data' => $auditorias,
@@ -284,7 +283,6 @@ class GestionUsersController extends Controller
             //     'accion' => 'Reporte de usuarios'
             // ]);
 
-            //TODO: implementar el evento de auditoria
             return Excel::download(new PersonalExport, "usuarios-$fecha.xlsx");
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

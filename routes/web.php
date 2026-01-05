@@ -209,27 +209,18 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
-use App\Models\{Pago, MovimientoCaja, Venta};
-
-// $clientes = Venta::where("caja_id", $caja->id)
-//     ->get()
-//     ->unique("cliente_id")
-//     ->count();
-
-// $transacciones = Venta::where("caja_id", $caja->id)->count();
-
-// $mayorVentaRecord = Venta::where("caja_id", $caja->id)
-//     ->orderByDesc("total")
-//     ->first();
-
-// $mayorVenta = $mayorVentaRecord ? $mayorVentaRecord->total : 0;
+use App\Models\Producto;
 
 Route::get('/debug', function () {
-    $cajaId = 1;
-    $ventas = Venta::where("caja_id", $cajaId)->get();
-    $clientes = $ventas->unique("cliente_id")->count();
-    $transacciones = $ventas->count();
-    $mayorVentaRecord = $ventas->max("total");
+    $stockOld = count(Producto::where('tipo', 'producto')
+        ->whereColumn('stock_minimo', '>=', 'stock')
+        ->where('stock', '!=', 0)
+        ->get());
 
-    // dd($clientes, $transacciones, $mayorVenta, $totalVentas);
+    $stock = Producto::where('tipo', 'producto')
+        ->whereColumn('stock_minimo', '>=', 'stock')
+        ->where('stock', '!=', 0)
+        ->count();
+
+    dd($stock, $stockOld);
 });

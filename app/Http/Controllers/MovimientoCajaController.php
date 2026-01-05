@@ -74,16 +74,6 @@ class MovimientoCajaController extends Controller
         DB::beginTransaction();
         try {
             $movimiento = MovimientoCaja::create($data);
-            // Auditoria::create([
-            //     'created_by' => auth()->user()->id,
-            //     'entidad_type' => MovimientoCaja::class,
-            //     'entidad_id' => $movimiento->id,
-            //     'accion' => 'Registro de movimiento en caja',
-            //     'datos' => [
-            //         'monto' => $data['monto'],
-            //         'tipo' => $data['tipo']
-            //     ]
-            // ]);
             // AuditoriaCreadaEvent::dispatch(tenant_id());
             crear_caja();
             if ($data['personal_id'] != null) {

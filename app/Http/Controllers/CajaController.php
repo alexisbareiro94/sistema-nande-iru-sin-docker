@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AbrirCajaRequest;
 use App\Http\Requests\UpdateCajaRequest;
-use App\Models\{Caja, MovimientoCaja, Venta, DetalleVenta, Pago, PagoSalario, User, Auditoria};
+use App\Models\Caja;
 use App\Services\CajaService;
 
 class CajaController extends Controller
