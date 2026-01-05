@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\AuditoriaCreadaEvent;
-use App\Events\AuthEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Models\{User, Auditoria};
-use App\Events\NotificacionEvent;
-use App\Http\Requests\ConfigRequest;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -41,9 +36,6 @@ class AuthController extends Controller
                 'password.*' => 'completar el campo contraseña'
             ]);
 
-            $email = $request->email;
-            // $tenantId = User::where('email', $email)->first()?->tenant_id;
-
             if (Auth::attempt($validate->validated())) {
                 $user = Auth::user();
 
@@ -57,10 +49,6 @@ class AuthController extends Controller
                 $user->update([
                     'en_linea' => true,
                 ]);
-                // $user->auditable('Inicio sesion');
-                // AuditoriaCreadaEvent::dispatch(tenant_id());
-                // AuthEvent::dispatch($user, 'login', tenant_id());
-                // NotificacionEvent::dispatch('Nuevo Inicio de Sesion', "$user->name inicio sesion", 'blue', $tenantId);
                 if ($user->role == 'personal' || $user->role == 'caja') {
                     return redirect()->route('caja.index');
                 }
@@ -69,12 +57,9 @@ class AuthController extends Controller
                 }
                 return redirect()->route('home');
             } else {
-
-                // NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
                 return redirect()->back()->with('error', 'La contraseña es incorrecta');
             }
         } catch (\Exception $e) {
-            // NotificacionEvent::dispatch('Intento de inicio de sesion', " de: " . $request->email, 'orange', $tenantId);
             return redirect()->route('login')->with('error', $e->getMessage());
         }
     }
@@ -104,8 +89,7 @@ class AuthController extends Controller
             return back()->with('error', $validate->messages()->first());
         }
         try {
-            // $user = User::create($validate->validated());
-            // $user->auditable('Creacion de usuario');
+            User::create($validate->validated());
             return redirect()->route('login')->with('success', 'Registro exitoso');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -120,15 +104,6 @@ class AuthController extends Controller
                 'ultima_conexion' => now(),
                 'en_linea' => false,
             ]);
-            // Auditoria::create([
-            //     'created_by' => $user->id,
-            //     'entidad_type' => User::class,
-            //     'entidad_id' => $user->id,
-            //     'accion' => 'Cierre de sesion'
-            // ]);
-            // AuditoriaCreadaEvent::dispatch(tenant_id());
-            // AuthEvent::dispatch($user, 'logout', tenant_id());
-            // NotificacionEvent::dispatch('Cierre de Sesion', "$user->name a cerrado sesion", 'blue', tenant_id());
             Auth::logout();
             return redirect('/');
         } catch (\Exception) {

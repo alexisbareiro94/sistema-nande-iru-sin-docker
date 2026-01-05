@@ -48,7 +48,7 @@ class CreateVenta
             ]);
             $this->ventaService->crear_factura($venta);
             $this->servicioCobrado->execute((int) $validated['vehiculoId'] ?? null, $venta->id);
-            $this->movimientoService->registrar($validated['cajaId'], $venta->total, ConceptoMovimiento::VENTA->value, TipoMovimiento::INGRESO->value);
+            $this->movimientoService->registrar($validated['cajaId'], $venta, ConceptoMovimiento::VENTA->value, TipoMovimiento::INGRESO->value);
             $productos = $this->detalleVentaService->registrar($validated['carrito'], $venta->id, $validated['cajaId']);
             $this->pagoService->registrar($validated['formaPago'], $venta, $validated['cajaId']);
 

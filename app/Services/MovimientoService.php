@@ -66,14 +66,15 @@ class MovimientoService
         }
     }
 
-    public function registrar(int $cajaId, int $monto, string $concepto, string $tipo)
+    public function registrar(int $cajaId, object $venta, string $concepto, string $tipo)
     {
         try {
             MovimientoCaja::create([
                 "caja_id" => $cajaId,
                 "tipo" => $tipo,
                 "concepto" => $concepto,
-                "monto" => $monto,
+                "monto" => $venta->total,
+                'venta_id' => $venta->id,
             ]);
         } catch (\Exception $e) {
             Log::error('Error al crear el movimiento: ' . $e->getMessage());
