@@ -209,18 +209,46 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
-use App\Models\Producto;
+use App\Models\MovimientoCaja;
+use App\Models\Venta;
+use Carbon\Carbon;
 
 Route::get('/debug', function () {
-    $stockOld = count(Producto::where('tipo', 'producto')
-        ->whereColumn('stock_minimo', '>=', 'stock')
-        ->where('stock', '!=', 0)
-        ->get());
+    $inicio = Carbon::parse('2025-12-29')->startOfDay();
+    $fin = Carbon::parse('2026-01-05')->endOfDay();
 
-    $stock = Producto::where('tipo', 'producto')
-        ->whereColumn('stock_minimo', '>=', 'stock')
-        ->where('stock', '!=', 0)
-        ->count();
+    $movimientos = MovimientoCaja::whereBetween('created_at', [$inicio, $fin])
+        ->selectRaw(
+            "COUNT(*) as total_movimientos,
+            SUM(CASE WHEN tipo = 'ingreso' AND concepto NOT IN ('Apertura de caja', 'Venta', 'Venta de productos') THEN monto ELSE 0 END) as ingresos_otros,
+            SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END) as total_egresos
+            "
+        )
+        ->first();
 
-    dd($stock, $stockOld);
+    $ventas = Venta::whereBetween('created_at', [$inicio, $fin])
+        ->orderByDesc('created_at')
+        ->selectRaw("
+            SUM(total) as total_ventas, 
+            COUNT(*) as cantidad_ventas            
+            "
+        )
+        ->first();
+    dd($ventas);
+    ;
+    //     ->orderBy('created_at', 'desc')
+    //     ->get();
+    // $totalVentas = $ventas->sum('total');
+    // $cantidadVentas = $ventas->count();
+
+    // $totalIngresos = $totalVentas + $movimientos->ingresos_otros;
+
+    // return [
+    //     'total_ingresos' => $totalIngresos,
+    //     'total_egresos' => $movimientos->total_egresos,
+    //     'balance' => $totalIngresos - $movimientos->total_egresos,
+    //     'cantidad_ventas' => $cantidadVentas,
+    //     'cantidad_movimientos' => $movimientos->total_movimientos,
+    //     'ventas' => $ventas,
+    // ];
 });

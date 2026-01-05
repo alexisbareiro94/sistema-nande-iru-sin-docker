@@ -52,38 +52,35 @@ class DashboardService
      */
     public function getResumenMovimientos(Carbon $inicio, Carbon $fin): array
     {
-        $movimientos = MovimientoCaja::whereBetween('created_at', [$inicio, $fin])->get();
-
-        // Ingresos de movimientos (excluyendo apertura de caja y ventas para no duplicar)
-        $ingresosOtros = $movimientos->where('tipo', 'ingreso')
-            ->where('concepto', '!=', 'Apertura de caja')
-            ->where('concepto', '!=', 'Venta') // Excluir ventas ya que se cuentan aparte
-            ->whereNotIn('concepto', ['Venta de productos', 'Venta']) // Variantes posibles del concepto
-            ->sum('monto');
-
-        $egresos = $movimientos->where('tipo', 'egreso')->sum('monto');
+        $movimientosStats = MovimientoCaja::whereBetween('created_at', [$inicio, $fin])
+            ->selectRaw("
+                COUNT(*) as total_movimientos,
+                SUM(CASE WHEN tipo = 'ingreso' AND concepto NOT IN ('Apertura de caja', 'Venta', 'Venta de productos') THEN monto ELSE 0 END) as ingresos_otros,
+                SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END) as total_egresos
+            ")
+            ->first();
 
         $ventas = Venta::whereBetween('created_at', [$inicio, $fin])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        $totalVentas = $ventas->sum('total');
-        $cantidadVentas = $ventas->count();
+            ->selectRaw("
+                SUM(total) as total_ventas, 
+                COUNT(*) as cantidad_ventas           
+            ")
+            ->first();
 
-        // Total ingresos = ventas + otros ingresos (sin duplicar)
-        $totalIngresos = $totalVentas + $ingresosOtros;
+        $total_ingresos = $ventas->total_ventas + $movimientosStats->ingresos_otros;
 
         return [
-            'total_ingresos' => $totalIngresos,
-            'total_egresos' => $egresos,
-            'balance' => $totalIngresos - $egresos,
-            'cantidad_ventas' => $cantidadVentas,
-            'cantidad_movimientos' => $movimientos->count(),
+            'total_ingresos' => $total_ingresos,
+            'total_egresos' => $movimientosStats->total_egresos,
+            'balance' => $total_ingresos - $movimientosStats->total_egresos,
+            'cantidad_ventas' => $ventas->cantidad_ventas,
+            'cantidad_movimientos' => $movimientosStats->total_movimientos,
             'ventas' => $ventas,
         ];
     }
 
     /**
-     * Distribución de formas de pago
+     * Formas de pago
      */
     public function getFormasPago(Carbon $inicio, Carbon $fin): array
     {
@@ -103,26 +100,27 @@ class DashboardService
     }
 
     /**
-     * Top 10 productos más vendidos
+     * Top productos más vendidos
      */
     public function getTopProductos(Carbon $inicio, Carbon $fin): array
     {
         return DetalleVenta::whereBetween('created_at', [$inicio, $fin])
+            ->select('producto_id')
+            ->selectRaw('SUM(cantidad) as cantidad, SUM(total) as total')
             ->with('producto:id,nombre,precio_venta')
-            ->get()
             ->groupBy('producto_id')
-            ->map(function ($items) {
-                $producto = $items->first()->producto;
+            ->orderByDesc('cantidad')
+            ->take(5)
+            ->get()
+            ->map(function ($item) {
                 return [
-                    'producto_id' => $items->first()->producto_id,
-                    'nombre' => $producto->nombre ?? 'Producto eliminado',
-                    'precio' => $producto->precio_venta ?? 0,
-                    'cantidad' => $items->sum('cantidad'),
-                    'total' => $items->sum('total'),
+                    'producto_id' => $item->producto_id,
+                    'nombre' => $item->producto->nombre ?? 'Producto eliminado',
+                    'precio' => $item->producto->precio_venta ?? 0,
+                    'cantidad' => $item->cantidad,
+                    'total' => $item->total,
                 ];
             })
-            ->sortByDesc('cantidad')
-            ->take(10)
             ->values()
             ->toArray();
     }
@@ -132,15 +130,13 @@ class DashboardService
      */
     public function getCajerosStats(Carbon $inicio, Carbon $fin): array
     {
-        $ventas = Venta::whereBetween('created_at', [$inicio, $fin])
+        return Venta::whereBetween('created_at', [$inicio, $fin])
             ->with('caja.user:id,name')
-            ->get();
-
-        return $ventas->groupBy(function ($venta) {
-            return $venta->caja?->user_id ?? 0;
-        })
+            ->get()->groupBy(function ($venta) {
+                return $venta->caja?->user_id ?? 0;
+            })
             ->map(function ($ventasCajero) {
-                $cajero = $ventasCajero->first()->caja?->user;
+                $cajero = $ventasCajero->first()?->caja?->user;
                 return [
                     'cajero_id' => $cajero?->id ?? 0,
                     'nombre' => $cajero?->name ?? 'Sin asignar',
