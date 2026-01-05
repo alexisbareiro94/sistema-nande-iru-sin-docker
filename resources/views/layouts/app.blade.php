@@ -39,10 +39,11 @@
             class="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 hidden transition-opacity duration-300"></div>
 
         <div id="aside-container" @class([
-            'bg-gris pl-4 animate-fade-in transition-all duration-300 z-40 md:z-auto col-span-1 fixed inset-y-0 left-0 w-full md:relative md:w-auto md:inset-auto md:translate-x-0 -translate-x-full',
+            'bg-gris pl-4 animate-fade-in transition-all duration-300 z-40 md:z-auto col-span-1 fixed inset-y-0 left-0 w-full md:sticky md:top-0 md:h-screen md:w-auto md:inset-auto md:translate-x-0 -translate-x-full',
             'hidden' => auth()->user()->role != 'admin',
         ])>
-            <aside class="col-span-1 p-4 transform transition-transform duration-300 h-full overflow-y-auto">
+            <aside
+                class="col-span-1 p-4 transform transition-transform duration-300 h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 @include('home.aside')
             </aside>
         </div>
