@@ -280,15 +280,16 @@ async function confirmarVenta(formaPago, montoRecibido) {
         ventaData.append('razon', document.getElementById('i-nombre-razon').value.trim());
         ventaData.append('monto_recibido', montoRecibido.value);
 
+        // Agregar ID del servicio si viene de un cobro de servicio
+        const servicioId = sessionStorage.getItem('servicioId');
+        if (servicioId) ventaData.append('servicio_id', servicioId);
+
         // Agregar vehículo y mecánico
         const vehiculoId = document.getElementById('vehiculo-id-venta')?.value || '';
         const mecanicoId = document.getElementById('select-mecanico-venta')?.value || '';
         if (vehiculoId) ventaData.append('vehiculo_id', vehiculoId);
         if (mecanicoId) ventaData.append('mecanico_id', mecanicoId);
 
-        // Agregar ID del servicio si viene de un cobro de servicio
-        const servicioId = sessionStorage.getItem('servicioId');
-        if (servicioId) ventaData.append('servicio_id', servicioId);
 
         const res = await fetch(`/api/venta`, {
             method: 'POST',
@@ -396,7 +397,7 @@ async function buscarVehiculoPorPatente() {
     const patente = inputPatente.value.trim().toUpperCase().replace(/\s/g, '');
 
     if (patente.length < 3) {
-        showToast('Ingresa al menos 3 caracteres de la patente', 'warning');
+        showToast('Ingresa al menos 3 caracteres de la patente', 'error');
         return;
     }
 

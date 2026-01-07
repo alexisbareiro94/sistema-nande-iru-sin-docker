@@ -190,7 +190,7 @@ async function ventasChart(periodo = 7) {
         }
 
         const labels = data.labels;
-        const valores = labels.map(fecha => data.ventas[fecha].total);
+        const valores = labels.map(fecha => data.ventas[fecha]);
 
         if (ventaChart) {
             ventaChart.destroy();
@@ -281,7 +281,7 @@ async function tipoVenta(periodo = 7) {
         tipoVentaChart = new Chart(donutVenta, {
             type: 'doughnut',
             data: {
-                labels: data.labels,
+                labels: ['Producto', 'Servicio'],
                 datasets: [
                     {
                         label: 'Cantidad',
@@ -295,7 +295,7 @@ async function tipoVenta(periodo = 7) {
                         label: 'Ingresos',
                         data: [data.conteo.ingresos.producto, data.conteo.ingresos.servicio],
                         backgroundColor: [
-                            'rgba(35, 39, 235, 0.3)',   // más transparente para diferenciar
+                            'rgba(35, 39, 235, 0.3)',
                             'rgba(8, 209, 49, 0.3)',
                         ],
                     }

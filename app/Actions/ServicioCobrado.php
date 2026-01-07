@@ -8,12 +8,12 @@ use App\Models\ServicioProceso;
 
 class ServicioCobrado
 {
-    public function execute(?int $vehiculoId, int $ventaId): void
+    public function execute(int $ventaId, ?int $servicioId): void
     {
-        if ($vehiculoId === null) {
+        if ($servicioId === null) {
             return;
         }
-        ServicioProceso::where('vehiculo_id', $vehiculoId)
+        ServicioProceso::findOrFail($servicioId)
             ->update([
                 'estado' => 'cobrado',
                 'venta_id' => $ventaId,

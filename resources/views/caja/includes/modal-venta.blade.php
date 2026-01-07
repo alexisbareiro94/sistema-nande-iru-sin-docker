@@ -38,7 +38,7 @@
         </div>
         <div id="div-procesar-cobro" class="hidden p-2">
             <p class="font-semibold">Procesar Cobro de servicio:
-                <span class="font-normal" id="servicio-codigo">asdasdas </span>
+                <span class="font-normal" id="servicio-codigo"></span>
             </p>
         </div>
 
