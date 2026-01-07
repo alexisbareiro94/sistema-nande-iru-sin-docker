@@ -32,6 +32,7 @@ class StoreVentaRequest extends FormRequest
             'monto_recibido' => 'required',
             'vehiculo_id' => 'nullable|exists:vehiculos,id',
             'mecanico_id' => 'nullable|exists:users,id',
+            'servicio_id' => 'nullable|exists:servicios_proceso,id',
         ];
     }
 
