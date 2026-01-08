@@ -8,9 +8,9 @@ use App\Models\ServicioProceso;
 
 class ServicioCobrado
 {
-    public function execute(int $ventaId, ?int $servicioId): void
+    public function execute(int $ventaId, $servicioId = null): void
     {
-        if ($servicioId === null) {
+        if ($servicioId == null) {
             return;
         }
         ServicioProceso::findOrFail($servicioId)

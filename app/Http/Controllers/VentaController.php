@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\UpdateVentaRequest;
 use App\Models\{MovimientoCaja, User, Venta, DetalleVenta, Producto};
+// use Illuminate\Support\Facades\Log;
 // use App\Jobs\GenerarPdfJob;
 // use App\Jobs\VentaRealizada;
 

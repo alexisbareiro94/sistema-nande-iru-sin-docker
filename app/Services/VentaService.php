@@ -42,6 +42,7 @@ class VentaService
             $formaPago = collect(json_decode($data['forma_pago']));
             $vehiculoId = $data['vehiculo_id'] ?? null;
             $montoRecibido = $data['monto_recibido'];
+            $servicioId = $data['servicio_id'] ?? null;
 
             $ruc = $data['ruc'];
             $userId = User::where('ruc_ci', $ruc)
@@ -62,6 +63,7 @@ class VentaService
                 'metodoPago' => $metodoPago,
                 'tieneDescuento' => $tieneDescuento,
                 'montoRecibido' => $montoRecibido,
+                'servicioId' => $servicioId,
             ];
         } catch (\Exception $e) {
             Log::error('69: App\Services\VentaService | Error al obtener los datos de la venta: ' . $e->getMessage());
