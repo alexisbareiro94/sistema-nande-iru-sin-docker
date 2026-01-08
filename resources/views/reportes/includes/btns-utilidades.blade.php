@@ -15,10 +15,10 @@
                 class="utilidad-btn cursor-pointer text-xs px-3 py-1 transition-all duration-300 ease-in-out border border-gray-300 bg-gray-300 font-semibold rounded-md">
                 Mensual
             </button>
-            <button id="customp" data-utilidad="personalizado"
+            {{-- <button id="customp" data-utilidad="personalizado"
                 class="utilidad-btn cursor-pointer text-xs px-3 py-1 transition-all duration-300 ease-in-out border border-gray-300 bg-gray-300 font-semibold rounded-md">
                 Personalizado
-            </button>
+            </button> --}}
         </div>
     </div>
 

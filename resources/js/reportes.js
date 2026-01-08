@@ -519,6 +519,7 @@ async function gananacias(periodo = '7', option = '', egreso = '') {
     try {
         const res = await fetch(`/api/utilidad/${periodo}/${option}`);
         const data = await res.json();
+
         if (!res.ok) {
             throw data;
         }
@@ -686,7 +687,7 @@ async function egresoChart(periodo = 7) {
         }
 
         const labels = data.labels;
-        const egresos = labels.map(fecha => data.egresos[fecha].total);
+        const egresos = labels.map(fecha => data.egresos[fecha]);
 
         if (egresosChart) {
             egresosChart.destroy();
@@ -775,7 +776,7 @@ async function conceptoEgresosChart(periodo = 7) {
             ConceptoEgresos.destroy();
         }
         const labels = data.labels;
-        const egresos = labels.map(fecha => data.egresos[fecha].total);
+        const egresos = labels.map(fecha => data.egresos[fecha]);
         if (!donut) {
             return;
         }
