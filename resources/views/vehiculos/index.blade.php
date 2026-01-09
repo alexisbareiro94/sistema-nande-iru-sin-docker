@@ -135,7 +135,7 @@
                                             <li class="flex justify-between items-center text-gray-600">
                                                 <span>{{ $modelo->modelo }}</span>
                                                 <span
-                                                    class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">{{ $modelo->count }}</span>
+                                                    class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium">{{ $modelo->count }}</span>
                                             </li>
                                         @endif
                                     @endforeach
