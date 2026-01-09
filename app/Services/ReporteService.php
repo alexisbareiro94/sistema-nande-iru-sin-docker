@@ -446,8 +446,17 @@ class ReporteService
             ->orderBy('created_at', 'desc')
             ->get();
 
+        //TODO: usar query builder para optimizar esta seccion
+        $otrosIngresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('concepto', '!=', 'Apertura de caja')
+            ->where('concepto', '!=', 'Venta de productos')
+            ->where('tipo', '!=', 'egreso')
+            ->selectRaw('SUM(monto) as monto')
+            ->first()
+            ->monto;
+
         // Calcular resumen
-        $totalVentas = $ventas->sum('total');
+        $totalVentas = $ventas->sum('total') + $otrosIngresos;
         $cantidadVentas = $ventas->count();
 
         // Detalles para productos y costo
