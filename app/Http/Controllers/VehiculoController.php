@@ -37,8 +37,33 @@ class VehiculoController extends Controller
             'vehiculos' => $vehiculos,
             'mecanicos' => $mecanicos,
             'clientes' => $clientes,
+            'marcasModelos' => $this->marcasModelos(),
         ]);
     }
+
+
+    public function marcasModelos()
+    {
+        $tenant_id = tenant_id();
+
+        $marcas = Vehiculo::selectRaw('marca, count(*) as count')
+            ->where('tenant_id', $tenant_id)
+            ->groupBy('marca')
+            ->orderBy('count', 'desc')
+            ->get();
+        $modelos = Vehiculo::selectRaw('marca, modelo, count(*) as count')
+            ->where('tenant_id', $tenant_id)
+            ->groupBy('marca', 'modelo')
+            ->orderBy('count', 'desc')
+            ->get();
+        $total = $marcas->sum('count');
+        return [
+            'marcas' => $marcas,
+            'modelos' => $modelos,
+            'total' => $total,
+        ];
+    }
+
 
     public function store(Request $request)
     {

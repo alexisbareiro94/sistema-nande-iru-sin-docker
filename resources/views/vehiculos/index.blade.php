@@ -44,6 +44,110 @@
             </div>
         </div>
 
+        <!-- Botón y Panel de Estadísticas -->
+        <div class="mb-6">
+            <button onclick="toggleEstadisticasVehiculos()" id="btn-estadisticas"
+                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center cursor-pointer shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span id="btn-estadisticas-text">Ver Estadísticas</span>
+                <svg xmlns="http://www.w3.org/2000/svg" id="icon-estadisticas-arrow"
+                    class="h-4 w-4 ml-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Panel de Estadísticas (oculto por defecto) -->
+            <div id="panel-estadisticas" class="hidden mt-4 bg-white rounded-xl shadow-sm p-6 transition-all">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Estadísticas de Vehículos</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Total de Vehículos -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-500 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-blue-600 font-medium">Total Vehículos</p>
+                                <p class="text-2xl font-bold text-blue-800">
+                                    {{ $marcasModelos['total'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad de Marcas -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-500 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-green-600 font-medium">Marcas</p>
+                                <p class="text-2xl font-bold text-green-800">{{ count($marcasModelos['marcas']) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad de Modelos -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-500 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-purple-600 font-medium">Modelos</p>
+                                <p class="text-2xl font-bold text-purple-800">{{ count($marcasModelos['modelos']) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desglose por Marca y Modelo -->
+                <div class="mt-6 border-t pt-6">
+                    <h4 class="text-md font-semibold text-gray-700 mb-4">Desglose por Marca y Modelo</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                        @foreach ($marcasModelos['marcas'] as $marca)
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h5 class="font-semibold text-gray-800">{{ $marca->marca }}</h5>
+                                    <span
+                                        class="text-sm font-bold bg-gray-800 text-white px-2 py-1 rounded">{{ $marca->count }}</span>
+                                </div>
+                                <ul class="space-y-2 text-sm">
+                                    @foreach ($marcasModelos['modelos'] as $modelo)
+                                        @if ($modelo->marca == $marca->marca)
+                                            <li class="flex justify-between items-center text-gray-600">
+                                                <span>{{ $modelo->modelo }}</span>
+                                                <span
+                                                    class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">{{ $modelo->count }}</span>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endforeach
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabla de Vehículos -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
@@ -69,7 +173,8 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div>
-                                        <p class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                        <p class="font-medium text-gray-900">{{ $vehiculo->marca }}
+                                            {{ $vehiculo->modelo }}
                                         </p>
                                         @if ($vehiculo->color)
                                             <p class="text-xs text-gray-500">{{ $vehiculo->color }}</p>
@@ -340,6 +445,22 @@
 
 @section('js')
     <script>
+        function toggleEstadisticasVehiculos() {
+            const panel = document.getElementById('panel-estadisticas');
+            const btnText = document.getElementById('btn-estadisticas-text');
+            const arrow = document.getElementById('icon-estadisticas-arrow');
+
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                btnText.textContent = 'Ocultar Estadísticas';
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                panel.classList.add('hidden');
+                btnText.textContent = 'Ver Estadísticas';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
         function abrirModalNuevoVehiculoVehiculos() {
             document.getElementById('modal-nuevo-vehiculo').classList.remove('hidden');
             document.getElementById('modal-nuevo-vehiculo').classList.add('flex');

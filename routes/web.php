@@ -92,7 +92,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/vehiculos/{id}', [VehiculoController::class, 'show'])->name('vehiculo.show');
         Route::put('/vehiculos/{id}', [VehiculoController::class, 'update'])->name('vehiculo.update');
         Route::get('/api/vehiculo/buscar', [VehiculoController::class, 'buscarPorPatente']);
-        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);
+        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);        
 
         // Servicio en Proceso
         Route::get('/servicio-proceso', [ServicioProcesoController::class, 'index'])->name('servicio.proceso.index');

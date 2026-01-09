@@ -12,6 +12,7 @@ import './exportar-stock'
 import './servicio-proceso'
 import './facturas'
 import './auditoria'
+import './vehiculos'
 import { showToast } from './toast';
 
 let myChart = null;
