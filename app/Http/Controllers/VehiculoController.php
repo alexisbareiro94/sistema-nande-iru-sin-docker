@@ -17,9 +17,9 @@ class VehiculoController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('patente', 'like', "%{$search}%")
-                    ->orWhere('marca', 'like', "%{$search}%")
-                    ->orWhere('modelo', 'like', "%{$search}%");
+                $q->where('patente', 'ilike', "%{$search}%")
+                    ->orWhere('marca', 'ilike', "%{$search}%")
+                    ->orWhere('modelo', 'ilike', "%{$search}%");
             });
         }
 
@@ -54,10 +54,10 @@ class VehiculoController extends Controller
             'observaciones' => 'nullable|string',
         ]);
 
-        // Normalizar patente a mayúsculas sin espacios
         $data['patente'] = strtoupper(str_replace(' ', '', $data['patente']));
+        $data['marca'] = ucfirst($data['marca']);
+        $data['modelo'] = ucfirst($data['modelo']);
 
-        // Verificar si ya existe la patente
         $existente = Vehiculo::where('patente', $data['patente'])->first();
         if ($existente) {
             return response()->json([

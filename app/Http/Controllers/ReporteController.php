@@ -78,6 +78,7 @@ class ReporteController extends Controller
             $ventas = Venta::whereBetween('created_at', [$inicio, $hoy])
                 ->selectRaw('DATE(created_at) as fecha, SUM(total) as total_venta')
                 ->groupBy('fecha')
+                ->orderBy('fecha', 'asc')
                 ->get()
                 ->pluck('total_venta', 'fecha');
 
