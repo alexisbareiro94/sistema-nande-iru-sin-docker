@@ -10,7 +10,7 @@ class VehiculoController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->query('search');
+        $search = $request->get("buscar");
 
         $query = Vehiculo::with(['cliente', 'mecanico', 'ultimaVenta'])
             ->withCount('ventas as servicios_count');

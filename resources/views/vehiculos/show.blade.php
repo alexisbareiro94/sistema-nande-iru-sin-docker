@@ -7,7 +7,14 @@
 @section('contenido')
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <div class="flex flex-col md:flex-row md:items-center  mb-6 gap-4">
+            <a href="{{ route('vehiculo.index') }}"
+                class="px-4 py-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
             <div>
                 <div class="flex items-center gap-3">
                     <span class="text-3xl font-bold text-gray-800 bg-gray-100 px-4 py-2 rounded-lg">
@@ -27,14 +34,6 @@
                     </div>
                 </div>
             </div>
-            <a href="{{ route('vehiculo.index') }}"
-                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-5 h-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                </svg>
-                Volver
-            </a>
         </div>
 
         <!-- Resumen -->

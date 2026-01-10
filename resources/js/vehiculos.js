@@ -1,5 +1,6 @@
+import { csrfToken } from "./csrf-token.js";
 
-function toggleEstadisticasVehiculos() {
+window.toggleEstadisticasVehiculos = function () {
     const panel = document.getElementById('panel-estadisticas');
     const btnText = document.getElementById('btn-estadisticas-text');
     const arrow = document.getElementById('icon-estadisticas-arrow');
@@ -15,17 +16,17 @@ function toggleEstadisticasVehiculos() {
     }
 }
 
-function abrirModalNuevoVehiculoVehiculos() {
+window.abrirModalNuevoVehiculoVehiculos = function () {
     document.getElementById('modal-nuevo-vehiculo').classList.remove('hidden');
     document.getElementById('modal-nuevo-vehiculo').classList.add('flex');
 }
 
-function cerrarModalNuevoVehiculoVehiculos() {
+window.cerrarModalNuevoVehiculoVehiculos = function () {
     document.getElementById('modal-nuevo-vehiculo').classList.add('hidden');
     document.getElementById('modal-nuevo-vehiculo').classList.remove('flex');
 }
 
-function abrirModalEditarVehiculoVehiculos(vehiculo) {
+window.abrirModalEditarVehiculoVehiculos = function (vehiculo) {
     document.getElementById('edit_vehiculo_id').value = vehiculo.id;
     document.getElementById('edit_patente').value = vehiculo.patente;
     document.getElementById('edit_marca').value = vehiculo.marca;
@@ -42,75 +43,76 @@ function abrirModalEditarVehiculoVehiculos(vehiculo) {
     document.getElementById('modal-editar-vehiculo').classList.add('flex');
 }
 
-function cerrarModalEditarVehiculoVehiculos() {
+window.cerrarModalEditarVehiculoVehiculos = function () {
     document.getElementById('modal-editar-vehiculo').classList.add('hidden');
     document.getElementById('modal-editar-vehiculo').classList.remove('flex');
 }
 
-function buscarVehiculos() {
-    const search = document.getElementById('input-buscar').value;
-    window.location.href = `{{ route('vehiculo.index') }}?search=${encodeURIComponent(search)}`;
-}
 
-document.getElementById('input-buscar').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') buscarVehiculos();
-});
+document.addEventListener('DOMContentLoaded', function () {
+    const formNuevoVehiculo = document.getElementById('form-nuevo-vehiculo');
+    const formEditarVehiculo = document.getElementById('form-editar-vehiculo');
 
-document.getElementById('form-nuevo-vehiculo').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+    if (formNuevoVehiculo) {
+        formNuevoVehiculo.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-    try {
-        const response = await fetch('vehiculos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(data)
+            try {
+                const response = await fetch('/vehiculos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.showToast(result.message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    window.showToast(result.error, 'error');
+                }
+            } catch (error) {
+                window.showToast('Error al guardar el vehículo', 'error');
+            }
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showToast(result.message, 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast(result.error, 'error');
-        }
-    } catch (error) {
-        showToast('Error al guardar el vehículo', 'error');
     }
-});
 
-document.getElementById('form-editar-vehiculo').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const id = document.getElementById('edit_vehiculo_id').value;
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+    if (formEditarVehiculo) {
+        formEditarVehiculo.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_vehiculo_id').value;
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-    try {
-        const response = await fetch(`/vehiculos/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
+            try {
+                const response = await fetch(`/vehiculos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.showToast('Vehículo actualizado correctamente', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    window.showToast(result.error || 'Error al actualizar', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.showToast('Error al procesar la solicitud', 'error');
+            }
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showToast('Vehículo actualizado correctamente', 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast(result.error || 'Error al actualizar', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showToast('Error al procesar la solicitud', 'error');
     }
 });

@@ -23,26 +23,29 @@
         </div>
 
         <!-- Buscador -->
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <div class="flex flex-col md:flex-row gap-3">
-                <div class="flex-grow relative">
-                    <span class="absolute left-3 top-2.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </span>
-                    <input id="input-buscar" type="text" placeholder="Buscar por patente, marca o modelo..."
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        value="{{ request('search') }}">
+        <form action="{{ route('vehiculo.index') }}" method="get">
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="flex-grow relative">
+                        <span class="absolute left-3 top-2.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </span>
+                        <input id="input-buscar" type="text" name="buscar"
+                            placeholder="Buscar por patente, marca o modelo..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            value="{{ request('buscar') }}">
+                    </div>
+                    <button type="submit"
+                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition cursor-pointer">
+                        Buscar
+                    </button>
                 </div>
-                <button onclick="buscarVehiculos()"
-                    class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition cursor-pointer">
-                    Buscar
-                </button>
             </div>
-        </div>
+        </form>
 
         <!-- Botón y Panel de Estadísticas -->
         <div class="mb-6">
@@ -441,124 +444,4 @@
         </div>
     </div>
 
-@endsection
-
-@section('js')
-    <script>
-        function toggleEstadisticasVehiculos() {
-            const panel = document.getElementById('panel-estadisticas');
-            const btnText = document.getElementById('btn-estadisticas-text');
-            const arrow = document.getElementById('icon-estadisticas-arrow');
-
-            if (panel.classList.contains('hidden')) {
-                panel.classList.remove('hidden');
-                btnText.textContent = 'Ocultar Estadísticas';
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                panel.classList.add('hidden');
-                btnText.textContent = 'Ver Estadísticas';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-
-        function abrirModalNuevoVehiculoVehiculos() {
-            document.getElementById('modal-nuevo-vehiculo').classList.remove('hidden');
-            document.getElementById('modal-nuevo-vehiculo').classList.add('flex');
-        }
-
-        function cerrarModalNuevoVehiculoVehiculos() {
-            document.getElementById('modal-nuevo-vehiculo').classList.add('hidden');
-            document.getElementById('modal-nuevo-vehiculo').classList.remove('flex');
-        }
-
-        function abrirModalEditarVehiculoVehiculos(vehiculo) {
-            document.getElementById('edit_vehiculo_id').value = vehiculo.id;
-            document.getElementById('edit_patente').value = vehiculo.patente;
-            document.getElementById('edit_marca').value = vehiculo.marca;
-            document.getElementById('edit_modelo').value = vehiculo.modelo;
-            document.getElementById('edit_anio').value = vehiculo.anio || '';
-            document.getElementById('edit_color').value = vehiculo.color || '';
-            document.getElementById('edit_kilometraje').value = vehiculo.kilometraje || '';
-
-            document.getElementById('edit_cliente_id').value = vehiculo.cliente_id || '';
-            document.getElementById('edit_mecanico_id').value = vehiculo.mecanico_id || '';
-            document.getElementById('edit_observaciones').value = vehiculo.observaciones || '';
-
-            document.getElementById('modal-editar-vehiculo').classList.remove('hidden');
-            document.getElementById('modal-editar-vehiculo').classList.add('flex');
-        }
-
-        function cerrarModalEditarVehiculoVehiculos() {
-            document.getElementById('modal-editar-vehiculo').classList.add('hidden');
-            document.getElementById('modal-editar-vehiculo').classList.remove('flex');
-        }
-
-        function buscarVehiculos() {
-            const search = document.getElementById('input-buscar').value;
-            window.location.href = `{{ route('vehiculo.index') }}?search=${encodeURIComponent(search)}`;
-        }
-
-        document.getElementById('input-buscar').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarVehiculos();
-        });
-
-        document.getElementById('form-nuevo-vehiculo').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const response = await fetch('{{ route('vehiculo.store') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast(result.message, 'success');
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast(result.error, 'error');
-                }
-            } catch (error) {
-                showToast('Error al guardar el vehículo', 'error');
-            }
-        });
-
-        document.getElementById('form-editar-vehiculo').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('edit_vehiculo_id').value;
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const response = await fetch(`/vehiculos/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast('Vehículo actualizado correctamente', 'success');
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast(result.error || 'Error al actualizar', 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Error al procesar la solicitud', 'error');
-            }
-        });
-    </script>
 @endsection
