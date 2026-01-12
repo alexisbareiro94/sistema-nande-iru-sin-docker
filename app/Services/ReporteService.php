@@ -446,7 +446,6 @@ class ReporteService
             ->orderBy('created_at', 'desc')
             ->get();
 
-        //TODO: usar query builder para optimizar esta seccion
         $otrosIngresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
             ->where('concepto', '!=', 'Apertura de caja')
             ->where('concepto', '!=', 'Venta de productos')
@@ -456,12 +455,12 @@ class ReporteService
             ->monto;
 
         // Calcular resumen
-        $totalVentas = $ventas->sum('total') + $otrosIngresos;
+        $totalVentas = $ventas->sum('total');
         $cantidadVentas = $ventas->count();
 
         // Detalles para productos y costo
         $detalles = DetalleVenta::whereBetween('created_at', [$fechaInicio, $fechaFin])
-            ->with('producto.categoria')
+            ->with('producto')
             ->get();
 
         $costoTotal = 0;
@@ -497,15 +496,7 @@ class ReporteService
             ->get();
         $egresos = $egresosDetalle->sum('monto');
 
-        // Otros ingresos
-        $otrosIngresos = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
-            ->where('concepto', '!=', 'Venta de productos')
-            ->where('tipo', '!=', 'egreso')
-            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
-            ->sum('monto');
-
-        // Utilidad
-        $utilidadBruta = $totalVentas + $otrosIngresos - $costoTotal;
+        $utilidadBruta = ($totalVentas + $otrosIngresos) - $costoTotal;
         $utilidadNeta = $utilidadBruta - $egresos;
 
         // Formas de pago
