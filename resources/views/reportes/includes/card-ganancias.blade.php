@@ -1,5 +1,6 @@
 <div class="col-span-1 mt-2 w-full">
-    <div class="w-full bg-white rounded-xl border border-gray-200 p-2 md:p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div
+        class="w-full bg-white rounded-xl border border-gray-200 p-2 md:p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
         <!-- Ganancia Actual -->
         <div class="mb-5 flex justify-between">
             <div>
@@ -12,13 +13,13 @@
                     ({{ Carbon\Carbon::parse($data['utilidad']['actual']['fecha_apertura'] ?? now())->format('d-m') }})
                 </p>
             </div>
-
+            {{-- @dd($data['utilidad']) --}}
             <span id="svg-cont-card" @class([
-                'text-red-500' => $data['utilidad']['tag'] ?? '' == '-',
-                'text-green-500' => $data['utilidad']['tag'] ?? '' == '+',
+                'text-red-500' => $data['utilidad']['tag'] == '-',
+                'text-green-500' => $data['utilidad']['tag'] == '+',
                 'text-gray-500' => '',
             ])>
-                @if ($data['utilidad']['tag'] ?? '' == '-')
+                @if ($data['utilidad']['tag'] == '-')
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -56,7 +57,7 @@
                 <div class="mt-1.5 flex flex-col items-end">
                     <span id="variacion-porcentaje"
                         class="text-sm font-semibold {{ $data['utilidad']['tag'] ?? '+' === '+' ? 'text-green-700 bg-green-200 rounded-xl px-1' : 'text-red-700 bg-red-200 rounded-xl px-1' }}">
-                        {{ $data['utilidad']['tag'] ?? ''}} {{ $data['utilidad']['porcentaje'] ?? '' }}%
+                        {{ $data['utilidad']['tag'] ?? '' }} {{ $data['utilidad']['porcentaje'] ?? '' }}%
                     </span>
                     <span class="text-sm font-medium text-gray-600 mt-1" id="variacion-valor">
                         Gs. {{ number_format($data['utilidad']['diferencia'] ?? 0, 0, ',', '.') }}

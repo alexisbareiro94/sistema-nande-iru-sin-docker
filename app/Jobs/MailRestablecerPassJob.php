@@ -32,7 +32,7 @@ class MailRestablecerPassJob implements ShouldQueue
             'expires_at' => now()->addMinutes(30)->toDateTimeString(),
         ];
         $token = Crypt::encrypt(json_encode($playload));
-        $user = User::findOrFail($this->id);                
+        $user = User::findOrFail($this->id);
         Mail::to($user->email)->send(new EmailRestablecerPass($user, $token));
     }
 }

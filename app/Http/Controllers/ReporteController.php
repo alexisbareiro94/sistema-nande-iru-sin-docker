@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{MovimientoCaja, Venta};
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
+use App\Models\{MovimientoCaja, Venta, DetalleVenta};
 use App\Services\ReporteService;
+use App\Exports\ReporteGlobalExport;
 use Carbon\Carbon;
-use App\Events\NotificacionEvent;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class ReporteController extends Controller
 {
-    public function __construct(protected ReporteService $reporteService) {}
+    public function __construct(protected ReporteService $reporteService)
+    {
+    }
 
-    public function index()
+    public function index(): View
     {
         $datos = $this->reporteService->data_index();
         return view('reportes.index', [
@@ -20,20 +26,22 @@ class ReporteController extends Controller
         ]);
     }
 
-    public function tipos_pagos(string $periodo)
+    public function tipos_pagos(string $periodo): JsonResponse
     {
         try {
             $inicio = now()->startOfDay()->subDay($periodo);
             $hoy = now()->endOfDay();
-            $pagos =  Venta::whereBetween('created_at', [$inicio, $hoy])
-                ->get()
+            $pagos = Venta::whereBetween('created_at', [$inicio, $hoy])
+                ->selectRaw('forma_pago, COUNT(*) as total')
                 ->groupBy('forma_pago')
-                ->map(fn($pago) => $pago->count());
+                ->get()
+                ->pluck('total', 'forma_pago');
+
             $ingresos = Venta::whereBetween('created_at', [$inicio, $hoy])
-                ->with('productos')
-                ->get()
+                ->selectRaw('forma_pago, SUM(total) as total')
                 ->groupBy('forma_pago')
-                ->map(fn($venta) => $venta->sum('total'))
+                ->get()
+                ->pluck('total', 'forma_pago')
                 ->toArray();
 
             $labels = $pagos->keys();
@@ -61,19 +69,18 @@ class ReporteController extends Controller
      * @param
      * periodo: 7, 30, 90, representa el rango de fechas
      */
-    public function ventas_chart(string $periodo)
+    public function ventas_chart(string $periodo): JsonResponse
     {
         try {
             $inicio = now()->startOfDay()->subDay($periodo);
             $hoy = now()->endOfDay();
 
             $ventas = Venta::whereBetween('created_at', [$inicio, $hoy])
-                ->orderBy('created_at')
+                ->selectRaw('DATE(created_at) as fecha, SUM(total) as total_venta')
+                ->groupBy('fecha')
+                ->orderBy('fecha', 'asc')
                 ->get()
-                ->groupBy(function ($venta) {
-                    return Carbon::parse($venta->created_at)->format('Y-m-d');
-                })
-                ->map(fn($venta) => ['total' => $venta->sum('total')]);
+                ->pluck('total_venta', 'fecha');
 
             $labels = $ventas->keys();
 
@@ -94,42 +101,38 @@ class ReporteController extends Controller
      * @param
      * periodo= 7, 30 o 90, representa el rango que se va a medir
      */
-    public function tipo_venta(string $periodo)
+    public function tipo_venta(string $periodo): JsonResponse
     {
         try {
             $inicio = now()->startOfDay()->subDay($periodo);
             $hoy = now()->endOfDay();
+
+            $ventas = DetalleVenta::whereBetween('ventas.created_at', [$inicio, $hoy])
+                ->join('ventas', 'detalle_ventas.venta_id', '=', 'ventas.id')
+                ->join('productos', 'detalle_ventas.producto_id', '=', 'productos.id')
+                ->selectRaw("
+                    COUNT(CASE WHEN productos.tipo = 'producto' THEN 1 END) as productos,
+                    COUNT(CASE WHEN productos.tipo = 'servicio' THEN 1 END) as servicios,
+                    SUM(CASE WHEN productos.tipo = 'producto' THEN ventas.total ELSE 0 END) as ingresos_producto,
+                    SUM(CASE WHEN productos.tipo = 'servicio' THEN ventas.total ELSE 0 END) as ingresos_servicio
+                ")
+                ->first();
+
             $conteo = [
-                'producto' => 0,
-                'servicio' => 0,
+                'producto' => $ventas->productos,
+                'servicio' => $ventas->servicios,
                 'ingresos' => [
-                    'producto' => 0,
-                    'servicio' => 0,
+                    'producto' => $ventas->ingresos_producto,
+                    'servicio' => $ventas->ingresos_servicio,
                 ],
             ];
-
-            $ventas = Venta::whereBetween('created_at', [$inicio, $hoy])
-                ->with('productos')
-                ->get();
-            foreach ($ventas as $venta) {
-                foreach ($venta->productos as $producto) {
-                    if ($producto->tipo === 'producto') {
-                        $conteo['producto']++;
-                        $conteo['ingresos']['producto'] += $venta->total;
-                    } elseif ($producto->tipo === 'servicio') {
-                        $conteo['servicio']++;
-                        $conteo['ingresos']['servicio'] += $venta->total;
-                    }
-                }
-            }
             $labels = array_keys($conteo);
 
             return response()->json([
+                'success' => true,
                 'labels' => $labels,
                 'conteo' => $conteo,
             ]);
-
-            return response();
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -169,10 +172,41 @@ class ReporteController extends Controller
     {
         try {
             $data = $this->reporteService->gananacias_data($periodo);
-
             return response()->json([
                 'labels' => $data['labels'],
                 'datos' => $data['datos'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Endpoint para calcular utilidad con fechas personalizadas
+     */
+    public function tendenciaPersonalizada(Request $request)
+    {
+        try {
+            $fechaInicio = $request->query('fecha_inicio');
+            $fechaFin = $request->query('fecha_fin');
+
+            if (!$fechaInicio || !$fechaFin) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Debe proporcionar fecha_inicio y fecha_fin',
+                ], 400);
+            }
+
+            $data = $this->reporteService->utilidadPersonalizada($fechaInicio, $fechaFin);
+            $data['actual']['fecha_apertura'] = Carbon::parse($data['actual']['fecha_apertura'])->format('d-m');
+            $data['actual']['fecha_cierre'] = Carbon::parse($data['actual']['fecha_cierre'])->format('d-m');
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -187,15 +221,12 @@ class ReporteController extends Controller
         try {
             $inicio = now()->startOfDay()->subDay($periodo);
             $hoy = now()->endOfDay();
-
             $movs = MovimientoCaja::where('tipo', 'egreso')
                 ->whereBetween('created_at', [$inicio, $hoy])
-                ->orderBy('created_at')
+                ->selectRaw('DATE(created_at) as fecha, SUM(monto) as total')
+                ->groupBy('fecha')
                 ->get()
-                ->groupBy(function ($query) {
-                    return Carbon::parse($query->created_at)->format('d-m-Y');
-                })
-                ->map(fn($mov) => ['total' => $mov->sum('monto')]);
+                ->pluck('total', 'fecha');
 
             return response()->json([
                 'success' => true,
@@ -218,10 +249,10 @@ class ReporteController extends Controller
 
             $movs = MovimientoCaja::where('tipo', 'egreso')
                 ->whereBetween('created_at', [$inicio, $hoy])
-                ->orderBy('created_at')
-                ->get()
+                ->selectRaw('concepto, SUM(monto) as total')
                 ->groupBy('concepto')
-                ->map(fn($mov) => ['total' => $mov->sum('monto')]);
+                ->get()
+                ->pluck('total', 'concepto');
 
             return response()->json([
                 'success' => true,
@@ -234,5 +265,29 @@ class ReporteController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Exportar reporte global a Excel
+     */
+    public function exportarGlobal(Request $request)
+    {
+        $fechaInicio = $request->query('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
+        $fechaFin = $request->query('fecha_fin', now()->format('Y-m-d'));
+
+        $nombreArchivo = 'reporte_global_' . $fechaInicio . '_a_' . $fechaFin . '.xlsx';
+
+        return Excel::download(new ReporteGlobalExport($fechaInicio, $fechaFin), $nombreArchivo);
+    }
+
+    /**
+     * Vista detallada del reporte
+     */
+    public function detalleReporte(Request $request)
+    {
+        $data = $this->reporteService->data_detalle_reporte($request);
+        return view('reportes.detalle', [
+            'data' => $data
+        ]);
     }
 }

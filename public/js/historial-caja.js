@@ -20,7 +20,7 @@ function cerrarModalCaja() {
 }
 
 // Cerrar modal al hacer clic fuera
-if(document.getElementById("modal-detalle-caja")){
+if (document.getElementById("modal-detalle-caja")) {
     document.getElementById("modal-detalle-caja").addEventListener("click", function (e) {
         if (e.target === this) {
             cerrarModalCaja();
@@ -28,10 +28,11 @@ if(document.getElementById("modal-detalle-caja")){
     });
 }
 
-if(document.querySelectorAll(".detalle-caja")){
+if (document.querySelectorAll(".detalle-caja")) {
     document.querySelectorAll(".detalle-caja").forEach((btn) => {
         btn.addEventListener("click", async () => {
             const data = await getCaja(btn.dataset.cajaid);
+            console.log(data);
             abrirModalCaja();
             mapearDetalleCaja(data);
         });
@@ -40,17 +41,11 @@ if(document.querySelectorAll(".detalle-caja")){
 
 async function getCaja(id) {
     try {
-        const res = await fetch(`/api/caja/${id}`, {
-            method: 'GET',
-            headers: {
-                "X-CSRF-TOKEN": csrfToken,
-            },
-        });
+        const res = await fetch(`/api/caja/${id}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
         }
-        console.log(data);
         return data;
     } catch (err) {
         showToast(`${err.error}`, "error");
@@ -74,6 +69,9 @@ function mapearDetalleCaja(data) {
     const divDos = document.getElementById("dif-cont-dos");
     const meyorVenta = document.getElementById("dc-mayor-venta");
     const promedio = document.getElementById("dc-promedio");
+    const egresos = document.getElementById('dc-egresos');
+    const totalEgreso = document.getElementById('total-ingreso-dc');
+    const btnVerDetalleCompleto = document.getElementById('btn-ver-detalle-completo');
 
     let simbolo = "";
     if (data.datos.caja.monto_cierre > data.datos.caja.saldo_esperado) {
@@ -123,13 +121,18 @@ function mapearDetalleCaja(data) {
     dcTransacciones.innerText = `${data.datos.transacciones}`;
     dcClientes.innerText = `${data.datos.clientes}`;
 
+    // Actualizar enlace de ver detalle completo
+    if (btnVerDetalleCompleto) {
+        btnVerDetalleCompleto.href = `/caja/${data.datos.caja.id}/detalle`;
+    }
+
     const efectivo = Number(data.datos.efectivo ?? 0);
     const transferencia = Number(data.datos.transferencia ?? 0);
 
     const efecPorcentaje =
         data.datos.efecPorcentaje ?? data.datos.efecProcentaje ?? 0;
     const transfPorcentaje =
-        data.datos.transfPorcentaje ?? data.datos.transfProcentaje ?? 0;
+        data.datos.transfPorcentaje ?? data.datos.transfPorcentaje ?? 0;
 
     dcEfectivo.innerText = `Gs ${efectivo.toLocaleString("es-PY")} (${efecPorcentaje}%)`;
     dcTransferencia.innerText = `Gs ${transferencia.toLocaleString("es-PY")} (${transfPorcentaje}%)`;
@@ -154,10 +157,38 @@ function mapearDetalleCaja(data) {
         dcTablaBody.appendChild(tr);
     });
 
-    meyorVenta.innerText = `Gs. ${data.datos.mayorVenta.toLocaleString("es-PY")}`;
-    promedio.innerText = `Gs. ${data.datos.promedio.toLocaleString("es-PY")}`;
-    //  <td class="px-4 py-2">
-    //                                         <span
-    //                                             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">22%</span>
-    //                                     </td>
+    meyorVenta.innerText = `Gs. ${data?.datos?.mayorVenta?.toLocaleString("es-PY")}`;
+    promedio.innerText = `Gs. ${data?.datos?.promedio?.toLocaleString("es-PY")}`;
+
+    egresos.innerHTML = '';
+    data.datos.egresos.forEach(item => {
+        const div = document.createElement('div');
+
+
+        fecha = new Date(item.created_at);
+        cuando = fecha
+            .toLocaleString("es-PY", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            })
+            .replace(",", " ");
+
+        div.className = 'space-y-3';
+        div.innerHTML = `
+                        <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900">${item.concepto}</p>
+                                <p class="text-sm text-gray-600">${cuando}</p>
+                            </div>
+                            <span class="font-bold text-red-600">Gs. ${item.monto.toLocaleString('es-PY')}</span>
+                        </div>                        
+        `
+        egresos.appendChild(div);
+    });
+
+    totalEgreso.innerText = data.datos.total_egreso.toLocaleString('es-PY');
 }

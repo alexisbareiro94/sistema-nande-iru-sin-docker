@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Events\AuditoriaCreadaEvent;
+use App\Enums\{ConceptoMovimiento, TipoMovimiento};
 use App\Models\{Auditoria, User, PagoSalario, MovimientoCaja};
+use Illuminate\Support\Facades\Log;
 
 class MovimientoService
 {
-    public function pago_salario(array $data, MovimientoCaja $movimiento, string $userId) :bool
+    public function pago_salario(array $data, MovimientoCaja $movimiento, string $userId): bool
     {
         $user = User::find($data['personal_id']);
 
@@ -20,9 +22,9 @@ class MovimientoService
                 ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->orderByDesc('created_at')
                 ->first()
-                ?->restante;
+                    ?->restante;
 
-            if (filled($ultimoPago) && $ultimoPago < $data['monto']) {                
+            if (filled($ultimoPago) && $ultimoPago < $data['monto']) {
                 return false;
             }
 
@@ -33,9 +35,9 @@ class MovimientoService
             } else {
                 $adelanto = true;
                 $restante = $user->salario - $data['monto'];
-            }            
+            }
 
-            $pagoSalario = PagoSalario::create([
+            PagoSalario::create([
                 'user_id' => $data['personal_id'],
                 'movimiento_id' => $movimiento->id,
                 'adelanto' => $adelanto,
@@ -44,20 +46,40 @@ class MovimientoService
                 'created_by' => $userId,
             ]);
 
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => PagoSalario::class,
-                'entidad_id' => $pagoSalario->id,
-                'accion' => 'Pago de salario',
-                'data' => [
-                    'user_id' => $pagoSalario->user_id,
-                    'monto' => $pagoSalario->monto,
-                ]
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::registrar(
+            //     'crear',
+            //     $pagoSalario,
+            //     "Pago de salario a {$user->name} por Gs. " . number_format($pagoSalario->monto, 0, ',', '.'),
+            //     null,
+            //     [
+            //         'user_id' => $pagoSalario->user_id,
+            //         'user_name' => $user->name,
+            //         'monto' => $pagoSalario->monto,
+            //         'adelanto' => $adelanto,
+            //         'restante' => $restante,
+            //     ]
+            // );
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return true;
-        } else {            
+        } else {
             return false;
         }
+    }
+
+    public function registrar(int $cajaId, object $venta, string $concepto, string $tipo)
+    {
+        try {
+            MovimientoCaja::create([
+                "caja_id" => $cajaId,
+                "tipo" => $tipo,
+                "concepto" => $concepto,
+                "monto" => $venta->total,
+                'venta_id' => $venta->id,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al crear el movimiento: ' . $e->getMessage());
+            throw new \Exception('Error al crear el movimiento: ' . $e->getMessage());
+        }
+
     }
 }

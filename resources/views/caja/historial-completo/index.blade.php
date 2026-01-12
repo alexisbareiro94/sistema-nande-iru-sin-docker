@@ -118,7 +118,7 @@
 
                     </span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-8 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
                         <input id="dv-desde" type="date"
@@ -165,6 +165,28 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Clientes</label>
+                        <select id="dv-cliente"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            @foreach ($users->where('role', 'cliente') as $user)
+                                <option value="{{ $user->id }}">{{ $user->name ?? $user->razon_social }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mercanico/Taller</label>
+                        <select id="dv-mecanico"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            @foreach ($users->where('role', 'mecanico') as $user)
+                                <option value="{{ $user->id }}">{{ $user->name ?? $user->razon_social }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="flex items-end">
                         <button id="dv-buscar"
                             class="w-full bg-gray-800 hover:bg-gray-800 cursor-pointer text-white px-4 py-2 rounded-md transition-colors">
@@ -174,13 +196,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-    @endif
-    <!-- Tabla de Ventas -->
-    <div class="bg-white rounded-lg shadow items-center">
-        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
-            <div class="relative">
-                <span class="absolute z-20 left-2 top-2 pr-2">
+            <div class="relative px-6 pb-4">
+                <span class="absolute z-20 left-8 top-2 pr-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -188,9 +205,59 @@
                     </svg>
 
                 </span>
-                <input id="dv-input-s" class="min-w-xs border border-gray-400 pl-11 py-2 rounded-md"
+                <input id="dv-input-s" class="min-w-sm border border-gray-400 pl-11 py-2 rounded-md"
                     placeholder="Ingrese codigo de venta o cliente" type="text" name="">
             </div>
+            <div>
+                <div class="px-6 pb-6 pt-2 border-t border-gray-100 hidden" id="dv-filtros">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="dv-filtros-texto"
+                            class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filtros activos:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <span id="dv-filtros-busqueda"
+                                class="hidden items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Busqueda: a
+                            </span>
+                            <span id="dv-filtros-fecha"
+                                class="hidden items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Fecha: 01/10/2023 - 31/10/2023
+                            </span>
+                            <span id="dv-filtros-metodo"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Método: Efectivo
+                            </span>
+                            <span id="dv-filtros-estado"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Estado: Completado
+                            </span>
+                            <span id="dv-filtros-tipo"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Tipo: Venta
+                            </span>
+                            <span id="dv-filtros-cliente"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Cliente: Juan Pérez
+                            </span>
+                            <span id="dv-filtros-mecanico"
+                                class="hidden  items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                Mecanico: Taller 360
+                            </span>
+                        </div>
+                        <div id="dv-filtros-resultados" class="ml-auto hidden">
+                            <span class="text-sm text-gray-500">
+                                Mostrando <span id="dv-filtros-cantidad" class="font-bold text-gray-800">24</span>
+                                resultados
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    <!-- Tabla de Ventas -->
+    <div class="bg-white rounded-lg shadow items-center">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row gap-5 items-center">
+
             <div id="ingresos-filtro"
                 class="hidden flex gap-2 bg-green-200 px-2 py-1 rounded-lg items-center text-sm  text-green-800">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -240,8 +307,8 @@
                             class="absolute z-[999] hidden opacity-0 transition-all duration-150 -right-1.5 top-1 mt-2 w-48 rounded-md border bg-white shadow-lg">
                             <div class="py-1" role="menu" aria-orientation="vertical"
                                 aria-labelledby="options-menu">
-                                <button id="export-pdf" tabindex="0" role="menuitem" disabled
-                                    class="w-full cursor-not-allowed px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 transition-colors duration-150 hover:bg-gray-200 focus:bg-red-400 flex justify-between">
+                                <button id="export-pdf" tabindex="0" role="menuitem"
+                                    class="w-full cursor-pointer px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 transition-colors duration-150 hover:bg-red-200 focus:bg-red-400 flex justify-between">
                                     PDF
                                     <span class="">
                                         <svg class="w-6 h-6 text-gray-800 " aria-hidden="true"
@@ -329,4 +396,6 @@
 @endsection
 @include('caja.historial-completo.detalle-venta')
 @include('caja.historial-completo.detalle-movimiento')
+@include('caja.historial-completo.includes.modal-anular-venta')
+@include('caja.historial-completo.includes.modal-eliminar-mov')
 @endsection

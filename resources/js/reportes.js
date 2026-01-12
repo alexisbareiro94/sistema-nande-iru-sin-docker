@@ -1,6 +1,88 @@
 import Chart from 'chart.js/auto';
 import { showToast } from './toast';
 
+// ==================== EXPORT MODAL ====================
+function abrirModalExportar() {
+    const modal = document.getElementById('modal-exportar-reporte');
+    if (modal) {
+        // Calcular fechas por defecto (lunes de esta semana a hoy)
+        const hoy = new Date();
+        const diaSemana = hoy.getDay();
+        const diasDesdeL = diaSemana === 0 ? 6 : diaSemana - 1;
+        const lunes = new Date(hoy);
+        lunes.setDate(hoy.getDate() - diasDesdeL);
+
+        document.getElementById('export-fecha-inicio').value = formatearFecha(lunes);
+        document.getElementById('export-fecha-fin').value = formatearFecha(hoy);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function cerrarModalExportar() {
+    const modal = document.getElementById('modal-exportar-reporte');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function formatearFecha(fecha) {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function descargarReporteGlobal() {
+    const fechaInicio = document.getElementById('export-fecha-inicio').value;
+    const fechaFin = document.getElementById('export-fecha-fin').value;
+
+    if (!fechaInicio || !fechaFin) {
+        showToast('Debe seleccionar ambas fechas', 'error');
+        return;
+    }
+
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+        showToast('La fecha de inicio debe ser menor o igual a la fecha fin', 'error');
+        return;
+    }
+
+    // Redirigir a la URL de descarga
+    const url = `/reportes/exportar?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    window.location.href = url;
+
+    cerrarModalExportar();
+    showToast('Generando reporte...', 'success');
+}
+
+function verDetallesReporte() {
+    const fechaInicio = document.getElementById('export-fecha-inicio').value;
+    const fechaFin = document.getElementById('export-fecha-fin').value;
+
+    if (!fechaInicio || !fechaFin) {
+        showToast('Debe seleccionar ambas fechas', 'error');
+        return;
+    }
+
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+        showToast('La fecha de inicio debe ser menor o igual a la fecha fin', 'error');
+        return;
+    }
+
+    // Navegar a la página de detalles
+    const url = `/reportes/detalle?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    window.location.href = url;
+}
+
+// Exponer funciones globalmente
+window.abrirModalExportar = abrirModalExportar;
+window.cerrarModalExportar = cerrarModalExportar;
+window.descargarReporteGlobal = descargarReporteGlobal;
+window.verDetallesReporte = verDetallesReporte;
+// ==================================================
+
 
 function limpiarSessions() {
     sessionStorage.removeItem('regreso');
@@ -13,7 +95,7 @@ let PagosChart = null;
 async function pagosChart(periodo = 7) {
     try {
         const donut = document.getElementById('pagosChart');
-        if(!donut){
+        if (!donut) {
             return;
         }
         const res = await fetch(`/api/pagos/${periodo}`);
@@ -22,7 +104,7 @@ async function pagosChart(periodo = 7) {
         if (!res.ok) {
             throw data
         }
-        
+
         if (PagosChart) {
             PagosChart.destroy();
         }
@@ -98,22 +180,22 @@ let ventaChart = null;
 async function ventasChart(periodo = 7) {
     try {
         const bar = document.getElementById('ventasChart');
-        if(!bar){
+        if (!bar) {
             return;
         }
         const res = await fetch(`/api/ventas/${periodo}`)
         const data = await res.json();
         if (!res.ok) {
             throw data;
-        }        
+        }
 
         const labels = data.labels;
-        const valores = labels.map(fecha => data.ventas[fecha].total);
+        const valores = labels.map(fecha => data.ventas[fecha]);
 
         if (ventaChart) {
             ventaChart.destroy();
         }
-        
+
         ventaChart = new Chart(bar, {
             type: 'bar',
             data: {
@@ -183,7 +265,7 @@ let tipoVentaChart = null;
 async function tipoVenta(periodo = 7) {
     try {
         const donutVenta = document.getElementById('tipoVentaChart');
-        if(!donutVenta){
+        if (!donutVenta) {
             return;
         }
         const res = await fetch(`/api/tipo_venta/${periodo}`);
@@ -191,7 +273,7 @@ async function tipoVenta(periodo = 7) {
 
         if (!res.ok) {
             throw data
-        }        
+        }
         if (tipoVentaChart) {
             tipoVentaChart.destroy();
         }
@@ -199,7 +281,7 @@ async function tipoVenta(periodo = 7) {
         tipoVentaChart = new Chart(donutVenta, {
             type: 'doughnut',
             data: {
-                labels: data.labels,
+                labels: ['Producto', 'Servicio'],
                 datasets: [
                     {
                         label: 'Cantidad',
@@ -213,7 +295,7 @@ async function tipoVenta(periodo = 7) {
                         label: 'Ingresos',
                         data: [data.conteo.ingresos.producto, data.conteo.ingresos.servicio],
                         backgroundColor: [
-                            'rgba(35, 39, 235, 0.3)',   // más transparente para diferenciar
+                            'rgba(35, 39, 235, 0.3)',
                             'rgba(8, 209, 49, 0.3)',
                         ],
                     }
@@ -271,11 +353,23 @@ utiBtns.forEach(btn => {
             b.classList.remove('bg-gray-50', 'shadow-lg');
             b.classList.add('bg-gray-300');
         });
-        const option = JSON.parse(sessionStorage.getItem('option'));        
-        if (option != null) {
-            await gananacias(btn.dataset.utilidad, option);
+
+        // Mostrar/ocultar campos de fechas personalizadas
+        const fechasContainer = document.getElementById('fechas-personalizadas');
+        if (btn.dataset.utilidad === 'personalizado') {
+            if (fechasContainer) {
+                fechasContainer.classList.remove('hidden');
+            }
         } else {
-            await gananacias(btn.dataset.utilidad);
+            if (fechasContainer) {
+                fechasContainer.classList.add('hidden');
+            }
+            const option = JSON.parse(sessionStorage.getItem('option'));
+            if (option != null) {
+                await gananacias(btn.dataset.utilidad, option);
+            } else {
+                await gananacias(btn.dataset.utilidad);
+            }
         }
         setTimeout(() => {
             btn.classList.remove('bg-gray-300');
@@ -283,6 +377,75 @@ utiBtns.forEach(btn => {
         }, 150)
     });
 });
+
+// Funcionalidad para fechas personalizadas
+const btnAplicarFechas = document.getElementById('btn-aplicar-fechas');
+if (btnAplicarFechas) {
+    btnAplicarFechas.addEventListener('click', async () => {
+        const fechaInicio = document.getElementById('fecha-inicio').value;
+        const fechaFin = document.getElementById('fecha-fin').value;
+
+        if (!fechaInicio || !fechaFin) {
+            showToast('Debe seleccionar ambas fechas', 'error');
+            return;
+        }
+
+        if (new Date(fechaInicio) > new Date(fechaFin)) {
+            showToast('La fecha de inicio debe ser menor o igual a la fecha fin', 'error');
+            return;
+        }
+
+        await gananciasPersonalizadas(fechaInicio, fechaFin);
+    });
+}
+
+async function gananciasPersonalizadas(fechaInicio, fechaFin) {
+    sessionStorage.setItem('periodo', JSON.stringify('personalizado'));
+    const regreso = JSON.parse(sessionStorage.getItem('regreso'));
+    const gananciaActual = document.getElementById('ganancia-actual');
+    const rangoActual = document.getElementById('rango-actual');
+    const porcentaje = document.getElementById('variacion-porcentaje');
+    const diferencia = document.getElementById('variacion-valor');
+    const rangoAnterior = document.getElementById('rango-anterior');
+    const gananciaAnterior = document.getElementById('ganancia-anterior');
+    const svgCont = document.getElementById('svg-cont-card');
+
+    try {
+        const res = await fetch(`/api/utilidad-personalizada?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+        const data = await res.json();
+        if (!res.ok) {
+            throw data;
+        }
+
+        // Para fechas personalizadas no hay comparativa
+        svgCont.innerHTML = '';
+        svgCont.classList = 'text-gray-500';
+
+        const fecha = `Personalizado (${data.data.actual.fecha_apertura} al ${data.data.actual.fecha_cierre})`;
+
+        if (regreso == 'true') {
+            gananciaActual.innerText = `Gs. ${data.data.actual.ganancia_egreso.toLocaleString('es-PY')}`;
+            rangoActual.innerText = `Rango: ${fecha}`;
+            porcentaje.className = 'text-sm font-semibold text-gray-500 bg-gray-200 rounded-xl px-1';
+            porcentaje.innerText = 'N/A';
+            gananciaAnterior.innerText = 'N/A';
+            diferencia.innerText = 'N/A';
+            rangoAnterior.innerText = 'Sin comparativa';
+        } else {
+            gananciaActual.innerText = `Gs. ${data.data.actual.ganancia.toLocaleString('es-PY')}`;
+            rangoActual.innerText = `Rango: ${fecha}`;
+            porcentaje.className = 'text-sm font-semibold text-gray-500 bg-gray-200 rounded-xl px-1';
+            porcentaje.innerText = 'N/A';
+            gananciaAnterior.innerText = 'N/A';
+            diferencia.innerText = 'N/A';
+            rangoAnterior.innerText = 'Sin comparativa';
+        }
+
+    } catch (err) {
+        console.log(err);
+        showToast('Error al obtener datos', 'error');
+    }
+}
 
 //boton de opcion
 const optionsBtns = document.querySelectorAll('.option-btn');
@@ -324,8 +487,8 @@ rEgresosBtns.forEach(btn => {
             b.classList.add('bg-gray-300');
         });
         const option = JSON.parse(sessionStorage.getItem('option'));
-        const periodo = JSON.parse(sessionStorage.getItem('periodo')) || 'dia';   
-        const tenPeriodo = JSON.parse(sessionStorage.getItem('tenPeriodo')) || '7';     
+        const periodo = JSON.parse(sessionStorage.getItem('periodo')) || 'dia';
+        const tenPeriodo = JSON.parse(sessionStorage.getItem('tenPeriodo')) || '7';
         if (btn.dataset.regreso) {
             sessionStorage.setItem('regreso', JSON.stringify(btn.dataset.regreso))
             await gananacias(periodo, option, btn.dataset.regreso);
@@ -356,6 +519,7 @@ async function gananacias(periodo = '7', option = '', egreso = '') {
     try {
         const res = await fetch(`/api/utilidad/${periodo}/${option}`);
         const data = await res.json();
+
         if (!res.ok) {
             throw data;
         }
@@ -422,36 +586,36 @@ async function gananacias(periodo = '7', option = '', egreso = '') {
         }
 
     } catch (err) {
-        console.log(err)        
+        console.log(err)
     }
 }
 
 //---------------grafico de tendencias-----------------------
 let TendenciasChart = null;
 async function tendenciasChart(periodo = 7) {
-    const regreso = JSON.parse(sessionStorage.getItem('regreso')) || '';    
-    try {        
+    const regreso = JSON.parse(sessionStorage.getItem('regreso')) || '';
+    try {
         const miniChart = document.getElementById('miniChart');
-        if(!miniChart){
+        if (!miniChart) {
             return;
         }
-        sessionStorage.setItem('tenPeriodo', JSON.stringify(periodo));        
+        sessionStorage.setItem('tenPeriodo', JSON.stringify(periodo));
         const res = await fetch(`/api/tendencias/${periodo}`);
         const data = await res.json();
         if (!res.ok) {
             throw data;
         }
-        
+
         if (TendenciasChart) {
             TendenciasChart.destroy();
         }
         let ganancias;
-        if(regreso){
+        if (regreso) {
             ganancias = data.datos.map(item => item?.egresos > 0 ? item.ganacia_egresos : item.ganancia);
-        }else{
+        } else {
             ganancias = data.datos.map(item => item?.ganancia ?? 0);
-            
-        }                
+
+        }
         TendenciasChart = new Chart(miniChart, {
             type: 'line',
             data: {
@@ -513,7 +677,7 @@ let egresosChart = null;
 async function egresoChart(periodo = 7) {
     try {
         const bar = document.getElementById('egresosChart');
-        if(!bar){
+        if (!bar) {
             return;
         }
         const res = await fetch(`/api/egresos/${periodo}`)
@@ -521,16 +685,16 @@ async function egresoChart(periodo = 7) {
         if (!res.ok) {
             throw data;
         }
-        
+
         const labels = data.labels;
-        const egresos = labels.map(fecha => data.egresos[fecha].total);
+        const egresos = labels.map(fecha => data.egresos[fecha]);
 
         if (egresosChart) {
             egresosChart.destroy();
-        }       
-        if(!bar){
+        }
+        if (!bar) {
             return;
-        } 
+        }
         egresosChart = new Chart(bar, {
             type: 'bar',
             data: {
@@ -598,7 +762,7 @@ let ConceptoEgresos = null;
 async function conceptoEgresosChart(periodo = 7) {
     try {
         const donut = document.getElementById('egresosConceptoChart');
-        if(!donut){
+        if (!donut) {
             return;
         }
         const res = await fetch(`/api/egresos/concepto/${periodo}`);
@@ -607,13 +771,13 @@ async function conceptoEgresosChart(periodo = 7) {
         if (!res.ok) {
             throw data
         }
-        
+
         if (ConceptoEgresos) {
             ConceptoEgresos.destroy();
-        }        
+        }
         const labels = data.labels;
-        const egresos = labels.map(fecha => data.egresos[fecha].total);
-        if(!donut){
+        const egresos = labels.map(fecha => data.egresos[fecha]);
+        if (!donut) {
             return;
         }
         ConceptoEgresos = new Chart(donut, {
@@ -669,7 +833,7 @@ conceptoBtns.forEach(btn => {
         conceptoBtns.forEach(b => {
             b.classList.remove('bg-gray-50', 'shadow-lg');
             b.classList.add('bg-gray-300');
-        });        
+        });
         conceptoEgresosChart(btn.dataset.concepto);
         setTimeout(() => {
             btn.classList.remove('bg-gray-300');

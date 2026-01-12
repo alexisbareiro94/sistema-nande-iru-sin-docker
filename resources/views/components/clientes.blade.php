@@ -1,6 +1,6 @@
 <div id="modal-todos-clientes"
     class=" hidden fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-30 p-4">
-    <div class="overflow-x-scroll bg-white rounded-xl w-auto max-h-[90vh] shadow-2xl p-3 space-y-6 ">
+    <div class=" bg-white rounded-xl w-auto max-h-[90vh] shadow-2xl p-3 space-y-6 ">
 
         <!-- Encabezado -->
         <div class=" flex justify-between items-center pb-2 border-b">
@@ -62,7 +62,7 @@
                     @foreach ($clientes as $cliente)
                         <tr data-id="{{ $cliente->id }}" class="tr-clientes bg-white border-b  border-gray-200">
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                {{ $cliente->razon_social }} {{ $cliente->tenant_id }} {{ auth()->user()->tenant_id }}
+                                {{ $cliente->razon_social }}
                             </th>
                             <td class="px-6 py-4">
                                 {{ $cliente->ruc_ci }}
@@ -101,6 +101,5 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 </div>

@@ -1,7 +1,7 @@
 {{-- public/caja.js --}}
 <div @class([
     'fixed inset-0 backdrop-blur-xs bg-black/20 flex items-center justify-center z-40 transition-opacity duration-300',
-    'hidden' => Auth::user()->role == 'admin' || !session('caja'),    
+    'hidden' => Auth::user()->role == 'admin' || !session('caja'),
 ]) id="modal-ventas">
     <div
         class="bg-white border-1 border-gray-800 md:rounded-2xl w-full md:max-w-[90%] shadow-2xl overflow-hidden flex flex-col h-[92vh] md:h-[90vh]">
@@ -26,7 +26,6 @@
                     </svg>
                     {{ auth()->user()->name }}
                 </span>
-
             </div>
             <!-- cerrar modal x -->
             <button id="cerrar-modal-ventas"
@@ -36,6 +35,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
+        </div>
+        <div id="div-procesar-cobro" class="hidden p-2">
+            <p class="font-semibold">Procesar Cobro de servicio:
+                <span class="font-normal" id="servicio-codigo"></span>
+            </p>
         </div>
 
         <div class="flex flex-1 overflow-hidden ">
@@ -68,21 +72,10 @@
                     </form>
                 </div>
 
-                <!-- Tabla de productos con mejor diseño -->
-                <div class="overflow-y-auto rounded-xl border border-gray-200 shadow-sm flex-1">
-                    <table class="w-full text-left">
-                        <thead class="bg-gradient-to-r from-gray-100 to-gray-100 sticky top-0 z-10">
-                            <tr class="text-gray-800">
-                                <th class="px-5 py-3 font-semibold">Producto</th>
-                                <th class="px-5 py-3 font-semibold">Precio</th>
-                                <th class="px-5 py-3 font-semibold">Stock</th>
-                                <th class="px-5 py-3 font-semibold text-center hidden">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-venta-productos" class="divide-y divide-gray-100">
-                            {{-- aca se renderizan los productos /public/caja.js --}}
-                        </tbody>
-                    </table>
+                <!-- Grid de productos en cards -->
+                <div id="tabla-venta-productos"
+                    class="rounded-xl border border-gray-200 shadow-sm flex-1 overflow-y-auto max-h-[calc(100vh-220px)] p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-max content-start">
+                    {{-- aca se renderizan los productos /public/caja.js --}}
                 </div>
             </div>
 
@@ -161,7 +154,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="size-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>                                
+                                </svg>
                             </button>
 
                             <button id="limpiar-carrito"
@@ -198,7 +191,7 @@
                 </div>
 
                 <div class="flex gap-3 pt-2">
-                    <button id="cancelar-venta"
+                    <button id="cancelar-modal-venta"
                         class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -220,19 +213,10 @@
             </div>
         </div>
         @include('caja.includes.modal-confirmar-venta')
+
     </div>
 
     <script>
-        document.getElementById('cancelar-venta').addEventListener('click', () => {
-            document.getElementById('modal-ventas').classList.add('hidden');
-            sessionStorage.clear();
-            renderCarrito();
-            document.getElementById('totalCarrito').innerHTML = ''
-            document.getElementById('subTotalCarrito').innerHTML = ''
-            document.getElementById('form-cliente-venta').reset();
-        })
-
-
         document.getElementById('limpiar-carrito').addEventListener('click', () => {
             sessionStorage.clear();
             document.getElementById('totalCarrito').innerHTML = ''

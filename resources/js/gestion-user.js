@@ -81,7 +81,7 @@ async function updatePersonal(activo) {
             },
             body: formData,
         });
-        const data = await res.json();        
+        const data = await res.json();
         console.log(data);
         if (!res.ok) {
             throw data
@@ -205,7 +205,7 @@ async function rerenderForm() {
 
 
 function renderTableBody(data) {
-    if(!$('#table-body-auditorias')){
+    if (!$('#table-body-auditorias')) {
         return;
     }
     const body = document.getElementById('table-body-auditorias');

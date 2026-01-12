@@ -21,28 +21,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([UserSeeder::class]);
+        $this->call([UserSeeder::class]);
 
-        // DB::table("marcas")->insert([
-        //     // "tenant_id" => 1,
-        //     "nombre" => "sin marca",
-        // ]);
+        DB::table("marcas")->insert([
+            "tenant_id" => 1,
+            "nombre" => "sin marca",
+        ]);
 
-        // DB::table("categorias")->insert([
-        //     // "tenant_id" => 1,            
-        //     "nombre" => "sin categoria",
-        // ]);
+        DB::table("categorias")->insert([
+            "tenant_id" => 1,
+            "nombre" => "sin categoria",
+        ]);
 
-        // DB::table("distribuidores")->insert([
-        //     // "tenant_id" => 1,               
-        //     "nombre" => "sin distribuidor",
-        // ]);
+        DB::table("distribuidores")->insert([
+            "tenant_id" => 1,
+            "nombre" => "sin distribuidor",
+        ]);
 
-        
 
-         \App\Models\Producto::factory(50)->create();
+        DB::table('cajas')->insert([
+            'tenant_id' => 1,
+            'user_id' => 1,
+            'monto_inicial' => 100000,
+            'fecha_apertura' => now(),
+            'estado' => 'abierto',
+            'created_at' => now(),
+        ]);
+
+        Producto::factory(50)->create();
 
         User::factory(11)->create();
+
         Venta::factory(279)->create([
             "cliente_id" => User::all()->random()->id,
             'tenant_id' => 1,

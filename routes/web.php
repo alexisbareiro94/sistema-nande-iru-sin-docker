@@ -6,6 +6,7 @@ use App\Http\Controllers\CajaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteDistController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistribuidorController;
 use App\Http\Controllers\GestionUsersController;
 use App\Http\Controllers\MarcaController;
@@ -15,14 +16,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\ServicioProcesoController;
+use App\Http\Controllers\FacturaController;
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CajaMiddleware;
 use App\Http\Middleware\CheckUserIsBloqued;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-
-use App\Models\{Auditoria, MovimientoCaja, User, Venta, DetalleVenta, Caja, Pago, Producto, PagoSalario};
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/login', [AuthController::class, 'login_view'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
@@ -32,7 +35,7 @@ Route::get('/restablecer_pass', [GestionUsersController::class, 'restablecer_pas
 Route::post('/restablecer/{id}', [UserController::class, 'reset_password'])->name('reset.password');
 
 Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
-    Route::get('/', [AuthController::class, 'index'])->name('home');
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/download', function () {
@@ -51,7 +54,8 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
 
         //cajas anteriores
         Route::get('/caja/anteriores', [CajaController::class, 'anteriores'])->name('caja.anteriores');
-        Route::get('api/caja/{id}', [CajaController::class, 'show'])->name('caja.show');
+        Route::get('/api/caja/{id}', [CajaController::class, 'show'])->name('caja.show');
+        Route::get('/caja/{id}/detalle', [CajaController::class, 'detalle'])->name('caja.detalle');
 
         //users
         Route::get('/api/users', [UserController::class, 'index'])->name('user.index');
@@ -62,15 +66,16 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/movimientos', [VentaController::class, 'index_view'])->name('venta.index.view');
         Route::get('/venta/{codigo}', [VentaController::class, 'show']);
         Route::get('/venta', [VentaController::class, 'index']);
-        
+        Route::post('/api/venta-update/{id}', [VentaController::class, 'update'])->name('venta.update');
+
         //exportaciones
         Route::get('/export-excel', [VentaController::class, 'export_excel'])->name('venta.excel');
         Route::get('/export-pdf', [VentaController::class, 'export_pdf'])->name('venta.pdf');
-            //stock
+        //stock
         Route::get('/export-stock', [ProductoController::class, 'export_stock_pdf'])->name('producto.excel');
-            //personal
+        //personal
         Route::get('/export-personal', [GestionUsersController::class, 'export_personal'])->name('personal.excel');
-            //
+        //
         Route::get('/export-salarios', [GestionUsersController::class, 'export_salarios'])->name('salarios.excel');
 
         //movimiento
@@ -79,6 +84,52 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::post('/api/movimiento', [MovimientoCajaController::class, 'store'])->name('movimiento.store');
         Route::get('/api/movimientos/charts_caja', [MovimientoCajaController::class, 'charts_caja']);
         Route::get('/api/productos', [ProductoController::class, 'search'])->name('productos.search');
+        Route::post('/api/eliminar-mov/{id}', [MovimientoCajaController::class, 'destroy'])->name('mov.destroy');
+
+        // Vehículos
+        Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculo.index');
+        Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculo.store');
+        Route::get('/vehiculos/{id}', [VehiculoController::class, 'show'])->name('vehiculo.show');
+        Route::put('/vehiculos/{id}', [VehiculoController::class, 'update'])->name('vehiculo.update');
+        Route::get('/api/vehiculo/buscar', [VehiculoController::class, 'buscarPorPatente']);
+        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);
+
+        // Servicio en Proceso
+        Route::get('/servicio-proceso', [ServicioProcesoController::class, 'index'])->name('servicio.proceso.index');
+        Route::get('/servicio-proceso/{id}', [ServicioProcesoController::class, 'show'])->name('servicio.proceso.show');
+        Route::post('/api/servicio-proceso', [ServicioProcesoController::class, 'store'])->name('servicio.proceso.store');
+        Route::put('/api/servicio-proceso/{id}', [ServicioProcesoController::class, 'update'])->name('servicio.proceso.update');
+        Route::post('/api/servicio-proceso/{id}/foto', [ServicioProcesoController::class, 'subirFoto'])->name('servicio.proceso.foto');
+        Route::delete('/api/servicio-proceso/foto/{id}', [ServicioProcesoController::class, 'eliminarFoto'])->name('servicio.proceso.foto.delete');
+        Route::get('/api/servicio-proceso/buscar-vehiculo', [ServicioProcesoController::class, 'buscarVehiculo']);
+        Route::get('/api/servicio-proceso/activos', [ServicioProcesoController::class, 'serviciosActivos']);
+        Route::post('/api/servicio-proceso/crear-vehiculo', [ServicioProcesoController::class, 'crearVehiculo']);
+        Route::post('/api/servicio-proceso/crear-cliente', [ServicioProcesoController::class, 'crearCliente']);
+        Route::post('/api/servicio-proceso/crear-mecanico', [ServicioProcesoController::class, 'crearMecanico']);
+        Route::get('/api/servicio-proceso/{id}/imagenes', [ServicioProcesoController::class, 'getImages']);
+        // Facturas - Rutas específicas primero (antes de rutas con parámetros dinámicos)
+        Route::get('/factura', [FacturaController::class, 'index'])->name('facturas.index');
+
+        // Configuración número de factura (ANTES de /facturas/{id})
+        Route::post('/facturas/config/numero', [FacturaController::class, 'setNumeroInicial'])->name('facturas.config.set');
+        Route::get('/facturas/config/numero', [FacturaController::class, 'getNumeroInicial'])->name('facturas.config.get');
+        Route::delete('/facturas/config/numero', [FacturaController::class, 'clearNumeroInicial'])->name('facturas.config.clear');
+
+        // Configuración timbrado (ANTES de /facturas/{id})
+        Route::post('/facturas/config/timbrado', [FacturaController::class, 'setTimbrado'])->name('facturas.config.timbrado.set');
+        Route::get('/facturas/config/timbrado', [FacturaController::class, 'getTimbrado'])->name('facturas.config.timbrado.get');
+        Route::delete('/facturas/config/timbrado', [FacturaController::class, 'clearTimbrado'])->name('facturas.config.timbrado.clear');
+
+        // API de facturas (ANTES de rutas con parámetros dinámicos)
+        Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
+        Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');
+        Route::get('/gdrive-image/{path}', [FacturaController::class, 'showImage']);
+
+        // Rutas con parámetros dinámicos (AL FINAL)
+        Route::get('/facturas/{id}', [FacturaController::class, 'show'])->name('facturas.show');
+        Route::post('/facturas/{id}/anular', [FacturaController::class, 'anular'])->name('facturas.anular');
+        Route::post('/facturas/{id}/foto', [FacturaController::class, 'subirFoto'])->name('facturas.foto');
+
     });
 
     Route::middleware(AdminMiddleware::class)->group(function () {
@@ -107,9 +158,18 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/api/ventas/{periodo}', [ReporteController::class, 'ventas_chart']);
         Route::get('/api/tipo_venta/{periodo}', [ReporteController::class, 'tipo_venta']);
         Route::get('/api/utilidad/{periodo}/{option?}', [ReporteController::class, 'tendencia']);
+        Route::get('/api/utilidad-personalizada', [ReporteController::class, 'tendenciaPersonalizada']);
         Route::get('/api/tendencias/{periodo}', [ReporteController::class, 'gananacias']);
         Route::get('/api/egresos/{periodo}', [ReporteController::class, 'egresos']);
         Route::get('/api/egresos/concepto/{periodo}', [ReporteController::class, 'egresos_concepto']);
+        Route::get('/reportes/exportar', [ReporteController::class, 'exportarGlobal'])->name('reporte.exportar');
+        Route::get('/reportes/detalle', [ReporteController::class, 'detalleReporte'])->name('reporte.detalle');
+
+        // Dashboard de estadísticas
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+        Route::get('/api/dashboard/stats/{periodo}', [DashboardController::class, 'stats']);
+        Route::get('/api/dashboard/movimientos/{periodo}', [DashboardController::class, 'movimientosDia']);
+        Route::get('/api/dashboard/stats-by-date', [DashboardController::class, 'statsByDateRange']);
 
         Route::get('/gestion_usuarios', [GestionUsersController::class, 'index_view'])->name('gestion.index.view');
         Route::post('/gestion_usuarios', [GestionUsersController::class, 'store'])->name('gestion.users.store');
@@ -143,90 +203,35 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
 
 Route::get('/session/{nombre}', function (string $nombre) {
     return [session("$nombre"), gettype(session("$nombre"))];
-    session()->forget($nombre);
+    // session()->forget($nombre);
 });
 
 Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
+
+use App\Models\Venta;
+use App\Models\MovimientoCaja;
+use Carbon\Carbon;
+
 Route::get('/debug', function () {
-    dd(User::withCount('ventas')
-        ->where('role', 'personal')->get());
-});
+    $fechaInicio = Carbon::parse('2026-01-05')->startOfDay();
+    $fechaFin = Carbon::now()->endOfDay();
 
-use Mike42\Escpos\Printer;
-use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
+    $ventas = Venta::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->with(['cliente', 'vehiculo', 'detalleVentas.producto'])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-Route::get('/test-receipt', function () {
-    // Nombre de la impresora registrada en CUPS
-    $printerName = "POS58"; // reemplazá por el nombre que aparece en CUPS
+    $otrosIngresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('concepto', '!=', 'Apertura de caja')
+        ->where('concepto', '!=', 'Venta de productos')
+        ->where('tipo', '!=', 'egreso')
+        ->selectRaw('SUM(monto) as monto')
+        ->first()
+        ->monto;
 
-    $connector = new CupsPrintConnector($printerName);
-    $printer = new Printer($connector);
 
-    // Simulación del carrito
-    $productos = [
-        (object) ['nombre' => 'Aceite 10W40', 'cantidad' => 1, 'precio' => 45000],
-        (object) ['nombre' => 'Filtro de aire', 'cantidad' => 2, 'precio' => 30000],
-        (object) ['nombre' => 'Alineación', 'cantidad' => 1, 'precio' => 60000],
-    ];
-
-    $total = collect($productos)->sum(fn($p) => $p->precio * $p->cantidad);
-    $fechaHora = Carbon::now()->format('d/m/Y H:i');
-
-    // Encabezado centrado
-    $printer->setJustification(Printer::JUSTIFY_CENTER);
-    $printer->text("Taller Ñande Irū\n");
-    $printer->text("Alineación y Gomería - Luque\n");
-    $printer->text("Tel: (0981) 123-456\n");
-    $printer->text("Florida c/paso Esperanza, Laurelty\n");
-    $printer->text("Fecha: {$fechaHora}\n");
-    $printer->text("--------------------------------\n");
-
-    // Productos alineados a la izquierda
-    $printer->setJustification(Printer::JUSTIFY_LEFT);
-    $printer->text("PROD.              CANT   P/U\n");
-    $printer->text("--------------------------------\n");
-
-    foreach ($productos as $p) {
-        $nombre = str_pad(substr($p->nombre, 0, 14), 14);
-        $cantidad = str_pad($p->cantidad, 5, ' ', STR_PAD_LEFT);
-        $precio = str_pad(number_format($p->precio, 0, ',', '.'), 7, ' ', STR_PAD_LEFT);
-        $printer->text("{$nombre}{$cantidad}{$precio}\n");
-    }
-
-    $printer->text("--------------------------------\n");
-    $printer->text(str_pad('TOTAL:', 20) . 'Gs.' . number_format($total, 0, ',', '.') . "\n\n");
-
-    // Pie del ticket
-    $printer->setJustification(Printer::JUSTIFY_CENTER);
-    $printer->text("¡Gracias por su compra!\n\n\n");
-
-    $printer->cut();
-    $printer->close();
-
-    return "Ticket enviado correctamente a la impresora CUPS '{$printerName}'.";
-});
-
-use Illuminate\Support\Facades\Redis;
-
-Route::get('/test-redis', function () {
-    try {
-        // guardar un valor
-        Redis::set('test-key', 'Conexión exitosa con Redis 🧠');
-
-        // leer el valor
-        $value = Redis::get('test-key');
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => $value,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-        ]);
-    }
+    return [$ventas, $otrosIngresos];
 });

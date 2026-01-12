@@ -1,7 +1,3 @@
-if(document.getElementById('producto_id')){
-    const producto_id = document.getElementById('producto_id').value;
-}
-
 if(document.getElementById('boton-u')){
     document.getElementById('boton-u').addEventListener('click', (e) => {
         e.preventDefault();
@@ -51,7 +47,7 @@ if(document.getElementById('confirmar-borrado')){
 
 async function updateProduct(flag = false) {
     const tipoE = document.getElementById('tipo-e').value;
-
+    const producto_id = document.getElementById('producto_id').value;
     const formDataEdit = new FormData();
     nombre.value ? formDataEdit.append('nombre', nombre.value) : '';
     codigo.value ? formDataEdit.append('codigo', codigo.value) : '';

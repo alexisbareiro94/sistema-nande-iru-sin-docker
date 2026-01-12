@@ -258,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const distRuc = document.getElementById('dist-ruc');
         const distCelular = document.getElementById('dist-celular');
         const distDireccion = document.getElementById('dist-direccion');
+        const distBanco = document.getElementById('dist-banco');
         fetch('/agregar-distribuidor', {
             method: 'POST',
             headers: {
@@ -269,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ruc: distRuc.value,
                 celular: distCelular.value,
                 direccion: distDireccion.value,
+                datos_banco: distBanco.value,
             })
         })
             .then(res => {
@@ -284,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 distRuc.value = '';
                 distCelular.value = '';
                 distDireccion.value = '';
+                distBanco.value = '';
             })
             .catch(err => {
                 if (err.errors) {

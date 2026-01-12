@@ -10,7 +10,8 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NotificacionEvent implements ShouldBroadcast
+// class NotificacionEvent implements ShouldBroadcast
+class NotificacionEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -40,7 +41,7 @@ class NotificacionEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('admin-notificaciones.' . $this->tenantId),
+            // new PrivateChannel('admin-notificaciones.' . $this->tenantId),
         ];
     }
 }

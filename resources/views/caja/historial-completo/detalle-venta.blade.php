@@ -18,11 +18,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                 </span>
-            </button>            
+            </button>
         </div>
 
         <!-- Contenido del Modal -->
-        <div class="p-6">            
+        <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <h3 id="dv-info-venta" class="text-lg font-medium text-gray-900 mb-3">Información de la Venta</h3>
@@ -30,6 +30,10 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Fecha:</span>
                             <span id="d-v-fecha" class="font-medium">Cargando...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">N° Factura:</span>
+                            <span id="dv-factura" class="font-medium">Cargando...</span>
                         </div>
                         <div id="dv-estado-cont" class="flex justify-between">
                             <span class="text-gray-600">Estado:</span>
@@ -99,13 +103,36 @@
                             <span class="text-gray-600">RUC:</span>
                             <span id="d-v-ruc" class="font-medium">Cargando...</span>
                         </div>
-                        {{-- <div class="flex justify-between">
+                        <div class="flex justify-between">
                             <span class="text-gray-600">Teléfono:</span>
-                            <span class="font-medium">Cargando...</span>
-                        </div> --}}
+                            <span id="d-v-tel" class="font-medium">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div id="dv-vehiculo-seccion" class="hidde border-b border-gray-900 mb-5">
+                <div id="" class="mb-6 border-t pt-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Información del Vehículo</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-1">
+                            <span class="text-sm text-gray-500">Marca / Modelo</span>
+                            <p id="dv-v-modelo" class="font-medium text-gray-900">Cargando...</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-sm text-gray-500">Chapa</span>
+                            <p id="dv-v-chapa" class="font-medium text-gray-900">Cargando...</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-sm text-gray-500">Color</span>
+                            <p id="dv-v-color" class="font-medium text-gray-900">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
 
             <!-- Tabla de Productos -->
             <div class="mb-6">
@@ -163,6 +190,12 @@
 
             <!-- Botones de Acción -->
             <div class="flex justify-end space-x-3 mt-6">
+                {{-- <form action="{{ route('venta.update', ['id' => $venta->id]) }}" method="post">
+                    <button
+                        class="px-4 py-2 border border-red-300 bg-red-400 rounded-md text-gray-100 hover:bg-red-500 transition-colors">
+                        Anular Venta
+                    </button>
+                </form> --}}
                 <button
                     class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
                     <i class="fas fa-print mr-2"></i>

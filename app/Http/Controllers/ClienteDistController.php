@@ -8,33 +8,40 @@ use App\Models\User;
 
 class ClienteDistController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $tenantId = tenant_id();
-        $clientes = User::with('compras')
+        $clientes = User::withCount('compras')
             ->where('role', 'cliente')
-            ->where('activo', true)
             ->where('tenant_id', $tenantId)
-            ->orderByDesc('created_at')            
-            ->get()
-            ->take(5);
-
+            ->orderByDesc('compras_count')
+            ->limit(5)
+            ->get();
         $distribuidores = Distribuidor::whereNot('id', 1)
-            ->get()            
-            ->take(5);
+            ->limit(5)
+            ->get();
+        $mecanicos = User::where('role', 'mecanico')
+            ->where('tenant_id', $tenantId)
+            ->withCount('vehiculosReferidos')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
         return view('gestios-usuarios.index', [
             'clientes' => $clientes,
             'distribuidores' => $distribuidores,
+            'mecanicos' => $mecanicos,
         ]);
     }
 
-    public function show_cliente(string $id){
-        try{
+    public function show_cliente(string $id)
+    {
+        try {
             $tenantId = tenant_id();
             $cliente = User::where('tenant_id', $tenantId)->findOrFail($id);
             return response()->json([
                 'data' => $cliente
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
             ]);
@@ -42,17 +49,18 @@ class ClienteDistController extends Controller
     }
 
     //post
-    public function desactive(string $id){
-        try{
-            $user = User::findOrFail($id)
+    public function desactive(string $id)
+    {
+        try {
+            User::findOrFail($id)
                 ->update([
                     'activo' => false,
                 ]);
 
-                return response()->json([
-                    'message' => 'Usuario eliminado'
-                ]);
-        }catch(\Exception $e){
+            return response()->json([
+                'message' => 'Usuario eliminado'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
             ]);

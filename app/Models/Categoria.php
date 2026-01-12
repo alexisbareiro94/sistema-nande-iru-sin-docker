@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class Categoria extends Model
 {
+    use Auditable;
     protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {

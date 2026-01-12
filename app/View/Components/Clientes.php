@@ -15,8 +15,7 @@ class Clientes extends Component
     public $clientes;
     public function __construct()
     {
-        $this->clientes = User::where('activo', true)
-            ->whereNotIn('role', ['admin', 'caja', 'personal'])
+        $this->clientes = User::whereNotIn('role', ['admin', 'caja', 'personal'])
             ->where('tenant_id', tenant_id())
             ->orderByDesc('created_at')
             ->get();        
@@ -26,7 +25,7 @@ class Clientes extends Component
      * Get the view / contents that represent the component.
      */
     public function render(): View|Closure|string
-    {
+    {        
         return view('components.clientes', [
             'clientes' => $this->clientes, 
         ]);

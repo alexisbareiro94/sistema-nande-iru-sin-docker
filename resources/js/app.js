@@ -5,16 +5,21 @@ import './notificaciones';
 import './gestion-user';
 import './utils'
 import './clients-dist';
+import './dashboard';
 import './componentes/clientes';
 import './componentes/restablecer-pass';
 import './exportar-stock'
+import './servicio-proceso'
+import './facturas'
+import './auditoria'
+import './vehiculos'
 import { showToast } from './toast';
 
 let myChart = null;
 async function loadChart(desde = '', hasta = '', periodo = '') {
   try {
-    const res = await fetch(`/api/movimientos/charts_caja?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&periodoInicio=${encodeURIComponent(periodo)}`);    
-    const data = await res.json();    
+    const res = await fetch(`/api/movimientos/charts_caja?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}&periodoInicio=${encodeURIComponent(periodo)}`);
+    const data = await res.json();
     const ctx = document.getElementById('myChart');
 
     if (myChart) {

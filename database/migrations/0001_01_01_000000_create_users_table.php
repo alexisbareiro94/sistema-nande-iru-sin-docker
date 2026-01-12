@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,9 +12,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();            
+            $table->string('name')->nullable();
             $table->foreignId('tenant_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->enum('role', ['admin', 'caja', 'user', 'personal','cliente'])->default('cliente'); 
+            $table->enum('role', ['admin', 'caja', 'user', 'personal', 'cliente', 'mecanico'])->default('cliente');
             $table->string('razon_social')->nullable();
             $table->string('ruc_ci')->nullable()->unique();
             $table->integer('telefono')->nullable();
@@ -25,15 +24,15 @@ return new class extends Migration
             $table->string('temp_password')->nullable();
             $table->integer('salario')->nullable();
             $table->boolean('activo')->nullable();
-            $table->boolean('en_linea')->nullable();            
+            $table->boolean('en_linea')->nullable();
             $table->dateTimeTz('ultima_conexion')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->boolean('temp_used')->nullable()->default(false);
             $table->boolean('is_blocked')->nullable()->default(false);
-            $table->string('empresa')->nullable();            
+            $table->string('empresa')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            $table->fullText('razon_social');
+            // $table->fullText('razon_social');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

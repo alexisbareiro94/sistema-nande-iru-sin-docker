@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class MovimientoCaja extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
     protected $table = 'movimiento_cajas';
 
     protected $fillable = [
@@ -17,9 +17,9 @@ class MovimientoCaja extends Model
         'tipo',
         'concepto',
         'monto',
+        'venta_anulado'
     ];
 
-    // En tu modelo Auditoria
     protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {
@@ -33,8 +33,6 @@ class MovimientoCaja extends Model
         });
     }
 
-
-    // En tu modelo Producto
     protected static function boot()
     {
         parent::boot();
@@ -62,4 +60,11 @@ class MovimientoCaja extends Model
     {
         return $this->hasOne(PagoSalario::class, 'movimiento_id');
     }
+
+    // public function casts()
+    // {
+    //     return [
+    //         'tipo' => \App\Enums\TipoMovimiento::class,
+    //     ];
+    // }
 }

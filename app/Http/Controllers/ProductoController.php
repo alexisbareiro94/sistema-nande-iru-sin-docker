@@ -18,17 +18,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductoController extends Controller
 {
-    public function __construct(protected ProductService $productService) {}
+    public function __construct(protected ProductService $productService)
+    {
+    }
 
     public function index()
     {
         $query = Producto::query();
         $productos = $query->get();
-        $total = count($productos);
-        $totalServicios = count($productos->where('tipo', 'servicio'));
-        $totalProductos = count($productos->where('tipo', 'producto'));
-        $stock = count(Producto::where('tipo', 'producto')->whereColumn('stock_minimo', '>=', 'stock')->where('stock', '!=', 0)->get());
-        $sinStock = count(Producto::where('stock', 0)->get());
+        $total = $productos->count();
+        $totalServicios = $productos->where('tipo', 'servicio')->count();
+        $totalProductos = $productos->where('tipo', 'producto')->count();
+        $stock = Producto::where('tipo', 'producto')
+            ->whereColumn('stock_minimo', '>=', 'stock')
+            ->where('stock', '!=', 0)
+            ->count();
+        $sinStock = Producto::where('stock', 0)->count();
 
         return view('productos.index', [
             'productos' => $query->orderBy('id', 'desc')->paginate(15),
@@ -144,12 +149,12 @@ class ProductoController extends Controller
             }
             $producto = Producto::create($data);
             // return response()->json('punto 4');
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Producto::class,
-                'entidad_id' => $producto->id,
-                'accion' => 'Creación de producto'
-            ]);
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => Producto::class,
+            //     'entidad_id' => $producto->id,
+            //     'accion' => 'Creación de producto'
+            // ]);
             AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
@@ -207,13 +212,13 @@ class ProductoController extends Controller
                 $data['imagen'] = null;
             }
             $producto->update($data);
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Producto::class,
-                'entidad_id' => $producto->id,
-                'accion' => 'Actualización de producto'
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // Auditoria::create([
+            //     'created_by' => auth()->user()->id,
+            //     'entidad_type' => Producto::class,
+            //     'entidad_id' => $producto->id,
+            //     'accion' => 'Actualización de producto'
+            // ]);
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => 'Producto Actualizado',
@@ -234,13 +239,7 @@ class ProductoController extends Controller
             $producto = Producto::find($id);
             $producto->delete();
             $producto->save();
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Producto::class,
-                'entidad_id' => $producto->id,
-                'accion' => 'Eliminacion de producto'
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => "producto borrado",
@@ -266,14 +265,7 @@ class ProductoController extends Controller
             ]);
             $file = $request->file('productos');
             Excel::import(new ProductosImport, $file);
-
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Producto::class,
-                'entidad_id' => 1,
-                'accion' => 'Importación de productos por excel'
-            ]);
-            AuditoriaCreadaEvent::dispatch(tenant_id());
+            // AuditoriaCreadaEvent::dispatch(tenant_id());
             return response()->json([
                 'success' => true,
                 'message' => 'Productos importados'
@@ -298,12 +290,6 @@ class ProductoController extends Controller
     {
         try {
             $fecha = now()->format('d-m-y');
-            Auditoria::create([
-                'created_by' => auth()->user()->id,
-                'entidad_type' => Producto::class,
-                'entidad_id' => auth()->user()->id,
-                'accion' => 'Reporte de stock de productos'
-            ]);
             return Excel::download(new StockExport, "stock_productos-$fecha.xlsx");
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

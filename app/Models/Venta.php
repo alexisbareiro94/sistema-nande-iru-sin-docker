@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\Auditable;
 
 class Venta extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, Auditable;
 
     protected $table = 'ventas';
 
@@ -17,6 +18,7 @@ class Venta extends Model
         'codigo',
         'caja_id',
         'cliente_id',
+        'vehiculo_id',
         'nro_ticket',
         'nro_factura',
         'cantidad_productos',
@@ -30,10 +32,9 @@ class Venta extends Model
         'updated_by',
         'deleted_by',
         'vendedor_id',
+        'monto_recibido',
     ];
 
-
-    // En tu modelo Auditoria
     protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {
@@ -46,7 +47,6 @@ class Venta extends Model
             }
         });
     }
-
 
     // En tu modelo Producto
     protected static function boot()
@@ -99,5 +99,20 @@ class Venta extends Model
     public function vendedor()
     {
         return $this->belongsTo(User::class, 'vendedor_id');
+    }
+
+    public function vehiculo()
+    {
+        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
+    }
+
+    public function servicio()
+    {
+        return $this->hasOne(ServicioProceso::class, 'venta_id');
+    }
+
+    public function factura()
+    {
+        return $this->hasOne(Factura::class, 'venta_id');
     }
 }

@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Traits\Auditable;
 class DetalleVenta extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, Auditable;
 
     protected $table = 'detalle_ventas';
 
@@ -29,7 +29,7 @@ class DetalleVenta extends Model
     ];
 
     // En tu modelo Auditoria
-     protected static function booted(): void
+    protected static function booted(): void
     {
         static::addGlobalScope('tenant_filter', function (Builder $builder) {
             if (auth()->check()) {
