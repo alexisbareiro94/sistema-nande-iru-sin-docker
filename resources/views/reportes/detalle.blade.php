@@ -36,9 +36,9 @@
         </div>
 
         <!-- Resumen General -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mb-6">
             <!-- Total Ventas -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-emerald-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-emerald-500">
                 <p class="text-sm text-gray-500 mb-1">Total Ventas</p>
                 <p class="text-2xl font-bold text-gray-800">Gs.
                     {{ number_format($data['resumen']['totalVentas'], 0, ',', '.') }}
@@ -47,7 +47,7 @@
             </div>
 
             <!-- Ingresos Totales -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-cyan-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-cyan-500">
                 <p class="text-sm text-gray-500 mb-1">Ingresos Totales</p>
                 <p class="text-2xl font-bold text-gray-800">Gs.
                     {{ number_format($data['resumen']['totalIngresos'], 0, ',', '.') }}
@@ -56,7 +56,7 @@
             </div>
 
             <!-- Costo Productos -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-orange-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-orange-500">
                 <p class="text-sm text-gray-500 mb-1">Costo Productos</p>
                 <p class="text-2xl font-bold text-gray-800">Gs.
                     {{ number_format($data['resumen']['costoTotal'], 0, ',', '.') }}
@@ -65,14 +65,14 @@
             </div>
 
             <!-- Total Egresos -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-red-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-red-500">
                 <p class="text-sm text-gray-500 mb-1">Total Egresos</p>
                 <p class="text-2xl font-bold text-gray-800">Gs.
                     {{ number_format($data['resumen']['egresos'], 0, ',', '.') }}</p>
             </div>
 
             <!-- Utilidad Neta -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-blue-500">
                 <p class="text-sm text-gray-500 mb-1">Utilidad Neta</p>
                 <p
                     class="text-2xl font-bold {{ $data['resumen']['utilidadNeta'] >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Facturas Emitidas -->
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-purple-500">
+            <div class="bg-white rounded-xl shadow p-3 border-l-4 border-purple-500">
                 <p class="text-sm text-gray-500 mb-1">Facturas Emitidas</p>
                 <p class="text-2xl font-bold text-gray-800">{{ $data['resumen']['facturas'] }}</p>
             </div>
