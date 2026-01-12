@@ -10,7 +10,6 @@ use App\Services\ReporteService;
 use App\Exports\ReporteGlobalExport;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
 
 class ReporteController extends Controller
 {

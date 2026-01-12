@@ -8,21 +8,24 @@
     <div class="p-2 md:p-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">Detalle de Reporte</h2>
-                <p class="text-gray-600 text-sm">
-                    Período: {{ $data['fechaInicio'] }} - {{ $data['fechaFin'] }}
-                </p>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('reporte.index') }}"
+                    class="cursor-pointer px-2 py-2 text-gray-600 bg-white  rounded-lg font-semibold hover:bg-gray-100 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+
+                </a>
+                <div>
+
+                    <h2 class="text-2xl font-bold text-gray-800">Detalle de Reporte</h2>
+                    <p class="text-gray-600 text-sm">
+                        Período: {{ $data['fechaInicio'] }} - {{ $data['fechaFin'] }}
+                    </p>
+                </div>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('reporte.index') }}"
-                    class="cursor-pointer px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg font-semibold hover:bg-gray-100 transition-all flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                    </svg>
-                    Volver
-                </a>
                 <a href="{{ route('reporte.exportar', ['fecha_inicio' => request('fecha_inicio'), 'fecha_fin' => request('fecha_fin')]) }}"
                     class="cursor-pointer px-4 py-2 text-white bg-emerald-600 rounded-lg font-semibold hover:bg-emerald-700 transition-all flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"

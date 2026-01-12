@@ -2,9 +2,14 @@
 
 @section('titulo', 'Detalle Servicio - ' . $servicio->codigo)
 
+@section('ruta-anterior', 'Servicios')
+
+@section('url', '/servicio-proceso')
+
 @section('ruta-actual', 'Detalle del Servicio')
 
 @section('contenido')
+    fer
     <header class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('servicio.proceso.index') }}"

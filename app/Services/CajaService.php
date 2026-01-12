@@ -71,11 +71,10 @@ class CajaService
 
     public function abrir_data(array $res): void
     {
+        if (session("caja")) {
+            throw new CajaIndexException("Ya existe una caja abierta");
+        }
         try {
-            if (session("caja")) {
-                throw new CajaIndexException("Ya existe una caja abierta");
-            }
-
             $tenantId = tenant_id();
             session("caja", []);
             $caja = Caja::create($this->set_data($res));
@@ -134,8 +133,8 @@ class CajaService
             $stats = Venta::where('caja_id', $caja->id)
                 ->selectRaw(
                     'COUNT(DISTINCT cliente_id) as clientes,
-                COUNT(*) as transacciones,
-                MAX(total) as mayor_venta'
+                    COUNT(*) as transacciones,
+                    MAX(total) as mayor_venta'
                 )->first();
 
             $clientes = $stats->clientes;

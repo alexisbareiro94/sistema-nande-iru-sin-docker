@@ -8,15 +8,15 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center  mb-6 gap-4">
-            <a href="{{ route('vehiculo.index') }}"
-                class="px-4 py-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
             <div>
                 <div class="flex items-center gap-3">
+                    <a href="{{ route('vehiculo.index') }}"
+                        class="px-2 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </a>
                     <span class="text-3xl font-bold text-gray-800 bg-gray-100 px-4 py-2 rounded-lg">
                         {{ $vehiculo->patente }}
                     </span>

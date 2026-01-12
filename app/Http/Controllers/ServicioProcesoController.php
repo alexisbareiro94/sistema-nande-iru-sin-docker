@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Producto;
 use App\Models\ServicioProceso;
 use App\Models\ServicioProcesoFoto;
 use App\Models\Vehiculo;

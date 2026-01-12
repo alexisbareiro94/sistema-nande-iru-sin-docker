@@ -17,7 +17,7 @@ class MovimientoCajaController extends Controller
     {
     }
 
-    public function index(Request $request)
+    public function index()
     {
         if (auth()->user()->role == 'admin') {
             $movimientos = MovimientoCaja::orderBy('created_at', 'desc')->limit(3)->get();
