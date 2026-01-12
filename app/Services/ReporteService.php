@@ -496,7 +496,8 @@ class ReporteService
             ->get();
         $egresos = $egresosDetalle->sum('monto');
 
-        $utilidadBruta = ($totalVentas + $otrosIngresos) - $costoTotal;
+        $totalIngresos = $totalVentas + $otrosIngresos;
+        $utilidadBruta = $totalIngresos - $costoTotal;
         $utilidadNeta = $utilidadBruta - $egresos;
 
         // Formas de pago
@@ -557,6 +558,8 @@ class ReporteService
                 'totalVentas' => $totalVentas,
                 'cantidadVentas' => $cantidadVentas,
                 'egresos' => $egresos,
+                'totalIngresos' => $totalIngresos,
+                'costoTotal' => $costoTotal,
                 'utilidadNeta' => $utilidadNeta,
                 'facturas' => $facturas->count(),
                 'totalEfectivo' => $totalEfectivo,

@@ -92,7 +92,7 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/vehiculos/{id}', [VehiculoController::class, 'show'])->name('vehiculo.show');
         Route::put('/vehiculos/{id}', [VehiculoController::class, 'update'])->name('vehiculo.update');
         Route::get('/api/vehiculo/buscar', [VehiculoController::class, 'buscarPorPatente']);
-        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);        
+        Route::get('/api/vehiculo/patente', [VehiculoController::class, 'obtenerPorPatente']);
 
         // Servicio en Proceso
         Route::get('/servicio-proceso', [ServicioProcesoController::class, 'index'])->name('servicio.proceso.index');
@@ -210,142 +210,28 @@ Route::get('/borrar-session', function () {
     session()->forget('ventas');
 });
 
-use App\Models\User;
+
 use App\Models\Venta;
 use App\Models\MovimientoCaja;
-use App\Models\DetalleVenta;
 use Carbon\Carbon;
 
 Route::get('/debug', function () {
-    $periodo = 'dia';
-    $option = 'semana';
+    $fechaInicio = Carbon::parse('2026-01-05')->startOfDay();
+    $fechaFin = Carbon::now()->endOfDay();
 
-    $aperturaActual = $periodo == 'dia' ? now()->startOfDay() : ($periodo == 'semana' ? now()->startOfWeek() : now()->startOfMonth());
-    $cierreActual = match ($periodo) {
-        'dia' => now()->endOfDay(),
-        'semana' => $option === 'hoy' ? now() : now()->endOfWeek(),
-        'mes' => $option === 'hoy' ? now() : now()->endOfMonth(),
-        default => now(),
-    };
-
-    $aperturaPasado = $periodo == 'dia' ? now()->startOfDay()->subDay() : ($periodo == 'semana' ? now()->startOfWeek()->subWeek() : now()->startOfMonth()->subMonth());
-    $cierrePasado = match ($periodo) {
-        'dia' => now()->endOfDay()->subDay(),
-        'semana' => $option === 'hoy' ? now()->endOfDay()->subWeek() : now()->endOfWeek()->subWeek(),
-        'mes' => $option === 'hoy' ? now()->endOfDay()->subMonth() : now()->endOfMonth()->subMonth(),
-        default => now(),
-    };
-    $datos = [
-        'actual' => [
-            'total_venta' => 0,
-            'ganancia' => 0,
-            'descuento' => 0,
-            'egreso' => 0,
-            'ganancia_egreso' => 0,
-            'fecha_apertura' => $aperturaActual,
-            'fecha_cierre' => $cierreActual,
-        ],
-        'pasado' => [
-            'total_venta' => 0,
-            'ganancia' => 0,
-            'descuento' => 0,
-            'egreso' => 0,
-            'ganancia_egreso' => 0,
-            'fecha_apertura' => $aperturaPasado,
-            'fecha_cierre' => $cierrePasado,
-        ],
-        'periodo' => $periodo,
-        'option' => $option,
-        'tag' => '',
-    ];
-
-    //ingresos de ventas
-    $ventasActual = DetalleVenta::whereBetween('created_at', [$aperturaActual, $cierreActual])
-        ->with('producto')
-        ->get();
-    $ventasPasada = DetalleVenta::whereBetween('created_at', [$aperturaPasado, $cierrePasado])
-        ->with('producto')
+    $ventas = Venta::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->with(['cliente', 'vehiculo', 'detalleVentas.producto'])
+        ->orderBy('created_at', 'desc')
         ->get();
 
-    //otros ingresos
-    $otrosIngresosActual = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
+    $otrosIngresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('concepto', '!=', 'Apertura de caja')
         ->where('concepto', '!=', 'Venta de productos')
         ->where('tipo', '!=', 'egreso')
-        ->whereBetween('created_at', [$aperturaActual, $cierreActual])
-        ->get()
-        ->sum('monto');
-    $datos['actual']['ganancia'] = $otrosIngresosActual;
-
-    $otrosIngresosPasado = MovimientoCaja::where('concepto', '!=', 'Apertura de caja')
-        ->where('concepto', '!=', 'Venta de productos')
-        ->where('tipo', '!=', 'egreso')
-        ->whereBetween('created_at', [$aperturaPasado, $cierrePasado])
-        ->get()
-        ->sum('monto');
-    $datos['pasado']['ganancia'] = $otrosIngresosPasado;
-
-    //egresos
-    $egresosActual = MovimientoCaja::where('tipo', 'egreso')
-        ->whereBetween('created_at', [$aperturaActual, $cierreActual])
-        ->get()
-        ->sum('monto');
-
-    $egresosPasada = MovimientoCaja::where('tipo', 'egreso')
-        ->whereBetween('created_at', [$aperturaPasado, $cierrePasado])
-        ->get()
-        ->sum('monto');
-
-    $datos['actual']['total_venta'] = $ventasActual->sum('total');
-    $datos['pasado']['total_venta'] = $ventasPasada->sum('total');
-    foreach ($ventasActual as $venta) {
-        $datos['actual']['descuento'] += (($venta->producto->precio_compra ?? 0) * $venta->cantidad);
-    }
-    foreach ($ventasPasada as $venta) {
-        $datos['pasado']['descuento'] += (($venta->producto->precio_compra ?? 0) * $venta->cantidad);
-    }
-
-    $datos['actual']['ganancia'] = ($datos['actual']['total_venta'] + $datos['actual']['ganancia']) - $datos['actual']['descuento'];
-    $datos['pasado']['ganancia'] = ($datos['pasado']['total_venta'] + $datos['pasado']['ganancia']) - $datos['pasado']['descuento'];
-
-    $actual = $datos['actual']['ganancia'];
-    $pasado = $datos['pasado']['ganancia'];
-
-    if ($pasado != 0) {
-        $valor = (($actual - $pasado) / abs($pasado)) * 100;
-        $porcentaje = round(abs($valor));
-        $datos['tag'] = $valor >= 0 ? '+' : '-';
-    } else {
-        $porcentaje = 0;
-        $datos['tag'] = $actual > 0 ? '+' : ($actual < 0 ? '-' : '');
-    }
-
-    $diferencia = $actual - $pasado;
-    $datos['diferencia'] = $diferencia;
-    $datos['porcentaje'] = $porcentaje;
-
-    $datos['actual']['egreso'] = $egresosActual;
-    $datos['actual']['ganancia_egreso'] = $datos['actual']['ganancia'] - $datos['actual']['egreso'];
-
-    $datos['pasado']['egreso'] = $egresosPasada;
-    $datos['pasado']['ganancia_egreso'] = $datos['pasado']['ganancia'] - $datos['pasado']['egreso'];
-
-    $diferencia_egreso = $datos['actual']['ganancia_egreso'] - $datos['pasado']['ganancia_egreso'];
-    $datos['diferencia_egreso'] = $diferencia_egreso;
+        ->selectRaw('SUM(monto) as monto')
+        ->first()
+        ->monto;
 
 
-    $actualEgreso = $datos['actual']['ganancia_egreso'];
-    $pasadoEgreso = $datos['pasado']['ganancia_egreso'];
-
-    if ($pasadoEgreso != 0) {
-        $raw = (($actualEgreso - $pasadoEgreso) / abs($pasadoEgreso)) * 100;
-        $porcentaje_egreso = round(abs($raw));
-        $datos['tagE'] = $raw >= 0 ? '+' : '-';
-    } else {
-        $porcentaje_egreso = 0;
-        $datos['tagE'] = $actualEgreso > 0 ? '+' : ($actualEgreso < 0 ? '-' : '');
-    }
-    $datos['porcentaje_egreso'] = $porcentaje_egreso;
-
-    return $datos;
-
+    return [$ventas, $otrosIngresos];
 });

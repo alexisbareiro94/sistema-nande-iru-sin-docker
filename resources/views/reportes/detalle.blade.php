@@ -36,7 +36,7 @@
         </div>
 
         <!-- Resumen General -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             <!-- Total Ventas -->
             <div class="bg-white rounded-xl shadow p-5 border-l-4 border-emerald-500">
                 <p class="text-sm text-gray-500 mb-1">Total Ventas</p>
@@ -44,6 +44,24 @@
                     {{ number_format($data['resumen']['totalVentas'], 0, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">{{ $data['resumen']['cantidadVentas'] }} ventas</p>
+            </div>
+
+            <!-- Ingresos Totales -->
+            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-cyan-500">
+                <p class="text-sm text-gray-500 mb-1">Ingresos Totales</p>
+                <p class="text-2xl font-bold text-gray-800">Gs.
+                    {{ number_format($data['resumen']['totalIngresos'], 0, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">Ventas + otros ingresos</p>
+            </div>
+
+            <!-- Costo Productos -->
+            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-orange-500">
+                <p class="text-sm text-gray-500 mb-1">Costo Productos</p>
+                <p class="text-2xl font-bold text-gray-800">Gs.
+                    {{ number_format($data['resumen']['costoTotal'], 0, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">Precio de compra</p>
             </div>
 
             <!-- Total Egresos -->
