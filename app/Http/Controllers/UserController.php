@@ -22,7 +22,7 @@ class UserController extends Controller
             $users = User::when($q, function ($query) use ($q) {
                 $query->whereNotIn('role', ['admin', 'caja', 'personal', 'mecanico'])
                     ->where(function ($a) use ($q) {
-                        $a->where('name', 'ilike', "%$q%")
+                        $a->where('razon_social', 'ilike', "%$q%")
                             ->orWhere('ruc_ci', 'ilike', "%$q%")
                             ->orWhere('email', 'ilike', "%$q%");
                     })
