@@ -20,11 +20,13 @@ class UserController extends Controller
         $tenantId = tenant_id();
         try {
             $users = User::when($q, function ($query) use ($q) {
-                $query->where(function ($a) use ($q) {
-                    $a->where('name', 'like', "%$q%")
-                        ->orWhere('email', 'like', "%$q%")
-                        ->orWhere('ruc_ci', 'like', "%$q%");
-                });
+                $query->whereNotIn('role', ['admin', 'caja', 'personal', 'mecanico'])
+                    ->where(function ($a) use ($q) {
+                        $a->where('name', 'ilike', "%$q%")
+                            ->orWhere('ruc_ci', 'ilike', "%$q%")
+                            ->orWhere('email', 'ilike', "%$q%");
+                    })
+                    ->get();
             })
                 ->when($role, function ($query) use ($role) {
                     return $query->where('role', $role);
