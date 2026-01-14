@@ -9,7 +9,6 @@
 @section('ruta-actual', 'Detalle del Servicio')
 
 @section('contenido')
-    fer
     <header class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('servicio.proceso.index') }}"
@@ -44,16 +43,54 @@
         <div class="lg:col-span-1 space-y-6">
             {{-- Info del Vehículo --}}
             <div class="bg-white rounded-xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                    Vehículo
-                </h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        Vehículo
+                    </h3>
+                    @if ($servicio->vehiculo && $servicio->estado != 'cobrado')
+                        {{-- Menú desplegable de opciones --}}
+                        <div class="relative" id="vehiculo-menu-container">
+                            <button type="button" id="btn-toggle-vehiculo-menu"
+                                class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                            {{-- Dropdown menu --}}
+                            <div id="vehiculo-dropdown-menu"
+                                class="hidden absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                                <button type="button" id="btn-editar-vehiculo"
+                                    class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                    </svg>
+                                    Cambiar
+                                </button>
+                                <button type="button" id="btn-quitar-vehiculo" data-servicio-id="{{ $servicio->id }}"
+                                    class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Quitar
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+                </div>
                 @if ($servicio->vehiculo)
-                    <div class="space-y-3">
+                    {{-- Mostrar información del vehículo --}}
+                    <div id="vehiculo-info-display" class="space-y-3">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Patente:</span>
                             <span class="font-semibold text-gray-800">{{ $servicio->vehiculo->patente }}</span>
@@ -78,6 +115,41 @@
                                 <span class="text-gray-800">{{ $servicio->vehiculo->color }}</span>
                             </div>
                         @endif
+                    </div>
+                    {{-- Formulario para cambiar vehículo (oculto inicialmente) --}}
+                    <div id="vehiculo-edit-form" class="hidden space-y-3">
+                        <div class="flex gap-2">
+                            <select name="vehiculo_id" id="vehiculo_id_edit" data-servicio-id="{{ $servicio->id }}"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                <option value="">Seleccionar vehículo</option>
+                                @foreach ($vehiculos as $vehiculo)
+                                    <option value="{{ $vehiculo->id }}"
+                                        {{ $servicio->vehiculo_id == $vehiculo->id ? 'selected' : '' }}>
+                                        {{ $vehiculo->marca }} {{ $vehiculo->modelo }} {{ $vehiculo->anio }} |
+                                        {{ $vehiculo->patente }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" id="btn-abrir-modal-vehiculo"
+                                class="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                title="Agregar nuevo vehículo">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" id="btn-cancelar-editar-vehiculo"
+                                class="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="button" id="btn-guardar-vehiculo" data-servicio-id="{{ $servicio->id }}"
+                                class="flex-1 px-3 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                Guardar
+                            </button>
+                        </div>
                     </div>
                 @else
                     <div class="flex gap-2">
@@ -106,8 +178,8 @@
             {{-- Info del Cliente --}}
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>

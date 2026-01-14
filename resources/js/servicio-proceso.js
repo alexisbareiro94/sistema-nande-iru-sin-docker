@@ -898,6 +898,113 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // === Lógica para editar/quitar vehículo ===
+
+    // Toggle del menú desplegable
+    const btnToggleVehiculoMenu = document.getElementById('btn-toggle-vehiculo-menu');
+    const vehiculoDropdownMenu = document.getElementById('vehiculo-dropdown-menu');
+
+    if (btnToggleVehiculoMenu && vehiculoDropdownMenu) {
+        btnToggleVehiculoMenu.addEventListener('click', function (e) {
+            e.stopPropagation();
+            vehiculoDropdownMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (!vehiculoDropdownMenu.contains(e.target) && e.target !== btnToggleVehiculoMenu) {
+                vehiculoDropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Botón para mostrar formulario de edición
+    const btnEditarVehiculo = document.getElementById('btn-editar-vehiculo');
+    const btnCancelarEditarVehiculo = document.getElementById('btn-cancelar-editar-vehiculo');
+    const btnGuardarVehiculo = document.getElementById('btn-guardar-vehiculo');
+    const btnQuitarVehiculo = document.getElementById('btn-quitar-vehiculo');
+    const vehiculoInfoDisplay = document.getElementById('vehiculo-info-display');
+    const vehiculoEditForm = document.getElementById('vehiculo-edit-form');
+
+    if (btnEditarVehiculo && vehiculoInfoDisplay && vehiculoEditForm) {
+        btnEditarVehiculo.addEventListener('click', function () {
+            vehiculoInfoDisplay.classList.add('hidden');
+            vehiculoEditForm.classList.remove('hidden');
+            // Cerrar el menú desplegable
+            vehiculoDropdownMenu?.classList.add('hidden');
+        });
+    }
+
+    // Cancelar edición de vehículo
+    if (btnCancelarEditarVehiculo && vehiculoInfoDisplay && vehiculoEditForm) {
+        btnCancelarEditarVehiculo.addEventListener('click', function () {
+            vehiculoEditForm.classList.add('hidden');
+            vehiculoInfoDisplay.classList.remove('hidden');
+        });
+    }
+
+    // Guardar cambio de vehículo
+    if (btnGuardarVehiculo) {
+        btnGuardarVehiculo.addEventListener('click', async function () {
+            const servicioId = this.dataset.servicioId;
+            const selectVehiculoEdit = document.getElementById('vehiculo_id_edit');
+            const vehiculoId = selectVehiculoEdit?.value || null;
+
+            try {
+                const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify({ vehiculo_id: vehiculoId })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Vehículo actualizado correctamente', 'success');
+                    location.reload();
+                } else {
+                    showToast(result.error || 'Error al actualizar el vehículo', 'error');
+                }
+            } catch (error) {
+                console.error('Error actualizando vehículo:', error);
+                showToast('Error al actualizar el vehículo', 'error');
+            }
+        });
+    }
+
+    // Quitar vehículo del servicio
+    if (btnQuitarVehiculo) {
+        btnQuitarVehiculo.addEventListener('click', async function () {
+            if (!confirm('¿Estás seguro de quitar el vehículo de este servicio?')) return;
+
+            const servicioId = this.dataset.servicioId;
+
+            try {
+                const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify({ vehiculo_id: null })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Vehículo quitado correctamente', 'success');
+                    location.reload();
+                } else {
+                    showToast(result.error || 'Error al quitar el vehículo', 'error');
+                }
+            } catch (error) {
+                console.error('Error quitando vehículo:', error);
+                showToast('Error al quitar el vehículo', 'error');
+            }
+        });
+    }
 });
 
 //procesar venta
