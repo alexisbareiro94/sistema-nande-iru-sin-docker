@@ -250,6 +250,240 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // ==========================================
+    // ASOCIAR FACTURA A VENTA EXISTENTE
+    // ==========================================
+    const btnAbrirAsociar = document.getElementById('btn-abrir-asociar');
+    const btnCerrarAsociar = document.getElementById('btn-cerrar-asociar');
+    const btnGuardarAsociar = document.getElementById('btn-guardar-asociar');
+    const modalAsociar = document.getElementById('modal-asociar-factura');
+    const inputCodigoVenta = document.getElementById('input-codigo-venta');
+    const btnBuscarVenta = document.getElementById('btn-buscar-venta');
+    const loaderVenta = document.getElementById('loader-venta');
+    const infoVentaEncontrada = document.getElementById('info-venta-encontrada');
+    const errorVenta = document.getElementById('error-venta');
+    const errorVentaMensaje = document.getElementById('error-venta-mensaje');
+    const ventaCodigo = document.getElementById('venta-codigo');
+    const ventaTotal = document.getElementById('venta-total');
+    const ventaFecha = document.getElementById('venta-fecha');
+    const ventaClienteActual = document.getElementById('venta-cliente-actual');
+    const ventaIdSeleccionada = document.getElementById('venta-id-seleccionada');
+    const seccionCliente = document.getElementById('seccion-cliente');
+    const inputBuscarCliente = document.getElementById('input-buscar-cliente');
+    const listaClientes = document.getElementById('lista-clientes');
+    const clienteSeleccionado = document.getElementById('cliente-seleccionado');
+    const clienteNombreSeleccionado = document.getElementById('cliente-nombre-seleccionado');
+    const clienteRucSeleccionado = document.getElementById('cliente-ruc-seleccionado');
+    const clienteIdSeleccionado = document.getElementById('cliente-id-seleccionado');
+    const btnQuitarCliente = document.getElementById('btn-quitar-cliente');
+
+    let debounceTimer = null;
+
+    // Abrir modal asociar
+    if (btnAbrirAsociar) {
+        btnAbrirAsociar.addEventListener('click', function () {
+            resetModalAsociar();
+            modalAsociar.classList.remove('hidden');
+            modalAsociar.classList.add('flex');
+            inputCodigoVenta.focus();
+        });
+    }
+
+    // Cerrar modal asociar
+    if (btnCerrarAsociar) {
+        btnCerrarAsociar.addEventListener('click', cerrarModalAsociar);
+    }
+    if (modalAsociar) {
+        modalAsociar.addEventListener('click', function (e) {
+            if (e.target === modalAsociar) cerrarModalAsociar();
+        });
+    }
+
+    function cerrarModalAsociar() {
+        modalAsociar.classList.add('hidden');
+        modalAsociar.classList.remove('flex');
+        resetModalAsociar();
+    }
+
+    function resetModalAsociar() {
+        inputCodigoVenta.value = '';
+        loaderVenta.classList.add('hidden');
+        infoVentaEncontrada.classList.add('hidden');
+        errorVenta.classList.add('hidden');
+        seccionCliente.classList.add('hidden');
+        clienteSeleccionado.classList.add('hidden');
+        listaClientes.classList.add('hidden');
+        listaClientes.innerHTML = '';
+        inputBuscarCliente.value = '';
+        ventaIdSeleccionada.value = '';
+        clienteIdSeleccionado.value = '';
+        btnGuardarAsociar.disabled = true;
+    }
+
+    // Buscar venta por código
+    if (btnBuscarVenta) {
+        btnBuscarVenta.addEventListener('click', buscarVenta);
+        inputCodigoVenta.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarVenta();
+            }
+        });
+    }
+
+    async function buscarVenta() {
+        const codigo = inputCodigoVenta.value.trim();
+        if (!codigo) {
+            alert('Ingrese un código de venta');
+            return;
+        }
+
+        loaderVenta.classList.remove('hidden');
+        infoVentaEncontrada.classList.add('hidden');
+        errorVenta.classList.add('hidden');
+        seccionCliente.classList.add('hidden');
+        clienteSeleccionado.classList.add('hidden');
+
+        try {
+            const response = await fetch(`/facturas/buscar-venta?codigo=${encodeURIComponent(codigo)}`);
+            const data = await response.json();
+
+            loaderVenta.classList.add('hidden');
+
+            if (data.success) {
+                ventaCodigo.textContent = data.venta.codigo;
+                ventaTotal.textContent = data.venta.total;
+                ventaFecha.textContent = data.venta.fecha;
+                ventaClienteActual.textContent = data.venta.cliente_actual;
+                ventaIdSeleccionada.value = data.venta.id;
+
+                infoVentaEncontrada.classList.remove('hidden');
+                seccionCliente.classList.remove('hidden');
+                inputBuscarCliente.focus();
+            } else {
+                errorVentaMensaje.textContent = data.message || 'Venta no encontrada';
+                errorVenta.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            loaderVenta.classList.add('hidden');
+            errorVentaMensaje.textContent = 'Error al buscar la venta';
+            errorVenta.classList.remove('hidden');
+        }
+    }
+
+    // Buscar clientes con debounce
+    if (inputBuscarCliente) {
+        inputBuscarCliente.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                listaClientes.classList.add('hidden');
+                listaClientes.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/facturas/buscar-clientes?q=${encodeURIComponent(query)}`);
+                    const clientes = await response.json();
+
+                    listaClientes.innerHTML = '';
+
+                    if (clientes.length === 0) {
+                        listaClientes.innerHTML = '<div class="p-3 text-gray-500 text-sm">No se encontraron clientes</div>';
+                    } else {
+                        clientes.forEach(cliente => {
+                            const item = document.createElement('div');
+                            item.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0';
+                            item.innerHTML = `
+                                <p class="font-medium text-gray-800">${cliente.razon_social || cliente.name}</p>
+                                <p class="text-xs text-gray-500">RUC: ${cliente.ruc_ci}</p>
+                            `;
+                            item.addEventListener('click', () => seleccionarCliente(cliente));
+                            listaClientes.appendChild(item);
+                        });
+                    }
+
+                    listaClientes.classList.remove('hidden');
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }, 300);
+        });
+    }
+
+    function seleccionarCliente(cliente) {
+        clienteNombreSeleccionado.textContent = cliente.razon_social || cliente.name;
+        clienteRucSeleccionado.textContent = `RUC: ${cliente.ruc_ci}`;
+        clienteIdSeleccionado.value = cliente.id;
+
+        clienteSeleccionado.classList.remove('hidden');
+        listaClientes.classList.add('hidden');
+        inputBuscarCliente.value = '';
+
+        // Habilitar botón de guardar
+        btnGuardarAsociar.disabled = false;
+    }
+
+    // Quitar cliente seleccionado
+    if (btnQuitarCliente) {
+        btnQuitarCliente.addEventListener('click', function () {
+            clienteSeleccionado.classList.add('hidden');
+            clienteIdSeleccionado.value = '';
+            btnGuardarAsociar.disabled = true;
+        });
+    }
+
+    // Guardar asociación de factura
+    if (btnGuardarAsociar) {
+        btnGuardarAsociar.addEventListener('click', async function () {
+            const ventaId = ventaIdSeleccionada.value;
+            const clienteId = clienteIdSeleccionado.value;
+
+            if (!ventaId || !clienteId) {
+                alert('Debe seleccionar una venta y un cliente');
+                return;
+            }
+
+            btnGuardarAsociar.disabled = true;
+            btnGuardarAsociar.textContent = 'Procesando...';
+
+            try {
+                const response = await fetch('/facturas/asociar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        venta_id: ventaId,
+                        cliente_id: clienteId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(data.message + ` - Nº ${data.factura.numero_formateado}`, 'success');
+                    cerrarModalAsociar();
+                    // Recargar la página para ver la nueva factura
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    alert(data.message || 'Error al asociar la factura');
+                    btnGuardarAsociar.disabled = false;
+                    btnGuardarAsociar.textContent = 'Asociar Factura';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al asociar la factura');
+                btnGuardarAsociar.disabled = false;
+                btnGuardarAsociar.textContent = 'Asociar Factura';
+            }
+        });
+    }
+
 
 
     // Función para obtener el badge según el tipo de foto

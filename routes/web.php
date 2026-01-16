@@ -120,6 +120,11 @@ Route::middleware(['auth', CheckUserIsBloqued::class])->group(function () {
         Route::get('/facturas/config/timbrado', [FacturaController::class, 'getTimbrado'])->name('facturas.config.timbrado.get');
         Route::delete('/facturas/config/timbrado', [FacturaController::class, 'clearTimbrado'])->name('facturas.config.timbrado.clear');
 
+        // Rutas para asociar factura a venta existente
+        Route::get('/facturas/buscar-venta', [FacturaController::class, 'buscarVenta'])->name('facturas.buscar.venta');
+        Route::get('/facturas/buscar-clientes', [FacturaController::class, 'buscarClientes'])->name('facturas.buscar.clientes');
+        Route::post('/facturas/asociar', [FacturaController::class, 'asociarFactura'])->name('facturas.asociar');
+
         // API de facturas (ANTES de rutas con parámetros dinámicos)
         Route::get('/api/facturas/{id}', [FacturaController::class, 'getImages']);
         Route::delete('/api/factura/foto/{id}', [FacturaController::class, 'eliminarFoto'])->name('facturas.foto.delete');

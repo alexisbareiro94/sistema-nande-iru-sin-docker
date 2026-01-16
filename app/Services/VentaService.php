@@ -8,8 +8,6 @@ use App\Models\User;
 use App\Models\Producto;
 use App\Models\Caja;
 use App\Models\Factura;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class VentaService
