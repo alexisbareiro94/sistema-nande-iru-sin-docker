@@ -119,17 +119,19 @@
                     {{-- Formulario para cambiar vehículo (oculto inicialmente) --}}
                     <div id="vehiculo-edit-form" class="hidden space-y-3">
                         <div class="flex gap-2">
-                            <select name="vehiculo_id" id="vehiculo_id_edit" data-servicio-id="{{ $servicio->id }}"
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
-                                <option value="">Seleccionar vehículo</option>
-                                @foreach ($vehiculos as $vehiculo)
-                                    <option value="{{ $vehiculo->id }}"
-                                        {{ $servicio->vehiculo_id == $vehiculo->id ? 'selected' : '' }}>
-                                        {{ $vehiculo->marca }} {{ $vehiculo->modelo }} {{ $vehiculo->anio }} |
-                                        {{ $vehiculo->patente }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="flex-1 relative" data-vehiculos='@json($vehiculos)'>
+                                <input type="hidden" name="vehiculo_id" id="vehiculo_id_edit"
+                                    data-servicio-id="{{ $servicio->id }}" value="{{ $servicio->vehiculo_id }}">
+                                <input type="text" id="vehiculo_search_edit"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                    placeholder="Buscar por patente, marca o modelo..."
+                                    value="{{ $servicio->vehiculo ? $servicio->vehiculo->marca . ' ' . $servicio->vehiculo->modelo . ' | ' . $servicio->vehiculo->patente : '' }}"
+                                    autocomplete="off">
+                                <div id="vehiculo_results_edit"
+                                    class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                    {{-- Resultados dinámicos --}}
+                                </div>
+                            </div>
                             <button type="button" id="btn-abrir-modal-vehiculo"
                                 class="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                                 title="Agregar nuevo vehículo">
@@ -153,16 +155,17 @@
                     </div>
                 @else
                     <div class="flex gap-2">
-                        <select name="vehiculo_id" id="vehiculo_id" data-servicio-id="{{ $servicio->id }}"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
-                            <option value="">Seleccionar vehículo</option>
-                            @foreach ($vehiculos as $vehiculo)
-                                {{-- @if ($vehiculo->id != $vehiculo->servicioProceso?->vehiculo_id && $vehiculo->servicioProceso?->estado == 'cobrado') --}}
-                                <option value="{{ $vehiculo->id }}">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}
-                                    {{ $vehiculo->anio }} | {{ $vehiculo->patente }}</option>
-                                {{-- @endif --}}
-                            @endforeach
-                        </select>
+                        <div class="flex-1 relative" data-vehiculos='@json($vehiculos)'>
+                            <input type="hidden" name="vehiculo_id" id="vehiculo_id"
+                                data-servicio-id="{{ $servicio->id }}" value="">
+                            <input type="text" id="vehiculo_search"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                placeholder="Buscar por patente, marca o modelo..." autocomplete="off">
+                            <div id="vehiculo_results"
+                                class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                {{-- Resultados dinámicos --}}
+                            </div>
+                        </div>
                         <button type="button" id="btn-abrir-modal-vehiculo"
                             class="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                             title="Agregar nuevo vehículo">
@@ -201,14 +204,17 @@
                     </div>
                 @else
                     <div class="flex gap-2">
-                        <select name="cliente_id" id="cliente_id" data-servicio-id="{{ $servicio->id }}"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
-                            <option value="">Seleccionar cliente</option>
-                            @foreach ($clientes as $cliente)
-                                <option value="{{ $cliente->id }}">{{ $cliente->razon_social ?? $cliente->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="flex-1 relative" data-clientes='@json($clientes)'>
+                            <input type="hidden" name="cliente_id" id="cliente_id"
+                                data-servicio-id="{{ $servicio->id }}" value="">
+                            <input type="text" id="cliente_search"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                placeholder="Buscar por nombre, razón social o teléfono..." autocomplete="off">
+                            <div id="cliente_results"
+                                class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                {{-- Resultados dinámicos --}}
+                            </div>
+                        </div>
                         <button type="button" id="btn-abrir-modal-cliente"
                             class="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                             title="Agregar nuevo cliente">
@@ -238,14 +244,17 @@
                     @if ($servicio->mecanico)
                         <span class="font-semibold text-gray-800">{{ $servicio->mecanico->name }}</span>
                     @else
-                        <select id="select-mecanico-servicio" data-id="{{ $servicio->id }}"
-                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
-                            <option value="">Sin asignar</option>
-                            @foreach ($mecanicos as $m)
-                                <option value="{{ $m->id }}">
-                                    {{ $m->name }}</option>
-                            @endforeach
-                        </select>
+                        <div class="flex-1 relative" data-mecanicos='@json($mecanicos)'>
+                            <input type="hidden" name="mecanico_id" id="mecanico_id"
+                                data-servicio-id="{{ $servicio->id }}" value="">
+                            <input type="text" id="mecanico_search"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                placeholder="Buscar mecánico por nombre..." autocomplete="off">
+                            <div id="mecanico_results"
+                                class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                {{-- Resultados dinámicos --}}
+                            </div>
+                        </div>
                         <button type="button" id="btn-abrir-modal-mecanico"
                             class="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
                             title="Agregar nuevo mecánico">

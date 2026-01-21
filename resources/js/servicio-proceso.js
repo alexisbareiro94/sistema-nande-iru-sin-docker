@@ -329,36 +329,133 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Cambiar mecánico
-    const selectMecanico = document.getElementById('select-mecanico-servicio');
-    if (selectMecanico) {
-        selectMecanico.addEventListener('change', async function () {
-            const servicioId = this.dataset.id;
-            const mecanicoId = this.value || null;
+    // === Buscador de mecánicos con autocompletado ===
+    function initMecanicoSearcher() {
+        const searchInput = document.getElementById('mecanico_search');
+        const hiddenInput = document.getElementById('mecanico_id');
+        const resultsContainer = document.getElementById('mecanico_results');
 
-            try {
-                const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                    },
-                    body: JSON.stringify({ mecanico_id: mecanicoId })
+        if (!searchInput || !hiddenInput || !resultsContainer) return;
+
+        // Obtener los mecánicos del data attribute del contenedor padre
+        const mecanicosContainer = searchInput.closest('[data-mecanicos]');
+        if (!mecanicosContainer) return;
+
+        let mecanicos = [];
+        try {
+            mecanicos = JSON.parse(mecanicosContainer.dataset.mecanicos || '[]');
+        } catch (e) {
+            console.error('Error parseando mecánicos:', e);
+            return;
+        }
+
+        // Función para filtrar mecánicos
+        function filterMecanicos(query) {
+            if (!query || query.length < 2) return [];
+            const lowerQuery = query.toLowerCase();
+            return mecanicos.filter(m => {
+                const searchStr = `${m.name || ''} ${m.razon_social || ''}`.toLowerCase();
+                return searchStr.includes(lowerQuery);
+            }).slice(0, 10);
+        }
+
+        // Función para renderizar resultados
+        function renderResults(results) {
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-gray-500 text-sm">No se encontraron mecánicos</div>
+                `;
+                resultsContainer.classList.remove('hidden');
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(m => `
+                <div class="mecanico-result px-4 py-3 hover:bg-gray-100 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                    data-id="${m.id}"
+                    data-nombre="${m.name}">
+                    <div class="font-medium text-gray-800">${m.name}</div>
+                    ${m.razon_social ? `<div class="text-sm text-gray-500">${m.razon_social}</div>` : ''}
+                </div>
+            `).join('');
+            resultsContainer.classList.remove('hidden');
+
+            // Agregar listeners de clic
+            resultsContainer.querySelectorAll('.mecanico-result').forEach(item => {
+                item.addEventListener('click', async function () {
+                    const id = this.dataset.id;
+                    const nombre = this.dataset.nombre;
+
+                    hiddenInput.value = id;
+                    searchInput.value = nombre;
+                    resultsContainer.classList.add('hidden');
+
+                    // Actualizar el servicio con el mecánico
+                    const servicioId = hiddenInput.dataset.servicioId;
+                    if (servicioId) {
+                        try {
+                            const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                },
+                                body: JSON.stringify({ mecanico_id: id })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                location.reload();
+                            } else {
+                                showToast(result.error, 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error actualizando mecánico:', error);
+                            showToast('Error al actualizar el mecánico', 'error');
+                        }
+                    }
                 });
+            });
+        }
 
-                const result = await response.json();
+        // Evento de input para buscar
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+            const results = filterMecanicos(query);
+            renderResults(results);
+        });
 
-                if (result.success) {
-                    location.reload();
-                } else {
-                    showToast(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Error actualizando mecánico:', error);
-                showToast('Error al actualizar el mecánico', 'error');
+        // Evento focus
+        searchInput.addEventListener('focus', function () {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                const results = filterMecanicos(query);
+                renderResults(results);
             }
         });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
+            }
+        });
+
+        // Limpiar input hidden si se borra el texto
+        searchInput.addEventListener('blur', function () {
+            setTimeout(() => {
+                if (!this.value.trim()) {
+                    hiddenInput.value = '';
+                }
+            }, 200);
+        });
     }
+
+    // Inicializar buscador de mecánicos
+    initMecanicoSearcher();
 
     // Guardar observaciones
     const btnGuardarObservaciones = document.getElementById('btn-guardar-observaciones');
@@ -697,17 +794,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Agregar al select y seleccionar
-                    const select = document.getElementById('vehiculo_id');
-                    if (select) {
-                        const option = document.createElement('option');
-                        option.value = result.vehiculo.id;
-                        option.textContent = `${result.vehiculo.marca} ${result.vehiculo.modelo} ${result.vehiculo.anio || ''} | ${result.vehiculo.patente}`;
-                        option.selected = true;
-                        select.appendChild(option);
-
+                    // Buscar el hidden input del vehículo (puede ser el de crear o el de editar)
+                    const hiddenInput = document.getElementById('vehiculo_id') || document.getElementById('vehiculo_id_edit');
+                    if (hiddenInput) {
                         // Actualizar el servicio con el vehículo
-                        const servicioId = select.dataset.servicioId;
+                        const servicioId = hiddenInput.dataset.servicioId;
                         if (servicioId) {
                             await fetch(`/api/servicio-proceso/${servicioId}`, {
                                 method: 'PUT',
@@ -752,17 +843,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Agregar al select y seleccionar
-                    const select = document.getElementById('cliente_id');
-                    if (select) {
-                        const option = document.createElement('option');
-                        option.value = result.cliente.id;
-                        option.textContent = result.cliente.razon_social || result.cliente.name;
-                        option.selected = true;
-                        select.appendChild(option);
-
+                    // Buscar el hidden input del cliente
+                    const hiddenInput = document.getElementById('cliente_id');
+                    if (hiddenInput) {
                         // Actualizar el servicio con el cliente
-                        const servicioId = select.dataset.servicioId;
+                        const servicioId = hiddenInput.dataset.servicioId;
                         if (servicioId) {
                             await fetch(`/api/servicio-proceso/${servicioId}`, {
                                 method: 'PUT',
@@ -807,17 +892,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Agregar al select y seleccionar
-                    const select = document.getElementById('select-mecanico-servicio');
-                    if (select) {
-                        const option = document.createElement('option');
-                        option.value = result.mecanico.id;
-                        option.textContent = result.mecanico.name;
-                        option.selected = true;
-                        select.appendChild(option);
-
+                    // Buscar el hidden input del mecánico
+                    const hiddenInput = document.getElementById('mecanico_id');
+                    if (hiddenInput) {
                         // Actualizar el servicio con el mecánico
-                        const servicioId = select.dataset.id;
+                        const servicioId = hiddenInput.dataset.servicioId;
                         if (servicioId) {
                             await fetch(`/api/servicio-proceso/${servicioId}`, {
                                 method: 'PUT',
@@ -841,63 +920,273 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Cambiar vehículo del servicio
-    const selectVehiculo = document.getElementById('vehiculo_id');
-    if (selectVehiculo && selectVehiculo.dataset.servicioId) {
-        selectVehiculo.addEventListener('change', async function () {
-            const servicioId = this.dataset.servicioId;
-            const vehiculoId = this.value || null;
+    // === Buscador de vehículos con autocompletado ===
+    function initVehiculoSearcher(searchInputId, hiddenInputId, resultsContainerId) {
+        const searchInput = document.getElementById(searchInputId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        const resultsContainer = document.getElementById(resultsContainerId);
 
-            try {
-                const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                    },
-                    body: JSON.stringify({ vehiculo_id: vehiculoId })
+        if (!searchInput || !hiddenInput || !resultsContainer) return;
+
+        // Obtener los vehículos del data attribute del contenedor padre
+        const vehiculosContainer = searchInput.closest('[data-vehiculos]');
+        if (!vehiculosContainer) return;
+
+        let vehiculos = [];
+        try {
+            vehiculos = JSON.parse(vehiculosContainer.dataset.vehiculos || '[]');
+        } catch (e) {
+            console.error('Error parseando vehículos:', e);
+            return;
+        }
+
+        // Función para filtrar vehículos
+        function filterVehiculos(query) {
+            if (!query || query.length < 2) return [];
+            const lowerQuery = query.toLowerCase();
+            return vehiculos.filter(v => {
+                const searchStr = `${v.patente} ${v.marca} ${v.modelo} ${v.anio || ''}`.toLowerCase();
+                return searchStr.includes(lowerQuery);
+            }).slice(0, 10); // Limitar a 10 resultados
+        }
+
+        // Función para renderizar resultados
+        function renderResults(results) {
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-gray-500 text-sm">No se encontraron vehículos</div>
+                `;
+                resultsContainer.classList.remove('hidden');
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(v => `
+                <div class="vehiculo-result px-4 py-3 hover:bg-gray-100 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                    data-id="${v.id}"
+                    data-patente="${v.patente}"
+                    data-marca="${v.marca}"
+                    data-modelo="${v.modelo}"
+                    data-anio="${v.anio || ''}">
+                    <div class="font-medium text-gray-800">${v.marca} ${v.modelo} ${v.anio || ''}</div>
+                    <div class="text-sm text-gray-500">${v.patente}</div>
+                </div>
+            `).join('');
+            resultsContainer.classList.remove('hidden');
+
+            // Agregar listeners de clic a los resultados
+            resultsContainer.querySelectorAll('.vehiculo-result').forEach(item => {
+                item.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const marca = this.dataset.marca;
+                    const modelo = this.dataset.modelo;
+                    const patente = this.dataset.patente;
+
+                    hiddenInput.value = id;
+                    searchInput.value = `${marca} ${modelo} | ${patente}`;
+                    resultsContainer.classList.add('hidden');
+
+                    // Si hay un servicioId, actualizar automáticamente
+                    const servicioId = hiddenInput.dataset.servicioId;
+                    if (servicioId && hiddenInputId === 'vehiculo_id') {
+                        updateVehiculoServicio(servicioId, id);
+                    }
                 });
+            });
+        }
 
-                const result = await response.json();
-                if (result.success) {
-                    location.reload();
-                } else {
-                    showToast(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Error actualizando vehículo:', error);
+        // Evento de input para buscar
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+            const results = filterVehiculos(query);
+            renderResults(results);
+        });
+
+        // Evento focus para mostrar todos si hay texto
+        searchInput.addEventListener('focus', function () {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                const results = filterVehiculos(query);
+                renderResults(results);
             }
         });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
+            }
+        });
+
+        // Limpiar input hidden si se borra el texto
+        searchInput.addEventListener('blur', function () {
+            setTimeout(() => {
+                if (!this.value.trim()) {
+                    hiddenInput.value = '';
+                }
+            }, 200);
+        });
     }
+
+    // Función para actualizar vehículo del servicio
+    async function updateVehiculoServicio(servicioId, vehiculoId) {
+        try {
+            const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                },
+                body: JSON.stringify({ vehiculo_id: vehiculoId })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                showToast(result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error actualizando vehículo:', error);
+        }
+    }
+
+    // Inicializar buscador para cuando no hay vehículo asignado
+    initVehiculoSearcher('vehiculo_search', 'vehiculo_id', 'vehiculo_results');
+
+    // Inicializar buscador para editar vehículo existente
+    initVehiculoSearcher('vehiculo_search_edit', 'vehiculo_id_edit', 'vehiculo_results_edit');
 
     // Cambiar cliente del servicio
-    const selectCliente = document.getElementById('cliente_id');
-    if (selectCliente && selectCliente.dataset.servicioId) {
-        selectCliente.addEventListener('change', async function () {
-            const servicioId = this.dataset.servicioId;
-            const clienteId = this.value || null;
+    // === Buscador de clientes con autocompletado ===
+    function initClienteSearcher() {
+        const searchInput = document.getElementById('cliente_search');
+        const hiddenInput = document.getElementById('cliente_id');
+        const resultsContainer = document.getElementById('cliente_results');
 
-            try {
-                const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                    },
-                    body: JSON.stringify({ cliente_id: clienteId })
+        if (!searchInput || !hiddenInput || !resultsContainer) return;
+
+        // Obtener los clientes del data attribute del contenedor padre
+        const clientesContainer = searchInput.closest('[data-clientes]');
+        if (!clientesContainer) return;
+
+        let clientes = [];
+        try {
+            clientes = JSON.parse(clientesContainer.dataset.clientes || '[]');
+        } catch (e) {
+            console.error('Error parseando clientes:', e);
+            return;
+        }
+
+        // Función para filtrar clientes
+        function filterClientes(query) {
+            if (!query || query.length < 2) return [];
+            const lowerQuery = query.toLowerCase();
+            return clientes.filter(c => {
+                const searchStr = `${c.name || ''} ${c.razon_social || ''} ${c.telefono || ''} ${c.ruc_ci || ''}`.toLowerCase();
+                return searchStr.includes(lowerQuery);
+            }).slice(0, 10);
+        }
+
+        // Función para renderizar resultados
+        function renderResults(results) {
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-gray-500 text-sm">No se encontraron clientes</div>
+                `;
+                resultsContainer.classList.remove('hidden');
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(c => `
+                <div class="cliente-result px-4 py-3 hover:bg-gray-100 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                    data-id="${c.id}"
+                    data-nombre="${c.razon_social || c.name}">
+                    <div class="font-medium text-gray-800">${c.razon_social || c.name}</div>
+                    ${c.telefono ? `<div class="text-sm text-gray-500">${c.telefono}</div>` : ''}
+                </div>
+            `).join('');
+            resultsContainer.classList.remove('hidden');
+
+            // Agregar listeners de clic
+            resultsContainer.querySelectorAll('.cliente-result').forEach(item => {
+                item.addEventListener('click', async function () {
+                    const id = this.dataset.id;
+                    const nombre = this.dataset.nombre;
+
+                    hiddenInput.value = id;
+                    searchInput.value = nombre;
+                    resultsContainer.classList.add('hidden');
+
+                    // Actualizar el servicio con el cliente
+                    const servicioId = hiddenInput.dataset.servicioId;
+                    if (servicioId) {
+                        try {
+                            const response = await fetch(`/api/servicio-proceso/${servicioId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                },
+                                body: JSON.stringify({ cliente_id: id })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                location.reload();
+                            } else {
+                                showToast(result.error, 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error actualizando cliente:', error);
+                        }
+                    }
                 });
+            });
+        }
 
-                const result = await response.json();
-                if (result.success) {
-                    location.reload();
-                } else {
-                    showToast(result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Error actualizando cliente:', error);
+        // Evento de input para buscar
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+            const results = filterClientes(query);
+            renderResults(results);
+        });
+
+        // Evento focus
+        searchInput.addEventListener('focus', function () {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                const results = filterClientes(query);
+                renderResults(results);
             }
         });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
+            }
+        });
+
+        // Limpiar input hidden si se borra el texto
+        searchInput.addEventListener('blur', function () {
+            setTimeout(() => {
+                if (!this.value.trim()) {
+                    hiddenInput.value = '';
+                }
+            }, 200);
+        });
     }
+
+    // Inicializar buscador de clientes
+    initClienteSearcher();
 
     // === Lógica para editar/quitar vehículo ===
 
