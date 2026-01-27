@@ -80,7 +80,7 @@ function setDataDetalleVenta(data) {
         (data.venta.estado === 'cancelado' ? 'px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium' :
             'px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium');
 
-    //detalles de la venta
+
     estado.classList = '';
     const datafecha = new Date(data.venta.created_at);
     fechaFormat = datafecha.toLocaleString('es-PY', {
@@ -123,11 +123,8 @@ function setDataDetalleVenta(data) {
         }
     }
 
-    //datos del cliente
     setCliente(data);
-    //productos
     setProductos(data);
-    //total gral
     setVehiculo(data);
     if (data.productos == '') {
         total.innerText = 'Gs ' + data.venta.monto.toLocaleString('es-PY');
@@ -349,7 +346,6 @@ document.getElementById('dv-input-s').addEventListener('input', e => {
 })
 
 function recargarTablaHistorialVentas(data, paginacion) {
-    // console.log();
     mostrarFiltros(data.filtros);
     const bodyTabla = document.getElementById('dv-body-tabla');
     const ingresoFiltro = document.getElementById('ingresos-filtro');
@@ -641,7 +637,6 @@ const exportMenu = document.getElementById('export-menu');
 const iconFlecha = document.getElementById('icon-flecha');
 
 trigger.addEventListener('click', (e) => {
-    //e.stopPropagation(); 
     iconFlecha.classList.toggle('rotate-180');
 
     if (exportMenu.classList.contains('hidden')) {
@@ -669,60 +664,37 @@ document.addEventListener('click', (e) => {
     }
 });
 
-
-// function toastLoading(message = "Generando PDF") {
-//     const container = document.getElementById('loading-container');
-//     if (container.classList.contains('hidden')) {
-//         container.classList.remove('hidden');
-//     }
-//     sessionStorage.setItem('pdf-toast', JSON.stringify(true))
-//     const spinner = `
-//         <svg class="animate-spin w-8 h-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-//             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-//         </svg>`;
-
-//     const toast = document.createElement('div');
-//     toast.className = `bg-blue-500 font-semibold text-white px-5 py-3 rounded-lg shadow-lg flex items-center space-x-2 opacity-0 transition-all duration-300`;
-//     toast.innerHTML = `<span class="spinner">${spinner}</span><span class="toast-message">${message}</span>`;
-
-//     container.appendChild(toast);
-
-//     setTimeout(() => toast.classList.remove('opacity-0'), 10);
-
-//     window.Echo.private(`pdf-ready.${window.userId}`)
-//         .listen('PdfGeneradoEvent', async (e) => {
-//             const messageEl = toast.querySelector('.toast-message');
-//             const spinnerEl = toast.querySelector('.spinner');
-
-//             spinnerEl.innerHTML = `
-//                 <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//                     <path stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-//                 </svg>`;
-
-//             messageEl.textContent = "PDF generado correctamente";
-//             toast.classList.remove('bg-blue-500');
-//             toast.classList.add('bg-green-500');
-
-//             setTimeout(() => {
-//                 toast.classList.add('opacity-0');
-//                 sessionStorage.removeItem('pdf-toast')
-//                 setTimeout(() => toast.remove(), 500);
-//             }, 1500);
-//         });
-// }
-
 document.getElementById('export-pdf').addEventListener('click', async () => {
-    toastLoading('Generando PDF, te avisaremos cuando esté listo.');
     try {
         const res = await fetch('/export-pdf');
-        const data = await res.json();
+
         if (!res.ok) {
-            throw data;
+            const error = await res.json();
+            throw error;
         }
-        console.log(data)
+
+        // Obtener el PDF como blob (binario)
+        const blob = await res.blob();
+
+        // Crear una URL temporal para el blob
+        const url = window.URL.createObjectURL(blob);
+
+        // Crear un elemento <a> invisible para descargar
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'ventas.pdf';
+
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showToast('PDF descargado correctamente', 'success');
     } catch (err) {
-        console.log(err)
+        console.log(err);
+        showToast(err.error || 'Error al generar el PDF', 'error');
     }
 });
 

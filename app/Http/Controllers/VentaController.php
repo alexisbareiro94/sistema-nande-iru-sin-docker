@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// use App\Events\AuditoriaCreadaEvent;
-// use App\Events\UltimaActividadEvent;
 use Carbon\Carbon;
 use App\Actions\CreateVenta;
 use Illuminate\Http\Request;
@@ -16,9 +14,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\UpdateVentaRequest;
 use App\Models\{MovimientoCaja, User, Venta, DetalleVenta, Producto};
-// use Illuminate\Support\Facades\Log;
-// use App\Jobs\GenerarPdfJob;
-// use App\Jobs\VentaRealizada;
+use App\Jobs\GenerarPdfJob;
+use Illuminate\Support\Facades\File;
 
 class VentaController extends Controller
 {
@@ -346,45 +343,49 @@ class VentaController extends Controller
 
     public function export_pdf()
     {
+        try {
+            $ventas = Cache::get('ventas');
 
-        $item = Cache::get('ventas');
+            if (!$ventas || $ventas->isEmpty()) {
+                return back()->with('error', 'No hay datos para exportar.');
+            }
 
-        if (filled($item)) {
-            $mov = $item->contains(fn($value) => $value->venta == null);
-        }
-        if (!filled($item) || $mov) {
-            $item = Cache::remember('ventas', 20, fn() => MovimientoCaja::with('caja.user:id,name')->get());
-            Cache::forget('ventas');
-            // $ingresos = $item->sum('monto');
-            // $egresos = $item->where('tipo', 'egreso')->sum('monto');
-            $ventas = $item->toArray();
-            // $items = count($ventas);
+            $egresosFiltros = $ventas->filter(fn($item) => $item->tipo === 'egreso')->sum('monto');
+            $ingresosFiltros = $ventas->filter(fn($item) => $item->tipo === 'ingreso')->sum('monto');
 
-            // Auditoria::create([
-            //     'created_by' => auth()->user()->id,
-            //     'entidad_type' => User::class,
-            //     'entidad_id' => auth()->user()->id,
-            //     'accion' => 'Reporte Generado',
-            // ]);
+            $fileName = 'reporte_ventas_' . now()->format('YmdHis') . '.pdf';
+            $directory = public_path('reports');
 
-            // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, $ingresos, $egresos, tenant_id());
-            return response()->json([
-                'data' => 'listo',
-            ]);
-        } else {
-            $ventas = $item->toArray();
-            // $items = count($ventas);
-            Cache::forget('ventas');
-            // Auditoria::create([
-            //     'created_by' => auth()->user()->id,
-            //     'entidad_type' => User::class,
-            //     'entidad_id' => auth()->user()->id,
-            //     'accion' => 'Reporte Generado',
-            // ]);
-            // GenerarPdfJob::dispatch(auth()->user()->id, $ventas, null, null, tenant_id());
-            return response()->json([
-                'data' => 'listo',
-            ]);
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            $filePath = $directory . '/' . $fileName;
+
+            // Execute the Job Synchronously as requested to "use the job"
+            $job = new GenerarPdfJob(
+                auth()->id(),
+                $ventas,
+                $ingresosFiltros,
+                $egresosFiltros,
+                tenant_id(),
+                $filePath
+            );
+
+            $job->handle();
+
+            if (!file_exists($filePath) || filesize($filePath) === 0) {
+                return back()->with('error', 'Error: El archivo PDF no se generó o está vacío.');
+            }
+
+            return response()->download($filePath, $fileName, [
+                'Content-Type' => 'application/pdf',
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache',
+            ])->deleteFileAfterSend();
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al generar el PDF: ' . $e->getMessage());
         }
     }
 }
